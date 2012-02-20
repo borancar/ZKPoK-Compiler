@@ -1,0 +1,54 @@
+/*
+ * This is PIL code automatically produced from /var/www/cace/tmp/cace-861bd493b372e0d63fa9aafbcfa5613d/input.psl
+ * Date: Tuesday, December 06, 2011
+ * Time: 23:41:32
+ *
+ * The proof goal was potentially simplified to the following form:
+ * P_1
+ *
+ */
+
+ExecutionOrder := (Prover.Round0, Verifier.Round0, Prover.Round1, Verifier.Round1, Prover.Round2, Verifier.Round2);
+Common (
+    Z SZKParameter = 80; 
+    Prime(1024) p; 
+    Prime(160) q; 
+    Zmod*(p) y, g
+) {
+}
+Prover(Zmod+(q) x) {
+    Zmod+(q) _s_1, _r_1;
+
+        Def (Void): Round0(Void) {
+        }
+
+        Def (Zmod*(p) _t_1): Round1(Void) {
+            _r_1 := Random(Zmod+(q));
+            _t_1 := (g^_r_1);
+        }
+
+        Def (_s_1): Round2(_C=Int(80) _c) {
+            _s_1 := (_r_1+(x*_c));
+        }
+
+}
+
+Verifier() {
+    Zmod*(p) _t_1;
+    _C=Int(80) _c;
+
+        Def (Void): Round0(Void) {
+        }
+
+        Def (_c): Round1(_t_1) {
+            _c := Random(_C);
+        }
+
+        Def (Void): Round2(Zmod+(q) _s_1) {
+            CheckMembership(_s_1, Zmod+(q));
+            Verify((_t_1*(y^_c)) == (g^_s_1) );
+            // @ Verification equations for P_1
+        }
+
+}
+

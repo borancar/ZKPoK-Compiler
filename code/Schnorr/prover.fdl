@@ -1,0 +1,78 @@
+ipblock term_prover(out rx : ns(8);
+                in  tx : ns(8)) {
+  iptype "term";
+}
+
+dp prover {
+  sig output : ns(8);
+  reg input  : ns(8);
+  
+  reg parsed : ns(1024);
+  reg c      : ns(1024);
+
+  use term_prover(input, output);
+
+  sfg init_parse {
+    parsed = 0;
+  }
+
+  sfg parse {
+    parsed = 10*parsed + (input - 48);
+  }
+
+  sfg assign_c {
+    c = parsed;
+    $display($dec, "c: ", c);
+  }
+
+  sfg send_s {
+    output = 52;
+  }
+
+  sfg send_t {
+    output = 56;
+  }
+
+  sfg send_cr {
+    output = 13;
+  }
+
+  sfg send_lf {
+    output = 10;
+  }
+
+  sfg finish {
+    $finish;
+  }
+ 
+  sfg idle {
+    output = 0;
+  }
+}
+
+fsm fsm_prover(prover) {
+  initial s0;
+  state s_round1, s_round2, s_round3, s_parse_c, s_endparse_c, s_send_cr, s_send_lf, s_send_cr2, s_send_lf2, s_end;
+
+  @s0                                             (idle)               -> s_round1;
+
+  @s_round1                                       (send_t)             -> s_send_cr;
+  @s_send_cr                                      (send_cr)            -> s_send_lf;
+  @s_send_lf                                      (send_lf)            -> s_round2;
+
+  @s_round2                                       (init_parse, idle)   -> s_parse_c;
+  @s_parse_c  if(input >= 48 & input <= 57) then  (parse, idle)        -> s_parse_c;
+  else        if(input == 10 | input == 13) then  (idle)               -> s_endparse_c;
+  else                                            (idle)               -> s_parse_c;
+  @s_endparse_c                                   (assign_c, idle)     -> s_round3;
+
+  @s_round3                                       (send_s)             -> s_send_cr2;
+  @s_send_cr2                                     (send_cr)            -> s_send_lf2;
+  @s_send_lf2                                     (send_lf)            -> s_end;
+
+  @s_end                                          (finish, idle)        -> s_end;
+} 
+
+system S {
+  prover;
+}

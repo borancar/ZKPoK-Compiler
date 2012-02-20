@@ -1,0 +1,70 @@
+/* CACE WP3 Zero-Knowledge Proof of Knowledge Compiler
+ * http://zkc.cace-project.eu
+ * Example input
+ * Author: Stephan Krenn (stephan [dot] krenn [at] bfh [dot] ch)
+ * Last edited: Dec. 11th, 2009
+ *
+ * This is a PSL file specifying the Schnorr protocol for
+ * proving knowledge of a discrete logarithm within a residue
+ * class group.
+ *
+ * That is, it shows knowledge of x, such that y = g^x in the
+ * residue class group modulo p, where g has order q.
+ */
+
+Declarations {
+// Each PSL file starts with a block declaring all variables
+// being used within the protocol.
+  Prime(1024) p;
+  Prime(160) q;
+// p and q are specified as being two prime numbers with a
+// bitlength of 1024 and 160, respectively.
+  Zmod+(q) x;
+// x is an element from the additive residue class group
+// modulo q.
+  Zmod*(p) g, y;
+// g and y are elements of the multiplicative residue class
+// group modulo p.
+}
+
+Inputs {
+// After having declared all variables, one has to declare
+// which values are public and which are private (i.e., which
+// are only known the prover and of which knowledge is proven).
+  Public := y,p,q,g;
+// In our example, all variables but x are public.
+  ProverPrivate := x;
+// x is the secret value of which knowledge is proven.
+}
+Properties {
+// Next, the required protocol properties can be described.
+KnowledgeError := 80;
+// Our required knowledge error in this example is 2^(-80).
+SZKParameter := 80;
+// The Statistical Zero-Knowledge Parameter allows to specify
+// the tightness of the zero-knowledge property of the protocol.
+// This is important, when knowledge of integer secrets is proven.
+ProtocolComposition := P_1;
+// In the subsequent we will describe our proof goal in detail.
+// We here describe how the different predicates declared in the
+// following shall be composed by the compiler.
+}
+
+SigmaPhi P_1 {
+// We now declare a Sigma-Phi protocol (i.e., a generalization of
+// the protocol put forth by Schnorr, working for homomorphisms
+// with finite domain). We refer to this predicate as P_1.
+  Homomorphism (phi : Zmod+(q) -> Zmod*(p) : (a) |-> (g^a));
+// The homomorphism under which knowledge of a preimage has to
+// be proven is called phi here. It just maps an element a from
+// Zmod+(q) to g^a.
+  ChallengeLength := 80;
+// Further, the length of the challenge which might be used in the
+// protocol has to be defined. If necessary, the compiler will
+// repeat the protocol sufficiently often to achieve a knowledge
+// error which is at most the knowledge error stated above.
+  Relation ((y) = phi(x));
+// Finally, we describe the relation we actually want to prove. In
+// this case, we want to prove that y = phi(x) = g^x, as described
+// at the beginning of this file.
+} 

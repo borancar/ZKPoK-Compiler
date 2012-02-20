@@ -1,0 +1,34 @@
+Introduction:
+	- Motivation (deficiencies of current frameworks)
+	- Goals
+	- Structure
+
+Technical preliminaries
+	  - Notation
+	  - Groups, hard problems, intro to crypto math
+	  - ZKPoK
+
+Existing frameworks & tools:
+	- CACE, ZKPDL, Idemix
+	- PIL
+       - LLVM
+       - GEZEL
+	- Conclude on disadvantages
+
+Custom framework:
+       - repeat motivation
+       - PIL -> LLVM
+       - Communication and interfaces
+       - Coprocessor
+       - LLVM -> 8051
+       - LLVM -> HDL?
+
+Use case: DAA
+    	 - Framework documentation and samples (examples)
+	- General about DAA and how it solves current problems
+	- DAA PIL version
+
+Conclusion & future work:
+	   
+
+abstract per chapter for other chapters

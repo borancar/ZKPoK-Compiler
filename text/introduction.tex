@@ -1,0 +1,120 @@
+\chapter{Introduction}
+
+\section{Zero Knowledge Proofs of Knowledge}
+
+Today's state-of-the-art cryptosystems are based on the following hard problems:
+\begin{itemize}
+\item Discrete Logarithm Problem
+\item Factorization Problem
+\end{itemize}
+
+Such problems are not solvable using deterministic Turing machines
+within polynomial time.  As long as computers are based on
+deterministic Turing machines this does not pose as problem.  Simply
+scaling the solution space has provided an effective countermeasure so
+far. This is all about to change as the world sees the emergence of
+quantum computers.
+
+In a post-quantum computer world we would like to seek other problems
+which are again not solvable within polynomial time using the machines
+of the present.
+
+Another motivation is that in our modern world, privacy is of the
+uttermost importance. Let's look at a couple of everyday examples:
+\begin{itemize}
+\item Buying a public-transport ticket
+\item Voting
+\item Filling out anonymous questionnaires
+\end{itemize}
+
+So far, using traditional methods, privacy was not a big issue here. For
+each of the cases:
+\begin{itemize}
+\item you paid for a piece of paper that nobody (unless he hires
+  forensic) could connect to you
+\item you circled your vote and put it in a box that nobody (again,
+  unless he uses sophisticated methods) could connect to you
+\item you filled in your questionnaire that nobody could connect to
+  you
+\end{itemize}
+
+The real problem comes from trying to put these things into electronic
+form. Using smart cards for public transport poses a big problem
+w.r.t. privacy as nothing assures the user that the system does not
+track him/her. The advantage of putting these things into electronic
+form is multiple:
+\begin{itemize}
+\item less paper is wasted (smaller footprint)
+\item less clutter if multiple smart cards are merged into a single
+  one
+\item less chance of the user losing his smart card if he only has one
+\end{itemize}
+
+However, one disadvantage strikes more than the others. The
+possibility of the system to track the user and the user being
+incapable of protecting his privacy. Traditional authentication
+schemes required the user identifying himself so this tracking step
+was an inherent property.
+
+The desired property here is not disseminating any knowledge while
+still proving to the system that certain properties hold (e.g. the
+user has privileges and is allowed to proceed with an action).
+
+\section{HW-SW codesign}
+
+Traditional embedded device programming was separate from hardware
+design. The separation went to such extents as having two separate
+entities within a company working on each of those fields.
+
+\begin{figure}[hbt!]
+  \centering
+  \begin{tikzpicture}[>=stealth',font=\sffamily,auto,on grid]
+    %\input{y_chart_common}
+    \coordinate (behaviouralNode) at (135:4cm);
+    \coordinate (structuralNode) at (45:4cm);
+    \coordinate (physicalNode) at (270:4cm);
+    \coordinate (originNode) at (0:0cm);
+
+    \draw[fill] (barycentric cs:behaviouralNode=1.0,originNode=0) circle (2pt);
+    \draw[fill] (barycentric cs:behaviouralNode=0.8,originNode=0.2) circle (2pt);
+    \draw[fill] (barycentric cs:behaviouralNode=0.6,originNode=0.4) circle (2pt);
+    \draw[fill] (barycentric cs:behaviouralNode=0.4,originNode=0.6) circle (2pt);
+    \draw[fill] (barycentric cs:behaviouralNode=0.2,originNode=0.8) circle (2pt);
+
+    \draw[fill] (barycentric cs:structuralNode=1.0,originNode=0) circle (2pt);
+    \draw[fill] (barycentric cs:structuralNode=0.8,originNode=0.2) circle (2pt);
+    \draw[fill] (barycentric cs:structuralNode=0.6,originNode=0.4) circle (2pt);
+    \draw[fill] (barycentric cs:structuralNode=0.4,originNode=0.6) circle (2pt);
+    \draw[fill] (barycentric cs:structuralNode=0.2,originNode=0.8) circle (2pt);
+
+    \draw[fill] (barycentric cs:physicalNode=1.0,originNode=0) circle (2pt);
+    \draw[fill] (barycentric cs:physicalNode=0.8,originNode=0.2) circle (2pt);
+    \draw[fill] (barycentric cs:physicalNode=0.6,originNode=0.4) circle (2pt);
+    \draw[fill] (barycentric cs:physicalNode=0.4,originNode=0.6) circle (2pt);
+    \draw[fill] (barycentric cs:physicalNode=0.2,originNode=0.8) circle (2pt);
+
+    \draw[black!50] (0,0) circle (4.0cm);
+    \draw[black!50] (0,0) circle (3.2cm);
+    \draw[black!50] (0,0) circle (2.4cm);
+    \draw[black!50] (0,0) circle (1.6cm);
+    \draw[black!50] (0,0) circle (0.8cm);
+
+    \node [above=1em] at (behaviouralNode) {\textbf{Behavioural Domain}};
+    \node [above=1em] at (structuralNode) {\textbf{Structural Domain}};
+    \node [below=1em] at (physicalNode) {\textbf{Physical Domain}};
+
+    \draw[-, very thick] (behaviouralNode.south) -- (0,0) node[left,pos=0]{Systems} node[left,pos=0.2]{Algorithms} node[left,pos=0.4]{Register transfers} node[left,pos=0.6]{Logic} node[left,pos=0.8]{Transfer functions};
+
+    \draw[-, very thick] (structuralNode.south) -- (0,0) node[pos=0]{ } node[pos=0.2]{Processors} node[pos=0.4]{ALUs, RAM, etc.} node[pos=0.6]{Gates, flip-flops, etc.} node[pos=0.8]{Transistors};
+
+    \draw[-, very thick] (physicalNode.south) -- (0,0) node[right,pos=0]{Physical partitions} node[right,pos=0.2]{Floorplans} node[right,pos=0.4]{Module layout} node[right,pos=0.6]{Cell layout} node[right,pos=0.8]{Transistor layout};
+
+  \end{tikzpicture}
+  \caption{Gajski-Kuhn \index{Gajski-Kuhn Y-chart}Y-chart} 
+  \label{figure:gajski_kuhn_y_chart__levels_of_abstraction}
+\end{figure}
+
+%%% Local Variables: 
+%%% TeX-PDF-mode: t
+%%% TeX-master: "thesis"
+%%% End: 

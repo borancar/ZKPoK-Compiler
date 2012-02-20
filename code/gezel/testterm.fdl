@@ -1,0 +1,48 @@
+ipblock my_term(out rx : ns(8);
+                in  tx : ns(8)) {
+  iptype "term";
+}
+
+dp testterm {
+  sig output : ns(8);
+  reg input  : ns(8);
+
+  use my_term(input, output);
+
+  always {
+    output = input;
+  }
+
+  sfg finish {
+    $finish;
+  }
+ 
+  sfg idle {
+    
+  }
+}
+
+fsm fsm_testterm(testterm) {
+  initial s0;
+  state se, sx, si, st, sr;
+
+  @s0 if(input == 101) then (idle) -> se;
+  else (idle) -> s0;
+  @se if(input == 120) then (idle) -> sx;
+  else if(input == 101) then (idle) -> se;
+  else if(input == 0) then (idle) -> se;
+  else (idle) -> s0;
+  @sx if(input == 105) then (idle) -> si;
+  else if(input == 101) then (idle) -> se;
+  else if(input == 0) then (idle) -> sx;
+  else (idle) -> s0;
+  @si if(input == 116) then (idle) -> st;
+  else if(input == 101) then (idle) -> se;
+  else if(input == 0) then (idle) -> si;
+  else (idle) -> s0;
+  @st (finish) -> st;
+} 
+
+system S {
+  testterm;
+}

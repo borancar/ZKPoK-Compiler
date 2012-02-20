@@ -1,0 +1,367 @@
+\chapter{Existing frameworks and tools}
+
+This chapter starts with an overview of existing frameworks for
+implementing Zero Knowledge Proofs of Knowledge. Currently available
+are:
+\begin{itemize}
+\item CACE Project compiler
+\item ZKPDL, a library
+\item Idemix
+\end{itemize}
+A detailed comparison of the frameworks follow.
+The chapter then continues on describing ANTLR, a parser generator
+tool producing LL(*) parsers.  Next on is LLVM, a compiler
+infrastructure framework that has seen wide use recently in many
+fields relating to compilers and computers in general. ANTLR and LLVM
+will be used to make a custom compiler later on so some knowledge
+about them is necessary. Next is GEZEL, a cycle-true cosimulation
+environment which can also generate VHDL or Verilog.
+
+\section{CACE Project}
+
+The CACE Project compiler has the following typical flow (as depicted
+in Figure \ref{fig:cace_workflow}):
+\begin{enumerate}
+\item Write PSL (Protocol Specification Language)
+\item Generate PIL (Protocol Interface Language) from PSL
+\item Generate C or Java code from PIL
+\item (Optional) Generate LaTeX from PIL
+\end{enumerate}
+
+The PIL itself gives all the details of a protocol and is easily
+understandable and exportable to LaTeX. The ease of understanding
+the steps will allow better cryptographic analysis. The tool must
+now provide an accurate and representable translation which does not
+lose any properties.
+
+\begin{figure}[hbt!]
+\centering
+  \begin{tikzpicture}[>=stealth,level distance=1.5cm,font=\tiny]
+    \tikzstyle{edge from parent}=[draw,->]
+
+    \Tree [.\node[language](psl){Protocol \\ Specification \\ Language (PSL)};
+      [.\node[compiler](pc){Protocol \\ Compiler};
+        [.\node[language](pil){Protocol \\ Implementation \\ Language (PIL)};
+          [.\node[compiler](c){C}; \node[language](code){Code};]
+          [.\node[compiler](latex){\LaTeX}; \node[language](doc){Documentation};]
+        ]
+      ]
+    ]
+
+    \node[compiler] (pvt)         [right=of pc,anchor=west]          {Protocol \\ Verification \\ Toolbox}
+    child {node[language] {Proof of \\ Soundness}};
+
+    \node[compiler] (sigma) [left=of pil.north west,anchor=center] {$\Sigma 2 N I Z K$};
+    \node[compiler] (cost) [left=of pil.south west,anchor=center] {Costs};
+
+    \draw[<->] (sigma) -- (pil);
+    \draw[<->] (cost) -- (pil);
+
+    \draw[->] (psl) -- (pvt);
+    \draw[->] (pil) -- (pvt);
+  \end{tikzpicture}
+\caption{CACE typical workflow \cite{CACE}}
+\label{fig:cace_workflow}
+\end{figure}
+
+\subsection{PIL}
+
+PIL, the Protocol Implementation Language is a language for specifying
+protocols. As a language on its own it has support for the following
+features:
+\begin{itemize}
+\item global shared constants (parameters)
+\item global constants (parameters)
+\item global variables
+\item local variables
+\item conditionals
+\item loops
+\item functions
+\item predicates
+\end{itemize}
+
+Proof entities are specified as blocks and there is always a Common
+block with all declarations and definitions visible to all other
+blocks. Each block can define multiple functions that have inputs and outputs
+defined. A function consists of assignments or loops or conditional
+flow. The execution order is specified via block function pairs.
+
+\filbreak
+
+\lstinputlisting[language=PIL]{example.pil}
+
+\section{ZKPDL}
+
+ZKPDL is a description language for describing Zero Knowledge Proofs
+of Knowledge \cite{zkpdl}.
+
+\begin{figure}[hbt!]
+  \centering
+  \begin{tikzpicture}[>=stealth,level distance=1.5cm,sibling distance=2cm,font=\tiny]
+    \tikzstyle{edge from parent}=[draw,->]
+
+    \Tree [.\node[language](zkpdl_prog){ZKPDL \\ Program};
+      [.\node[compiler](compile){compile()};
+        [.\node[compiler](prover){Intepreter \\ Prover};
+          [.\node[language](message){ZKProof \\ Message};]
+        ]
+        [.\node[compiler](verifier){Interpreter \\ Verifier};
+          [.\node[language](verified){Proof verified};]
+        ]
+      ]
+    ]
+
+    \node[language,font=\tiny](private)[left=of prover]{private values \\ to be proved};
+
+    \node[language,font=\tiny](public)[left=of compile.north west]{public values};
+
+    \draw[->] (public) -- (compile);
+    \draw[->] (private) -- (prover);
+    \draw[->] (message) -- (verifier);
+  \end{tikzpicture}
+  \caption{ZKPDL typical flow \cite{zkpdl}}
+  \label{fig:zkpdl_flow}
+\end{figure}
+
+\section{Comparison of CACE and ZKPDL}
+
+A comparison between CACE and ZKPDL is given in table
+\ref{tab:compiler_comparison}.
+
+\begin{table}[hbt!]
+  \begin{tabularx}{0.33\textwidth}{|l|l|l|}
+    & CACE compiler & ZKPDL compiler \\
+    \hline \\
+    Basic proof goals &
+    \begin{minipage}{0.33\textwidth}
+      knowledge of preimages under arbitrary group homomorphisms,
+      including RSA or Paillier type homomorphisms
+    \end{minipage}
+    &
+    \begin{minipage}{0.33\textwidth}
+      exponentiation homomorphisms only      
+    \end{minipage} \\
+    \hline \\
+    Basic protocols &
+    \begin{minipage}{0.33\linewidth}
+      SigmaPhi, Damgard/Fujisaki, SigmaExp
+    \end{minipage}
+    &
+    \begin{minipage}{0.33\linewidth}
+      SigmaPhi, Damgard/Fujisaki
+    \end{minipage} \\
+    \hline \\
+    Composition techniques &
+    \begin{minipage}{0.33\linewidth}
+      Boolean AND, OR, and providing knowledge
+      of $k$ out of $n$ secret values
+    \end{minipage}
+    &
+    \begin{minipage}{0.33\linewidth}
+      Boolean AND only
+    \end{minipage} \\
+    \hline \\
+    Input language &
+    \begin{minipage}{0.33\linewidth}
+      inspired by the standard notation for ZK-PoK
+    \end{minipage}
+    &
+    \begin{minipage}{0.33\linewidth}
+      inspired by the English language
+    \end{minipage} \\
+    \hline \\
+    Output language &
+    \begin{minipage}{0.33\linewidth}
+      C for implementation, \LaTeX for documentation
+    \end{minipage}
+    &
+    \begin{minipage}{0.33\linewidth}
+      specifically design language with interpreter and API to C++
+    \end{minipage} \\
+    \hline \\
+    Type of output &
+    \begin{minipage}{0.33\linewidth}
+      complete source code, which can directly be compiled to machine
+      code
+    \end{minipage}
+    &
+    \begin{minipage}{0.33\linewidth}
+      meta code or libraries, which partly have to be instantiated by
+      the calling procedure
+    \end{minipage} \\
+    \hline \\
+    Optimizations &
+    \begin{minipage}{0.33\linewidth}
+      reduction of redundant terms in the proof goal
+    \end{minipage}
+    &
+    \begin{minipage}{0.33\linewidth}
+      \begin{enumerate}
+      \item reduction of redundant terms in the proof goal
+      \item possibility of caching precomputations to reduce runtime
+      \end{enumerate}
+    \end{minipage} \\
+    \hline \\
+    Additional features &
+    \begin{minipage}{0.33\linewidth}
+      \begin{enumerate}
+      \item existence of a formal verification toolbox, which proves
+        the correctness of the compilation process
+      \item modular design with interfaces to other cryptographic
+        compilers developed within the CACE project
+      \end{enumerate}
+    \end{minipage}
+    &
+    \begin{minipage}{0.33\linewidth}
+      possibility to specify the generation of protocol inputs
+    \end{minipage}
+  \end{tabularx}
+  \caption{Detailed comparison of ZKPoK compilers \cite{yaczk}}
+  \label{tab:compiler_comparison}
+\end{table}
+
+\section{ANTLR \cite{ANTLR,ANTLR2}}
+
+ANTLR (ANother Tool For Language Recognition) is a parser generator
+tool that generates LL(*) parsers. The tool accepts grammar
+definitions as input files and produces output in the target language
+which can be specified between C, Java or Python.
+
+The input to ANTLR is a context-free grammar augmented with syntactic
+and semantic predicates. Syntactic predicates allow arbitrary look-ahead
+while semantic predicates allow the state constructed up to the point of
+the predicate to direct the parse \cite{ANTLR}.
+
+The lexer and parser grammars can be combined into a single file.  In
+such cases, parser rules are written in lowercase, while the lexer
+rules are written in uppercase. ANTLR workflow allows for tree
+generators and tree walkers.
+
+\section{LLVM}
+
+LLVM (Low Level Virtual Machine) is a compiler framework designed to
+support transparent, life-long program analysis and transformation
+for arbitrary programs, by providing high-level information to
+compiler transformations at compile-time, link-time, run-time, and in
+idle time between runs \cite{LLVM:CGO04}.
+
+Traditional compilers were tailored for only a few languages (with the
+exception of GCC). However, all traditional compilers suffer from the
+large inter-dependency of the basic blocks (Front-end, Optimizer,
+Back-end). LLVM tries to solve this by providing an intermediate form
+called the LLVM IR. A typical flow involving the basic blocks is
+depicted in Figure \ref{fig:llvm_flow}.
+
+\begin{figure}[hbt!]
+  \centering
+   \begin{tikzpicture}[>=stealth]
+    \tikzstyle{lang}=[rectangle,draw=black,thin,font=\tiny,inner
+    sep=0pt, align=center,minimum width=2.7cm,minimum height=2.2em]
+
+    \tikzstyle{txt}=[font=\tiny]
+
+    \node[lang](llvm_opt){LLVM \\ Optimizer};
+    \node[lang](ppc_back)[right=1 cm of llvm_opt]{LLVM \\ PowerPC Backend};
+    \node[txt](ppc)[right=of ppc_back]{PowerPC};
+    \node[lang](x86_back)[above of=ppc_back]{LLVM \\ x86 Backend};
+    \node[txt](x86)[right=of x86_back]{x86};
+    \node[lang](arm_back)[below of=ppc_back]{LLVM \\ ARM Backend};
+    \node[txt](arm)[right=of arm_back]{ARM};
+
+    \node[lang](gcc_front)[left=1 cm of llvm_opt]{llvm-gcc \\ Frontend};
+    \node[txt](fortran)[left=of gcc_front]{Fortran};
+    \node[lang](clang_front)[above of=gcc_front]{Clang C/C++/ObjC \\ Frontend};
+    \node[txt](c)[left=of clang_front]{C};
+    \node[lang](ghc_front)[below of=gcc_front]{GHC \\ Frontend};
+    \node[txt](haskell)[left=of ghc_front]{Haskell};
+
+    \draw[->] (clang_front.east) -- (llvm_opt.west);
+    \draw[->] (gcc_front.east) -- (llvm_opt.west);
+    \draw[->] (ghc_front.east) -- (llvm_opt.west);
+
+    \draw[->] (llvm_opt.east) -- (x86_back.west);
+    \draw[->] (llvm_opt.east) -- (ppc_back.west);
+    \draw[->] (llvm_opt.east) -- (arm_back.west);
+
+    \draw[->] (x86_back) -- (x86);
+    \draw[->] (ppc_back) -- (ppc);
+    \draw[->] (arm_back) -- (arm);
+
+    \draw[->] (c) -- (clang_front);
+    \draw[->] (fortran) -- (gcc_front);
+    \draw[->] (haskell) -- (ghc_front);
+  \end{tikzpicture}
+  \caption{LLVM typical workflow}
+  \label{fig:llvm_flow}
+\end{figure}
+
+Due to its modularity, LLVM has recently seen increased usage in a number
+of independent fields:
+\begin{itemize}
+\item implementing a C/C++ compiler (Clang)
+\item implementing C-to-HDL translation
+\item implementing a Haskell compiler (GHC)
+\item implementing Secure Virtual Architectures (SVA)
+\item implementing dynamic translation
+\item implementing OpenGL drivers (Mac OS X)
+\item implementing OpenCL drivers (AMD)
+\end{itemize}
+
+\subsection{LLVM IR}
+
+The LLVM IR is the intermediate representation language of the LLVM
+project. On its own it is a first-class language with well defined
+semantics \cite{llvm_general}. It resembles the assembly language of a
+infinitely many registers Load-Store based RISC processor.
+
+\begin{lstlisting}[language=C]
+unsigned add1(unsigned a, unsigned b) {
+  return a+b;
+}
+
+// Perhaps not the most efficient way to add two numbers.
+unsigned add2(unsigned a, unsigned b) {
+  if (a == 0) return b;
+  return add2(a-1, b+1);
+}
+\end{lstlisting}
+
+\begin{lstlisting}
+define i32 @add1(i32 %a, i32 %b) {
+entry:
+  %tmp1 = add i32 %a, %b
+  ret i32 %tmp1
+}
+
+define i32 @add2(i32 %a, i32 %b) {
+entry:
+  %tmp1 = icmp eq i32 %a, 0
+  br i1 %tmp1, label %done, label %recurse
+
+recurse:
+  %tmp2 = sub i32 %a, 1
+  %tmp3 = add i32 %b, 1
+  %tmp4 = call i32 @add2(i32 %tmp2, i32 %tmp3)
+  ret i32 %tmp4
+
+done:
+  ret i32 %b
+}
+\end{lstlisting}
+
+\filbreak
+
+The central concept in constructing LLVM IR is the Module. The Module
+represents the top level container of the LLVM IR. There are multiple
+ways on how to generate the IR. The one described here is by building a
+graph and creating objects along that graph.
+
+\section{GEZEL}
+
+GEZEL is a cycle-accurate hardware description language (HDL) using the
+Finite-State-Machine + Datapath (FSMD) model.
+
+%%% Local Variables: 
+%%% TeX-PDF-mode: t
+%%% TeX-master: "thesis"
+%%% End: 

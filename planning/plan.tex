@@ -1,0 +1,50 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage{gantt}
+\usepackage[margin=2cm]{geometry}
+\usepackage{lscape}
+
+\pagestyle{empty}
+
+\begin{document}
+
+  \section*{Implementation and Evaluation of Zero-Knowledge Proofs of Knowledge}
+
+  \subsection*{The objectives:}
+  \begin{enumerate}
+    \item Investigation of current algorithms
+    \item Investigation of specification-to-HDL framework
+    \item System implementation
+  \end{enumerate}
+
+  \subsection*{Milestones:}
+  \begin{enumerate}
+    \item Theoretical study done - 1st week of November
+    \item Investigation of current algorithms done - 1st week of December
+    \item Investigation of specification-to-HDL compiler done - 1st week of January
+    \item System implementation done - 1st week of February
+    \item Thesis text done - 1st week of February
+  \end{enumerate}
+
+  \begin{gantt}{6}{6}
+    \begin{ganttitle}
+      \titleelement{Sep}{1}
+      \titleelement{Oct}{1}
+      \titleelement{Nov}{1}
+      \titleelement{Dec}{1}
+      \titleelement{Jan}{1}
+      \titleelement{Feb}{1}
+    \end{ganttitle}
+    \ganttbar{Theoretical study}{1.5}{1}
+    \ganttbar{Investigation of current algorithms}{2.5}{1}
+    \ganttbar{Investigation of specification-to-HDL compiler}{3.5}{1}
+    \ganttbar{System implementation}{3.5}{2}
+    \ganttbar{Thesis text}{1.5}{4}
+    \ganttcon{2.5}{1}{2.5}{2}
+    \ganttcon{3.5}{2}{3.5}{3}
+    \ganttcon{3.5}{2}{3.5}{4}
+  \end{gantt}
+
+  \vfill
+  \hfill \Large Boran Car
+
+\end{document}

@@ -1,0 +1,98 @@
+\documentclass[master=eelt, english]{kulemt}
+
+\setup{
+title={Implementation and Evaluation of Zero-Knowledge Proofs of Knowledge},
+author={Boran Car},
+promotor={Bart Preneel \and Ingrid Verbauwhede},
+assessor={Claudia Diaz \and Francky Catthoor},
+assistant={Josep Balasch \and Alfredo Rial}
+}
+
+\usepackage[pdfusetitle,colorlinks,plainpages=false]{hyperref}
+\usepackage{biblatex}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usepackage[caption=false]{subfig}
+\usepackage{tabularx}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{thm}{Theorem}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstdefinelanguage{PIL}{
+morekeywords={ExecutionOrder, Common, Def, Void, Prime, Z, Int},
+otherkeywords={Zmod+, Zmod*},
+morecomment=[l]{//},
+morecomment=[s]{/*}{*/}
+}
+
+\lstset{
+language=PIL,
+basicstyle=\footnotesize,
+commentstyle=\color{dkgreen},
+keywordstyle=\bfseries,
+frame=single,
+breaklines=true,
+breakatwhitespace=false
+}
+
+\usetikzlibrary{backgrounds,calc,shapes,shadows,arrows,chains,trees,fit,positioning}
+
+\tikzstyle{language}=[rectangle,draw=black,thin,inner sep=3pt, align=center]
+
+\tikzstyle{compiler}=[rectangle,rounded corners,draw=black,thin,inner
+sep=3pt, align=center]
+
+\tikzstyle{added}=[fill=gray]
+
+\addbibresource{references}
+
+\begin{document}
+
+\begin{preface}
+
+\end{preface}
+
+\tableofcontents*
+
+\begin{abstract}
+
+\end{abstract}
+
+\listoffigures
+
+\listoftables
+
+\mainmatter
+
+\input{introduction}
+
+\input{preliminaries}
+
+\input{existing}
+
+\input{custom}
+
+\input{daa}
+
+\input{conclusion}
+
+\printbibliography
+
+\end{document}
+
+%%% Local Variables: 
+%%% TeX-PDF-mode: t
+%%% TeX-master: t
+%%% End: 

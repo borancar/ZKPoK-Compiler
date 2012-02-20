@@ -1,0 +1,82 @@
+ipblock term_verifier(out rx : ns(8);
+                in  tx : ns(8)) {
+  iptype "term";
+}
+
+dp verifier {
+  sig output : ns(8);
+  reg input  : ns(8);
+  
+  reg parsed : ns(1024);
+  reg t      : ns(1024);
+  reg s      : ns(1024);
+
+  use term_verifier(input, output);
+
+  sfg init_parse {
+    parsed = 0;
+  }
+
+  sfg parse {
+    parsed = 10*parsed + (input - 48);
+  }
+
+  sfg assign_t {
+    t = parsed;
+    $display($dec, "t: ", t);
+  }
+
+  sfg assign_s {
+    s = parsed;
+    $display($dec, "s: ", s);
+  }
+
+  sfg send_c {
+    output = 49;
+  }
+
+  sfg send_cr {
+    output = 13;
+  }
+
+  sfg send_lf {
+    output = 10;
+  }
+
+  sfg finish {
+    $finish;
+  }
+ 
+  sfg idle {
+    output = 0;
+  }
+}
+
+fsm fsm_verifier(verifier) {
+  initial s0;
+  state s_round1, s_round2, s_round3, s_parse_t, s_endparse_t, s_parse_s, s_endparse_s, s_send_cr, s_send_lf, s_end;
+
+  @s0                                             (idle)               -> s_round1;
+
+  @s_round1                                       (init_parse, idle)   -> s_parse_t;
+  @s_parse_t  if(input >= 48 & input <= 57) then  (parse, idle)        -> s_parse_t;
+  else        if(input == 10 | input == 13) then  (idle)               -> s_endparse_t;
+  else                                            (idle)               -> s_parse_t;
+  @s_endparse_t                                   (assign_t, idle)     -> s_round2;
+
+  @s_round2                                       (send_c)             -> s_send_cr;
+  @s_send_cr                                      (send_cr)            -> s_send_lf;
+  @s_send_lf                                      (send_lf)            -> s_round3;
+
+  @s_round3                                       (init_parse, idle)   -> s_parse_s;
+  @s_parse_s  if(input >= 48 & input <= 57) then  (parse, idle)        -> s_parse_s;
+  else        if(input == 10 | input == 13) then  (idle)               -> s_endparse_s;
+  else                                            (idle)               -> s_parse_s;
+  @s_endparse_s                                   (assign_s, idle)     -> s_end;
+
+  @s_end                                          (finish, idle)        -> s_end;
+} 
+
+system S {
+  verifier;
+}
