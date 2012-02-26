@@ -12,7 +12,13 @@ cashlib
 *.o
 *.so
 *.bbl
+*.dvi
 *.blg
 *.lof
 *.lot
 auto
+*.bst
+*.cls
+*.sty
+*.pdf
+text/kulemt.cfg
