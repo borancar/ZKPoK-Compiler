@@ -1,25 +1,27 @@
 \begin{abstract}
+
   Zero-Knowledge Proofs of Knowledge allow one to prove possession or
   knowing of a certificate without actually revealing the secret. This
   involves using a hard problem as a basis for the protocol. Goals of
   current Zero-Knowledge Proofs of Knowledge compiler frameworks are
   to make this process easy for those outside the field of
   cryptography while at the same time making it easy for those inside
-  the field to develop such protocols.
-
-  We acknowledge that such frameworks have made it easy to develop the
-  protocols but we note that they have not made it easy or general to
-  those implementing the protocols on the end devices. Such frameworks
-  either target C code generation or an interpreted language. They
-  also use high-level multi-precision arithmetic libraries which are
-  too resource hungry for small embedded devices. These limitations
-  have motivated us to extend one of those frameworks and build our
-  own framework from it. This framework is targeted specifically at
-  small embedded devices while not losing any generality of the
-  framework it extends.
+  the field to develop such protocols. We acknowledge that such
+  frameworks have made it easy to develop the protocols but we note
+  that they have not made it easy or general to those implementing the
+  protocols on the end devices. Such frameworks either target C/C++
+  code generation or an interpreted language. They also use high-level
+  multi-precision arithmetic libraries which are too resource hungry
+  for small embedded devices. These limitations as well as hidden
+  pitfalls of C/C++ have motivated us to extend one of those
+  frameworks and build our own framework from it. This framework is
+  targeted specifically at small embedded devices while not losing any
+  generality of the framework it extends. We hope that this will ease
+  the work for those outside the field and allow for a more widespread
+  usage of these protocols.
 
 \begin{keywords}
-  zero-knowledge, proofs of knowledge, 
+  zero-knowledge, proof of knowledge, compiler framework
 \end{keywords}
 
 \end{abstract}

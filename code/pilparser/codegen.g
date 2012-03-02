@@ -86,7 +86,7 @@ options {
 		Function::Create(
 			FunctionType::get(
 				Type::getInt1Ty(getGlobalContext()),
-				vector<Type *>(0, Type::getIntNTy(getGlobalContext(), 1024)),
+				vector<Type *>(1, Type::getIntNTy(getGlobalContext(), 1024)),
 				false),
 			Function::ExternalLinkage, "CheckMembership", Common);
 		
@@ -305,19 +305,36 @@ assignment returns [Value *value]
 	;
 	
 function_call returns [Value *value, NumberT *type]
-	:	^(ID argument*)
+	:	^('Random' group)
 		{
-			Function *CalleeF = TheModule->getFunction((const char*) $ID.text->chars);
-			vector<Value*> ArgsV;
+			Function *CalleeF = TheModule->getFunction("Random");
+			$value = Builder.CreateCall(CalleeF, vector<Value*>(), "calltmp");
 			
-			unsigned int idx = 0;
-			for(Function::arg_iterator AI = CalleeF->arg_begin(); AI != CalleeF->arg_end(); AI++, idx++) {
-				ArgsV.push_back($argument.value);
-			}
+			$type = new GroupT(APInt(1024,0));
+		}
+	|	^('CheckMembership' argument group)
+		{
+			Function *CalleeF = TheModule->getFunction("CheckMembership");
+
+			vector<Value *> ArgsV;
+			
+			ArgsV.push_back($argument.value);
 			
 			$value = Builder.CreateCall(CalleeF, ArgsV, "calltmp");
 			
-			$type = new GroupT(APInt(1024,0));
+			$type = new GroupT(APInt(1024,0));			
+		}
+	|	^('Verify' expr["verify"])
+		{
+			Function *CalleeF = TheModule->getFunction("Verify");
+			
+			vector<Value *> ArgsV;
+			
+			ArgsV.push_back($expr.value);
+			
+			$value = Builder.CreateCall(CalleeF, ArgsV, "calltmp");
+			
+			$type = new GroupT(APInt(1024,0));			
 		}
 		;
 	
@@ -327,18 +344,10 @@ argument returns [Value *value]
 	;
 
 group returns [NumberT *type]
-	:	^(GROUP	{$type = new GroupT(APInt(32, 0));} (ID    
+	:	^(GROUP	{$type = new GroupT(APInt(32, 0));} (expr["group"]
 			{
-				Variable var = Vars[(const char*)$ID.text->chars];
-				
-				$type = new GroupT(static_cast<ConstantInt*>(var.value)->getValue());
-			}
-			| NUMBER
-			{
-				unsigned int bits = atoi((const char*)$NUMBER.text->chars);
-									
-				$type = new GroupT(APInt(bits, 0));
-				//$type = new NumberT(bits);
+				$expr.value->dump();
+				$type = new GroupT(static_cast<ConstantInt*>($expr.value)->getValue());
 			}
 			)? )
 	;

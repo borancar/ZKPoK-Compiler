@@ -2,7 +2,8 @@
 
 \section{Zero Knowledge Proofs of Knowledge}
 
-Today's state-of-the-art cryptosystems are based on the following hard problems:
+Today's state-of-the-art cryptosystems are based on the following hard
+problems:
 \begin{itemize}
 \item Discrete Logarithm Problem
 \item Factorization Problem
@@ -64,7 +65,16 @@ user has privileges and is allowed to proceed with an action).
 
 Traditional embedded device programming was separate from hardware
 design. The separation went to such extents as having two separate
-entities within a company working on each of those fields.
+entities within a company working on each of those fields. The
+software part is generic while the hardware part is faster and more
+energy efficient.
+
+Today's stringent measures require a bigger inter-dependency. Instead
+of searching for a best algorithm tailored for specific hardware or
+searching for the best hardware tailored to a specific algorithm/task,
+why not design the hardware and software at the same time. This way
+bigger decision and trade-offs can be made more granular
+\cite{softeninghw}.
 
 \begin{figure}[hbt!]
   \centering
@@ -113,6 +123,46 @@ entities within a company working on each of those fields.
   \caption{Gajski-Kuhn \index{Gajski-Kuhn Y-chart}Y-chart} 
   \label{figure:gajski_kuhn_y_chart__levels_of_abstraction}
 \end{figure}
+
+\filbreak
+
+\section{Domain specific languages}
+
+C and C++ are currently the dominant languages for embedded system
+programming. It is therefore natural to expect that real-world
+embedded cryptography applications be implemented in either of those
+two languages. This can lead to hidden and difficult problems to
+debug. A lot of cases were left unspecified or undefined in the C or
+C++ standard. Hence, compiler implementations have a choice on how to
+implement it. The usual approach is to define it as what is most
+efficient in terms of the platform. This sacrifices the safety and
+portability to ensure efficiency.
+
+\filbreak
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+
+int b(void) { puts("3"); return 3; }
+int c(void) { puts("4"); return 4; }
+
+int main(void)
+{
+  int a = b() + c();
+  printf("%d\n", a);
+}
+\end{lstlisting}
+
+The evaluation order is unspecified so depending on the compiler, the
+output may be 3, 4, 7 or 4, 3, 7. The compiler usually chooses the
+optimal way to calculate it given a platform.
+
+The security world does not handle undefined and unspecified values
+well. It makes sense to build protections against unsafe, undefined
+and unspecified operations into the language. It also makes sense to
+make the language easy to learn and understand. This is the common
+requirement of a domain specific language, a language tailored for a
+specific domain.
 
 %%% Local Variables: 
 %%% TeX-PDF-mode: t

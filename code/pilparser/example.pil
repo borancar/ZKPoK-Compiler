@@ -16,6 +16,7 @@ Common (
     Zmod*(p) y = 1, g=3
 ) {
 }
+
 Prover(Zmod+(q) x) {
     Zmod+(q) _s_1=1, _r_1=4;
 

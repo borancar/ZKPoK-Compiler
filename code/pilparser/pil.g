@@ -85,18 +85,14 @@ priExpr	:	(('('! expr ')'!) | terminal) (('^'^|'*'^) priExpr)?
 	
 terminal
 	:	NUMBER
-	|	(ID '(' function_arguments ')')=> function_call
-	|	type
-	|	{ aliases.find((const char*) LT(1)->getText(LT(1))->chars) == aliases.end() }? ID
+	|	function_call
+	|	ID
 	;
 	
 function_call
-	:	ID^ '('! function_arguments ')'!
-	;
-	
-function_arguments
-	:	'Void'
-	|	topExpr (','! topExpr)*
+	:	'Random'^ '('! type ')'!
+	|	'Verify'^ '('! topExpr ')'!
+	|	'CheckMembership'^ '('! ID ','! type ')'!
 	;
 
 variable_declaration
@@ -116,12 +112,10 @@ alias	:	(ID '=' )=> ID! '='! (group { aliases[(const char*)$ID.text->chars] = $g
 	|	ID -> { aliases[(const char*)$ID.text->chars] }
 	;
 
-group	:	GROUP^ ('('! bits ')'!)? ;
+group	:	GROUP^ ('('! expr ')'!)? ;
 
 interval:	'[' from=expr ',' to=expr ']' -> ^(INTERVAL $from $to)
 	;
-
-bits	:	ID | NUMBER;
 
 GROUP	:	'Z' ('mod' ('+'|'*'))? | 'Prime' | 'Int';
 
@@ -132,7 +126,7 @@ NUMBER	:	('0'..'9'|'a'..'z'|'A'..'Z')+;
 
 COMMENT
     :   '//' ~('\n'|'\r')* '\r'? '\n' { $channel=HIDDEN; }
-    |   '/*' ( options {greedy=false;} : . )* '*/' { $channel=HIDDEN; }
+    |   '/*' ( options { greedy=false; } : . )* '*/' { $channel=HIDDEN; }
     ;
     
 NEWLINE	: '\r'? '\n' { $channel=HIDDEN; } ;
