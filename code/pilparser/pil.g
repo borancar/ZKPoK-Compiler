@@ -77,7 +77,7 @@ ifknown	:	'IfKnown' '(' topExpr ')' '{'
 topExpr	:	expr (('=='^|'!='^) expr)?
 	;
 
-expr	:	('+'^|'-'^)? priExpr (('+'^|'-'^) priExpr)*
+expr	:	('+'^|'-')? priExpr (('+'^|'-'^) priExpr)*
 	;
 	
 priExpr	:	(('('! expr ')'!) | terminal) (('^'^|'*'^) priExpr)?
@@ -112,12 +112,14 @@ alias	:	(ID '=' )=> ID! '='! (group { aliases[(const char*)$ID.text->chars] = $g
 	|	ID -> { aliases[(const char*)$ID.text->chars] }
 	;
 
-group	:	GROUP^ ('('! expr ')'!)? ;
+group	:	('Zmod+'|'Zmod*')^ ('('! expr ')'!) 
+	|	'Prime'^ ('('! expr ')'!)
+	|	'Int'^ ('('! expr ')'!)
+	|	'Z'
+	;
 
 interval:	'[' from=expr ',' to=expr ']' -> ^(INTERVAL $from $to)
 	;
-
-GROUP	:	'Z' ('mod' ('+'|'*'))? | 'Prime' | 'Int';
 
 ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
     ;

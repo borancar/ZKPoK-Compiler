@@ -42,7 +42,7 @@ options {
 	};
 }
 
-@postinclude {	
+@postinclude {
 	struct cmp_str
 	{
 		bool operator()(const char *a, const char *b)
@@ -70,11 +70,6 @@ options {
 		return Builder.CreateCall(function, args, name);
 	}
 	
-	NumberT *operator+(NumberT *lhs, NumberT &rhs) { return lhs; }
-	NumberT *operator-(NumberT *lhs, NumberT &rhs) { return lhs; }
-	NumberT *operator*(NumberT *lhs, NumberT &rhs) { return lhs; }
-	NumberT *operator^(NumberT *lhs, NumberT &rhs) { return lhs; }	
-
 	void init_common() 
 	{
 		Function::Create(
@@ -124,6 +119,52 @@ options {
 				vector<Type *>(1, Type::getInt1Ty(getGlobalContext())),
 				false),
 			Function::ExternalLinkage, "Verify", Common);
+	}
+
+	NumberT *NumberT::addWithSubFrom(const NumberT *first) const { return const_cast<NumberT*>(first); }
+	NumberT *NumberT::addWithSubFrom(const GroupT *first) const { return const_cast<GroupT*>(first); }
+	  
+	NumberT *NumberT::mulWithExpOn(const NumberT *first) const { return const_cast<NumberT*>(first); }
+	NumberT *NumberT::mulWithExpOn(const GroupT *first) const { return const_cast<GroupT*>(first); }
+	
+	Value * NumberT::createNeg(Value *a) const  {
+		return Builder.CreateNeg(a);
+	}
+	
+	Value * NumberT::createAdd(Value *a, Value *b) const {
+		return Builder.CreateAdd(a, b);
+	}
+	
+	Value * NumberT::createSub(Value *a, Value *b) const {
+		return Builder.CreateSub(a, b);
+	}
+	
+	Value * NumberT::createMul(Value *a, Value *b) const {
+		return Builder.CreateMul(a, b);
+	}
+	
+	Value * NumberT::createExp(Value *a, Value *b) const {
+		return Builder.CreateMul(a, b);
+	}
+	
+	Value * GroupT::createNeg(Value *a) const {
+		return operator_call("", "modsub1024", ConstantInt::get(getGlobalContext(), APInt(1024, 0)), a, Builder.CreateIntCast(this->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false));
+	}
+	
+	Value * GroupT::createAdd(Value *a, Value *b) const {
+		return operator_call("", "modadd1024", a, b, Builder.CreateIntCast(this->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); 	
+	}
+	
+	Value * GroupT::createSub(Value *a, Value *b) const {
+		return operator_call("", "modsub1024", a, b, Builder.CreateIntCast(this->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); 		
+	}
+	
+	Value * GroupT::createMul(Value *a, Value *b) const {
+		return operator_call("", "modmul1024", a, b, Builder.CreateIntCast(this->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); 	
+	}
+	
+	Value * GroupT::createExp(Value *a, Value *b) const {
+		return operator_call("", "modexp1024", a, b, Builder.CreateIntCast(this->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); 	
 	}
 }
 
@@ -292,6 +333,13 @@ assignment returns [Value *value]
 		{
 			const char *id = (const char*) $ID.text->chars;
 		
+			if(Vars.find(id) == Vars.end()) {
+				Variable varx;
+				varx.variable = false;
+				varx.type = $expr.type;
+				Vars[id] = varx;
+			}
+		
 			Variable dest = Vars[id];
 			
 			if(!dest.variable) {
@@ -305,14 +353,14 @@ assignment returns [Value *value]
 	;
 	
 function_call returns [Value *value, NumberT *type]
-	:	^('Random' group)
+	:	^('Random' type_declaration)
 		{
 			Function *CalleeF = TheModule->getFunction("Random");
 			$value = Builder.CreateCall(CalleeF, vector<Value*>(), "calltmp");
 			
-			$type = new GroupT(APInt(1024,0));
+			$type = $type_declaration.type;
 		}
-	|	^('CheckMembership' argument group)
+	|	^('CheckMembership' argument type_declaration)
 		{
 			Function *CalleeF = TheModule->getFunction("CheckMembership");
 
@@ -344,12 +392,11 @@ argument returns [Value *value]
 	;
 
 group returns [NumberT *type]
-	:	^(GROUP	{$type = new GroupT(APInt(32, 0));} (expr["group"]
-			{
-				$expr.value->dump();
-				$type = new GroupT(static_cast<ConstantInt*>($expr.value)->getValue());
-			}
-			)? )
+	:	'Z' { $type = new NumberT(32); }
+	|	^('Prime' expr["group"]) { $type = new NumberT(static_cast<ConstantInt*>($expr.value)->getValue().getLimitedValue(1024)); }
+	|	^('Int' expr["group"]) { $type = new NumberT(static_cast<ConstantInt*>($expr.value)->getValue().getLimitedValue(1024)); }
+	|	^('Zmod+' expr["group"]) { $type = new GroupT(static_cast<ConstantInt*>($expr.value)->getValue()); }
+	|	^('Zmod*' expr["group"]) { $type = new GroupT(static_cast<ConstantInt*>($expr.value)->getValue()); }
 	;
 
 alias returns [NumberT *type]
@@ -364,14 +411,11 @@ interval returns [NumberT *type]
 	;
 	
 expr[const char *id] returns [Value *value, NumberT *type]
-	:	^('+' lhs=expr[$id] rhs=expr[$id]) {$type = $lhs.type + *$rhs.type; $value = operator_call($id, "modadd1024", $lhs.value, $rhs.value, 
-			Builder.CreateIntCast(dynamic_cast<GroupT*>($type)->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); }
-	|	^('-' lhs=expr[$id] rhs=expr[$id]) {$type = $lhs.type - *$rhs.type; $value = operator_call($id, "modsub1024", $lhs.value, $rhs.value,
-			Builder.CreateIntCast(dynamic_cast<GroupT*>($type)->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); }
-	|	^('*' lhs=expr[$id] rhs=expr[$id]) {$type = $lhs.type * *$rhs.type; $value = operator_call($id, "modmul1024", $lhs.value, $rhs.value,
-			Builder.CreateIntCast(dynamic_cast<GroupT*>($type)->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); }
-	|	^('^' lhs=expr[$id] rhs=expr[$id]) {$type = $lhs.type ^ *$rhs.type; $value = operator_call($id, "modexp1024", $lhs.value, $rhs.value,
-			Builder.CreateIntCast(dynamic_cast<GroupT*>($type)->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); }
+	:	('-' val=expr[$id]) {$type = $val.type; $value = $type->createNeg($val.value); }
+	|	^('+' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type + *$rhs.type; $value = $type->createAdd($lhs.value, $rhs.value); }
+	|	^('-' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type - *$rhs.type; $value = $type->createSub($lhs.value, $rhs.value); }
+	|	^('*' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type * *$rhs.type; $value = $type->createMul($lhs.value, $rhs.value); }
+	|	^('^' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type ^ *$rhs.type; $value = $type->createExp($lhs.value, $rhs.value); }
 	|	^('==' lhs=expr[$id] rhs=expr[$id]) {$value = Builder.CreateICmpEQ($lhs.value, $rhs.value, $id);}
 	|	^('!=' lhs=expr[$id] rhs=expr[$id]) {$value = Builder.CreateICmpNE($lhs.value, $rhs.value, $id);}
 	|	function_call {$type = $function_call.type; $value = $function_call.value;}
@@ -385,5 +429,5 @@ expr[const char *id] returns [Value *value, NumberT *type]
 				$value = Builder.CreateIntCast(Builder.CreateLoad(varx.value, (const char*) $ID.text->chars), IntegerType::get(getGlobalContext(), 1024), false, (const char*)$ID.text->chars);
 			}
 		}
-	|	NUMBER {$value = ConstantInt::get(getGlobalContext(), APInt(1024, (const char*) $NUMBER.text->chars, 10));}
+	|	NUMBER {$type = new NumberT(1024); $value = ConstantInt::get(getGlobalContext(), APInt(1024, (const char*) $NUMBER.text->chars, 10));}
 	;

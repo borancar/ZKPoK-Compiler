@@ -1,5 +1,30 @@
 \chapter{Conclusion}
 
+\section{Future work}
+
+LLVM should be extended with the modular residue group types and this
+work should be submitted upstream. The gains were already discussed in
+section \ref{sec:pil_frontend}. This will require some standardization
+before changes are applied and will take some time. This is one of the
+main reasons it was not done within the course of this thesis.
+
+While extending the CACE Project Zero Knowledge Compiler, it was
+noticed that each of the tools have their own lower-level language. In
+the long run, this only makes it difficult to contribute new
+features/extend, optimize and target new platforms. It is possible for
+LLVM to become a common language for all the tools from the CACE
+Project. This not only makes it portable to a wider range of platforms
+but it also moves the burden of optimizations to an already proven
+framework.
+
+The framework developed during the course of this thesis could and
+should serve as a starting point for HW-SW codesign automation tools.
+Due to lack of time, and lack of support in the simulators, limited
+exploration was done in this context, targeting only GEZEL code. There
+is no reason not to include C-GEZEL code co-generation and employ an
+8051. Such a micro-controller is usually found on modern-day
+smart-cards.
+
 %%% Local Variables: 
 %%% TeX-PDF-mode: t
 %%% TeX-master: "thesis"

@@ -37,6 +37,25 @@ morecomment=[l]{//},
 morecomment=[s]{/*}{*/}
 }
 
+\lstdefinelanguage{PSL}{
+  morekeywords={Prime, Public, ProverPrivate,
+    KnowledgeError, SZKParameter, ProtocolComposition, Homomorphism,
+    ChallengeLength, SigmaPhi, Relation, Declarations, Inputs, Properties},
+  otherkeywords={Zmod+, Zmod*},
+  morecomment=[l]{//}, morecomment=[s]{/*}{*/}
+}
+
+\lstdefinelanguage{grammar}{
+  keywords={},
+  otherkeywords={}
+}
+
+\lstdefinelanguage{GEZEL}{
+  morekeywords={sfg, dp, always, reg, syg, system, ns, tc, out, in},
+  otherkeywords={$display, $hex, $dec, $bin, $cycle},
+  morecomment=[l]{//}
+}
+
 \lstset{
 language=PIL,
 basicstyle=\footnotesize,
@@ -87,6 +106,16 @@ sep=3pt, align=center]
 \input{daa}
 
 \input{conclusion}
+
+\appendixpage*
+
+\appendix
+
+\lstinputlisting{pil.g}
+
+\lstinputlisting{codegen.g}
+
+\backmatter
 
 \printbibliography
 

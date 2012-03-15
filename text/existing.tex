@@ -1,38 +1,68 @@
 \chapter{Existing frameworks and tools}
 
 This chapter starts with an overview of existing frameworks for
-implementing Zero Knowledge Proofs of Knowledge. Currently available
-are:
-\begin{itemize}
-\item CACE Project compiler
-\item ZKPDL, a library
-\item Idemix
-\end{itemize}
-A detailed comparison of the frameworks follow.
-The chapter then continues on describing ANTLR, a parser generator
-tool producing LL(*) parsers.  Next on is LLVM, a compiler
-infrastructure framework that has seen wide use recently in many
-fields relating to compilers and computers in general. ANTLR and LLVM
-will be used to make a custom compiler later on so some knowledge
-about them is necessary. Next is GEZEL, a cycle-true cosimulation
+implementing Zero Knowledge Proofs of Knowledge. Current examples
+include CACE Project Zero Knowledge Compiler, ZKPDL and IBM
+Idemix. CACE project and ZKPDL will be covered. The chapter then
+continues on describing other tools that will be used for this thesis:
+ANTLR, a parser generator tool producing LL(*) parsers and LLVM, a
+compiler infrastructure framework that has seen wide use recently in
+many fields relating to compilers and computers in general. ANTLR and
+LLVM will be used to make a custom compiler so some knowledge about
+them is necessary. Next is GEZEL, a cycle-true cosimulation
 environment which can also generate VHDL or Verilog.
 
 \section{CACE Project}
 
-The CACE Project compiler has the following typical flow (as depicted
-in Figure \ref{fig:cace_workflow}):
+\subsection{Framework overview}
+
+The CACE (Computer Aided Cryptography Engineering) Project was an
+European project aiming at developing a toolbox for security
+software. It attempted to ease the creation of cryptographic software
+for those outside the domain. The goals were:
+\begin{itemize}
+\item Automatic translation from natural specification - the
+  term natural is taken from the users perspective, meaning something
+  ``natural'' for the user, not dwelling too much into the specific
+  niches of cryptography, giving an abstract overview
+\item Automatic security awareness, analysis and corrections - to be
+  able to detect side channels that are unintentionally introduced,
+  warn the user and offer corrective actions
+\item Automatic optimization for diverse platforms - different
+  platforms are suited for different operations, assume different
+  usage patterns etc\ldots, the toolbox should be as most insensitive
+  as it can to the platform it is implemented on
+\end{itemize}
+
+Apart from these goals that deal with the end-user, the project had
+strategic goals of opening a new field of research and promoting
+automatic tools when it comes to crypto software. The project itself
+was split into multiple working groups:
+\begin{itemize}
+\item WP1 Automating Cryptographic Implementation - dealing with the
+  low level crypto operations, searching and identifying side channel
+  attacks, providing a domain specific language
+\item WP2 Accelerating Secure Network - dealing with basic operations
+  for module intercommunication
+\item WP3 Bringing Proofs of Knowledge to Practice - dealing with
+  implementing a compiler for Proofs of Knowledge
+\item WP4 Securing Distributed Management of Information - dealing
+  with higher operations for module intercommunication
+\item WP5 Formal Verification and Validation - dealing with analysis
+  of the correctness, assuring the user of the protocol validity
+\end{itemize}
+
+The WP3 working group is of the importance for this thesis as it deals
+directly with proofs of knowledge. The end result of the working group
+was a compiler along with a specification language (PSL) and an
+intermediate language (PIL). The compiler has the following typical
+flow (as depicted in Figure \ref{fig:cace_workflow}):
 \begin{enumerate}
 \item Write PSL (Protocol Specification Language)
 \item Generate PIL (Protocol Interface Language) from PSL
 \item Generate C or Java code from PIL
 \item (Optional) Generate LaTeX from PIL
 \end{enumerate}
-
-The PIL itself gives all the details of a protocol and is easily
-understandable and exportable to LaTeX. The ease of understanding
-the steps will allow better cryptographic analysis. The tool must
-now provide an accurate and representable translation which does not
-lose any properties.
 
 \begin{figure}[hbt!]
 \centering
@@ -64,31 +94,156 @@ lose any properties.
 \label{fig:cace_workflow}
 \end{figure}
 
+\filbreak
+
+\subsection{PSL}
+\label{subsec:psl}
+
+The Protocol Specification Language is a high level language of CACE
+Project WP3 for specifying Proofs of Knowledge based on
+Camenisch-Stadler notation. It allows specification of
+complex $\Sigma$ protocols \cite{CACE, yaczk}. 
+
+The language is structured into blocks:
+\begin{itemize}
+\item Declarations - specifying all the variables used within
+  the protocol
+\begin{lstlisting}[language=PSL]
+Declarations {
+  Prime(1024) p; //specifies a prime number of 1024 bits
+  Prime(160) q;
+  Zmod+(q) x; //specifies an element of the additive residue class group modulo q
+  Zmod*(p) g, y; //specifies elements of the multiplicative residue class group modulo p
+}
+\end{lstlisting}
+  This example shows how to declare prime numbers as well as elements
+  of a residue group.
+\item Input - specifying which of the variables are public and which
+  are private (to the Verifier or the Prover)
+\begin{lstlisting}[language=PSL]
+Inputs {
+  Public := y,p,q,g;
+  ProverPrivate := x;
+}
+\end{lstlisting}
+  This example shows how to specify which are public known variables
+  and which are known only to the prover. It is also possible to
+  specify a variable known only to the verifier.
+\item Properties - specifying the properties of the protocol
+\begin{lstlisting}[language=PSL]
+Properties {
+  KnowledgeError := 80; //the required knowledge error, in this example 2^(-80)
+  SZKParameter := 80; //the Statistical Zero-Knowledge Parameter specifies the tightness of the protocol
+  ProtocolComposition := P_1; //how the protocols are composed (AND, OR, XOR, ...)
+}
+\end{lstlisting}
+\item Specifying the protocol itself (which homomorphism to
+  use and which relation needs to be proven)
+\begin{lstlisting}[language=PSL]
+SigmaPhi P_1 {
+  Homomorphism (phi : Zmod+(q) -> Zmod*(p) : (a) |-> (g^a)); //specifies the homomorphism under which knowledge of the preimage has to be proven
+  ChallengeLength := 80; //the bit length of the challenge the verifier generates
+  Relation ((y) = phi(x)); //the relation which needs to be proven
+}
+\end{lstlisting}
+\end{itemize}
+
+The previous steps combined give a specification of the Schnorr
+protocol:
+\lstinputlisting[language=PSL]{example.psl}
+
+\filbreak
+
 \subsection{PIL}
 
-PIL, the Protocol Implementation Language is a language for specifying
-protocols. As a language on its own it has support for the following
-features:
+The low level/intermediate language of the CACE Project WP3 is PIL (Protocol
+Implementation Language). The language itself gives all the details of
+a protocol and is meant to be easy to understand and easy to
+learn. This can aid in verifying the correctness from a users point of
+view. The constructs of the language are completely specified and
+allow an automatic verification of correctness and checking of
+side-channels.
+
+As a language on its own it has support for the following features:
 \begin{itemize}
 \item global shared constants (parameters)
+\begin{lstlisting}[language=PIL]
+Common (
+Z l_e = 1024;
+Z SZKParameter = 80;
+Prime(1024) n
+) {
+...
+}
+\end{lstlisting}
+
 \item global constants (parameters)
+\begin{lstlisting}[language=PIL]
+Prover (
+Zmod+(q) x;
+Zmod+(q) v
+) {
+...
+}
+\end{lstlisting}
+
 \item global variables
-\item local variables
+\begin{lstlisting}[language=PIL]
+Prover (
+...
+) {
+Zmod+(q) s, r;
+...
+}
+\end{lstlisting}
+
+\item local arguments
+
 \item conditionals
 \item loops
+
 \item functions
+\begin{lstlisting}[language=PIL]
+Def (Zmod*(p) _t_1): Round1(Void) {
+ _r_1 := Random(Zmod+(q));
+ _t_1 := (g^_r_1);
+}
+\end{lstlisting}
+
 \item predicates
+\begin{lstlisting}
+x := Random(Zmod+(q));
+CheckMembership(x, Zmod+(q));
+Verify(x == x);
+\end{lstlisting}
+
+\item type alias
+\begin{lstlisting}
+_C = Int(80) _c;
+\end{lstlisting}
+
 \end{itemize}
 
 Proof entities are specified as blocks and there is always a Common
 block with all declarations and definitions visible to all other
 blocks. Each block can define multiple functions that have inputs and outputs
 defined. A function consists of assignments or loops or conditional
-flow. The execution order is specified via block function pairs.
+flow. The execution order is specified via block function pairs:
+\begin{lstlisting}[language=PIL]
+ExecutionOrder := (Prover.Round0, Verifier.Round0, Prover.Round1, Verifier.Round1, Prover.Round2, Verifier.Round2);
+\end{lstlisting}
+The communication itself is specified via these functions. The inputs
+of the current function must match the output of the previous
+function. For example, The outputs of Round0 from Prover must match
+the inputs of Round0 from Verifier.
 
 \filbreak
 
+Again, the Schnorr protocol is used as an example, automatically generated
+from the PSL that was given in \ref{subsec:psl}.
 \lstinputlisting[language=PIL]{example.pil}
+
+\filbreak
 
 \section{ZKPDL}
 
@@ -123,121 +278,79 @@ of Knowledge \cite{zkpdl}.
   \label{fig:zkpdl_flow}
 \end{figure}
 
+\filbreak
+
 \section{Comparison of CACE and ZKPDL}
 
-A comparison between CACE and ZKPDL is given in table
-\ref{tab:compiler_comparison}.
+\filbreak
 
-\begin{table}[hbt!]
-  \begin{tabularx}{0.33\textwidth}{|l|l|l|}
-    & CACE compiler & ZKPDL compiler \\
-    \hline \\
-    Basic proof goals &
-    \begin{minipage}{0.33\textwidth}
-      knowledge of preimages under arbitrary group homomorphisms,
-      including RSA or Paillier type homomorphisms
-    \end{minipage}
-    &
-    \begin{minipage}{0.33\textwidth}
-      exponentiation homomorphisms only      
-    \end{minipage} \\
-    \hline \\
-    Basic protocols &
-    \begin{minipage}{0.33\linewidth}
-      SigmaPhi, Damgard/Fujisaki, SigmaExp
-    \end{minipage}
-    &
-    \begin{minipage}{0.33\linewidth}
-      SigmaPhi, Damgard/Fujisaki
-    \end{minipage} \\
-    \hline \\
-    Composition techniques &
-    \begin{minipage}{0.33\linewidth}
-      Boolean AND, OR, and providing knowledge
-      of $k$ out of $n$ secret values
-    \end{minipage}
-    &
-    \begin{minipage}{0.33\linewidth}
-      Boolean AND only
-    \end{minipage} \\
-    \hline \\
-    Input language &
-    \begin{minipage}{0.33\linewidth}
-      inspired by the standard notation for ZK-PoK
-    \end{minipage}
-    &
-    \begin{minipage}{0.33\linewidth}
-      inspired by the English language
-    \end{minipage} \\
-    \hline \\
-    Output language &
-    \begin{minipage}{0.33\linewidth}
-      C for implementation, \LaTeX for documentation
-    \end{minipage}
-    &
-    \begin{minipage}{0.33\linewidth}
-      specifically design language with interpreter and API to C++
-    \end{minipage} \\
-    \hline \\
-    Type of output &
-    \begin{minipage}{0.33\linewidth}
-      complete source code, which can directly be compiled to machine
-      code
-    \end{minipage}
-    &
-    \begin{minipage}{0.33\linewidth}
-      meta code or libraries, which partly have to be instantiated by
-      the calling procedure
-    \end{minipage} \\
-    \hline \\
-    Optimizations &
-    \begin{minipage}{0.33\linewidth}
-      reduction of redundant terms in the proof goal
-    \end{minipage}
-    &
-    \begin{minipage}{0.33\linewidth}
-      \begin{enumerate}
-      \item reduction of redundant terms in the proof goal
-      \item possibility of caching precomputations to reduce runtime
-      \end{enumerate}
-    \end{minipage} \\
-    \hline \\
-    Additional features &
-    \begin{minipage}{0.33\linewidth}
-      \begin{enumerate}
-      \item existence of a formal verification toolbox, which proves
-        the correctness of the compilation process
-      \item modular design with interfaces to other cryptographic
-        compilers developed within the CACE project
-      \end{enumerate}
-    \end{minipage}
-    &
-    \begin{minipage}{0.33\linewidth}
-      possibility to specify the generation of protocol inputs
-    \end{minipage}
-  \end{tabularx}
-  \caption{Detailed comparison of ZKPoK compilers \cite{yaczk}}
-  \label{tab:compiler_comparison}
-\end{table}
+\section{Other tools}
 
-\section{ANTLR \cite{ANTLR,ANTLR2}}
+\subsection{ANTLR}
 
 ANTLR (ANother Tool For Language Recognition) is a parser generator
 tool that generates LL(*) parsers. The tool accepts grammar
 definitions as input files and produces output in the target language
 which can be specified between C, Java or Python.
 
-The input to ANTLR is a context-free grammar augmented with syntactic
-and semantic predicates. Syntactic predicates allow arbitrary look-ahead
-while semantic predicates allow the state constructed up to the point of
-the predicate to direct the parse \cite{ANTLR}.
+The input to ANTLR is a context-free grammar that must be of the LL
+form. This means that there should be no left recursion or ambiguities
+when encountering the first element on the left. Left factoring is
+usually used to solve this, but this can sometimes lead to rules which
+have counter intuitive representation. The grammar can be augmented with
+syntactic and semantic predicates to cope with this \cite{ANTLR,ANTLR2}.
 
-The lexer and parser grammars can be combined into a single file.  In
-such cases, parser rules are written in lowercase, while the lexer
-rules are written in uppercase. ANTLR workflow allows for tree
-generators and tree walkers.
+ANTLR can generate both lexers and parser. The two grammars can be
+combined in a single file.  In such cases, parser rules are written in
+lowercase, while the lexer rules are written in uppercase. Upon
+generation, two separate entities will be created, a parser source and
+a lexer source in the target language (as illustrated in Figure
+\ref{fig:antlr_parser_lexer}).
 
-\section{LLVM}
+\filbreak
+
+\begin{figure}[hbt!]
+  \centering
+  \begin{tikzpicture}[>=stealth, font=\tiny]
+    \tikzstyle{edge from parent}=[draw,->]
+
+    \Tree[.\node[language](parser_g){Grammar \\ *.g};
+      [.\node[compiler](antlr){ANTLR};
+        [.\node[compiler](lexer){Lexer};]
+        [.\node[compiler](parser){Parser};]
+      ]
+    ]
+  \end{tikzpicture}
+  \caption{ANTLR Parser/Lexer generation}
+  \label{fig:antlr_parser_lexer}
+\end{figure}
+
+The output of the parser generated by ANTLR is a Parse Tree. ANTLR
+also allows specifying a tree transformation to apply to this Parse
+Tree. This can be used to automatically generate an Abstract Syntax
+Tree (AST).
+
+ANTLR can also generate a tree parser/walker that visit each node of
+the AST and applies a certain operation or produces a certain
+output. The generation of such a walker is illustrated in Figure
+\ref{fig:antlr_tree_walker}.
+
+\begin{figure}[hbt!]
+  \centering
+  \begin{tikzpicture}[>=stealth, font=\tiny]
+    \tikzstyle{edge from parent}=[draw,->]
+
+    \Tree[.\node[language](parser_g){Tree Grammar \\ *.g};
+      [.\node[compiler](antlr){ANTLR};
+        [.\node[compiler](lexer){Tree walker};]
+      ]
+    ]
+  \end{tikzpicture}
+  \caption{ANTLR Parser/Lexer generation}
+  \label{fig:antlr_tree_walker}
+\end{figure}
+
+\subsection{LLVM}
 
 LLVM (Low Level Virtual Machine) is a compiler framework designed to
 support transparent, life-long program analysis and transformation
@@ -291,7 +404,7 @@ depicted in Figure \ref{fig:llvm_flow}.
     \draw[->] (fortran) -- (gcc_front);
     \draw[->] (haskell) -- (ghc_front);
   \end{tikzpicture}
-  \caption{LLVM typical workflow}
+  \caption{LLVM typical workflow \cite{llvm_general}}
   \label{fig:llvm_flow}
 \end{figure}
 
@@ -307,12 +420,18 @@ of independent fields:
 \item implementing OpenCL drivers (AMD)
 \end{itemize}
 
-\subsection{LLVM IR}
+\subsubsection{LLVM IR}
 
 The LLVM IR is the intermediate representation language of the LLVM
 project. On its own it is a first-class language with well defined
-semantics \cite{llvm_general}. It resembles the assembly language of a
-infinitely many registers Load-Store based RISC processor.
+semantics \cite{llvm_general, llvm_master_thesis}. Variables are in the SSA (Static Single
+Assignment) form meaning that they can be only assigned once and they
+keep that value for their entire lifetime. All the values residing in
+memory need to be loaded to a variable first and stored back to memory
+if they wish to be saved. Instructions operate solely upon
+variables. In this respect, the LLVM IR resembles the assembly
+language of a infinitely many registers Load-Store based RISC
+processor.
 
 \begin{lstlisting}[language=C]
 unsigned add1(unsigned a, unsigned b) {
@@ -351,15 +470,79 @@ done:
 
 \filbreak
 
-The central concept in constructing LLVM IR is the Module. The Module
-represents the top level container of the LLVM IR. There are multiple
-ways on how to generate the IR. The one described here is by building a
-graph and creating objects along that graph.
+The central concept in constructing LLVM IR is the Module. Each module
+consists of functions, global variables and symbol table entries.
+Modules can be combined using the LLVM linker \cite{llvm_ir}.
 
-\section{GEZEL}
+\subsection{GEZEL}
 
 GEZEL is a cycle-accurate hardware description language (HDL) using the
-Finite-State-Machine + Datapath (FSMD) model.
+Finite-State-Machine + Datapath (FSMD) model \cite{gezel}.
+
+The basic element is a Signal Flow Graph. It groups operations that
+are to be executed concurrently in the same clock cycle.
+\begin{lstlisting}[language=GEZEL]
+sfg increment {
+  a = a + 1;
+}
+\end{lstlisting}
+One or more of these SFGs are used to form a datapath which is the
+main building block. It is the smallest GEZEL unit that can stand on
+its own and be simulated \cite{gezel}. A datapath can be thought of as
+a \emph{module} in Verilog or an \emph{entity} in VHDL. Here is a
+full contained example of a counter in GEZEL:
+\begin{lstlisting}[language=GEZEL]
+dp counter(out value : ns(2)) {
+   reg c : ns(2);
+   always {
+     value = c;
+     c = c + 1;
+     $display("Cycle ", $cycle, ": counter = ", value);
+   }
+}
+ 
+system S {
+  counter;
+}
+\end{lstlisting}
+
+\filbreak
+Figure \ref{fig:gezel_workflow} shows how the GEZEL language
+can be used as an input to:
+\begin{itemize}
+\item fdlvhd - a generator that can generate synthesizeable VHDL or
+  Verilog
+\item fdlsim - a cycle accurate simulator used to verify and validate
+  the design
+\item gplatform - a co-simulation tool used for HW/SW co-design purposes
+\end{itemize}
+
+\begin{figure}[hbt!]
+  \centering
+  \begin{tikzpicture}[>=stealth, font=\tiny]
+    \tikzstyle{edge from parent}=[draw,->]
+
+    \Tree[.\node[language](fdl){GEZEL language \\ *.fdl};
+      [.\node[compiler](fdlvhd){Code Generator \\ fdlvhd};
+        [.\node[language](vhdl){VHDL \\ Verilog};]
+      ]
+      [.\node[compiler](fdlsim){Simulator \\ fdlsim};
+        [.\node[language](sim){Verification \\ Profiling};]
+      ]
+      [.\node[compiler](gplatform){CoSimualtor \\ gplatform};
+        [.\node[language](cosim){Verification \\ Profiling};]
+      ]
+    ]
+  \end{tikzpicture}
+  \caption{GEZEL workflow \cite{gezel}}
+  \label{fig:gezel_workflow}
+\end{figure}
+
+The co-simulation tool allows to cosimulate GEZEL designs with
+instruction-set simulations \cite{gezel}. Supported processors are
+ARM, AVR, 8051, MicroBlaze and PicoBlaze. The cosimulation tool allows
+for designing a processor-coprocessor pair for a general purpose
+processor and a custom dedicated coprocessor.
 
 %%% Local Variables: 
 %%% TeX-PDF-mode: t

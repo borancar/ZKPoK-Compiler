@@ -19,10 +19,14 @@ Smartcard (
 ) {
   Zmod*(n) S, _Z, R;
   Int(l_n + l_phi) v_1;
+  Int(l_v) v;
 
   Def (Zmod*(n) U): Round0(Void) {
     x := Random(Zmod*(n));
     S := x^2;
+
+    x_0 := Random(Zmod*(n));
+    x_z := Random(Zmod*(n));
 
     _Z := S^x_z;
     R := S^x_0;
@@ -32,7 +36,7 @@ Smartcard (
     U := R^f * S^v_1;
   }
 
-  Def (Void): Round1(v_2) {
+  Def (Void): Round1(Int(l_v-1) v_2) {
     v := v_1 + v_2;
   }
 }
@@ -46,7 +50,7 @@ Host (
     U_o := U_i;
   }
 
-  Def (v_2_o): Round1(A, e, v_2_i) {
+  Def (Int(l_v-1) v_2_o): Round1(A; Int(l_e) e; Int(l_v-1) v_2_i) {
     v_2_o := v_2_i;
   }
 }
@@ -54,7 +58,7 @@ Host (
 Credential (
 
 ) {
-  Def (A, e, v_2): Round0(Zmod*(n) U) {
+  Def (Zmod*(n) A; Int(l_e) e; Int(l_v-1) v_2): Round0(Zmod*(n) U) {
     v := Random(Int(l_v-1));
     e := Random([2^(l_e-1), 2^(l_e-1) + 2^(l_e_1-1)]);
     v_2 := v + 2^(l_v-1);

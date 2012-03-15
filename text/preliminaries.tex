@@ -98,15 +98,105 @@ knowledge.
 \end{defn}
 
 \begin{defn}[Context-free grammar]
-  The grammar $G$ is a context free grammar if $|\alpha|$ = 1 ($\alpha = V$).
+  The grammar $G$ is a context free grammar iff $|\alpha|$ = 1 ($\alpha = V$).
 \end{defn}
 
-\begin{defn}[LL grammar]
-  A context free grammar $G$ is an LL grammar if $\beta \in \Sigma
-  (\Sigma \cup V)^*$
-\end{defn}
+\subsection{Concrete Syntax Tree}
 
-\section{Montgomery Product}
+A Concrete Syntax Tree, also called a Parse Tree is an ordered tree
+representation of the input according to a given formal grammar.
+For example, given the following input:
+\begin{lstlisting}
+a := b * c + d;
+\end{lstlisting}
+and the following grammar:
+\begin{align*}
+  \textrm{statement}  & \rightarrow \textrm{ID} := \textrm{expression} ; \\
+  \textrm{expression} & \rightarrow \textrm{term} + \textrm{term} \\
+  \textrm{term}       & \rightarrow \textrm{ID} * \textrm{ID} \\
+  \textrm{term}       & \rightarrow \textrm{ID}
+\end{align*}
+the tree depicted in Figure \ref{fig:simple_cst} is a Concrete Syntax Tree.
+
+\begin{figure}[hbt!]
+  \centering
+  \begin{tikzpicture}
+    \Tree [.\node[language](statement){statement};
+      [.\node[language](a){a};]
+      [.\node[language](assign){:=};]
+      [.\node[language](expression){expression};
+        [.\node[language](term){term};
+          [.\node[language](b){b};]
+          [.\node[language](mul){*}; ]
+          [.\node[language](c){c};]
+        ]
+        [.\node[language](plus){+};]
+        [.\node[language](term2){term};
+          [.\node[language](d){d};]
+        ]
+      ]
+      [.\node[language](semi){;};]
+    ]
+  \end{tikzpicture}
+  \caption{Concrete Syntax tree for a simple input and a simple grammar}
+  \label{fig:simple_cst}
+\end{figure}
+
+\subsection{Abstract Syntax Tree}
+
+An Abstract Syntax Tree (AST) is a tree representation of the abstract
+syntax of the input. Given the same example
+\begin{lstlisting}
+a := b * c + d;
+\end{lstlisting}
+one possible variant of the tree is illustrated in Figure
+\ref{fig:simple_ast}. Comparing it with the Parse Tree from Figure
+\ref{fig:simple_cst} one can see that the choice of abstraction is
+arbitrary.
+
+\begin{figure}[hbt!]
+  \centering
+  \begin{tikzpicture}
+    \Tree [.\node[language](equ){=};
+      [.\node[language](a){a};]
+      [.\node[language](add){+};
+        [.\node[language](mul){*};
+          [.\node[language](b){b};]
+          [.\node[language](c){c};]
+        ]
+        [.\node[language](d){d};]
+      ]
+    ]
+  \end{tikzpicture}
+  \caption{An example AST for a simple expression}
+  \label{fig:simple_ast}
+\end{figure}
+
+\begin{figure}[hbt!]
+  \centering
+  \begin{tikzpicture}[>=stealth,level distance=1.5cm,font=\tiny]
+    \tikzstyle{edge from parent}=[draw,->]
+
+    \Tree [.\node[language](input){Input};
+      [.\node[compiler](parser){Parser};
+        [.\node[language](ptree){Parse tree};
+          [.\node[compiler](tgen){Tree generator};
+            [.\node[language](ast){Abstract Syntax Tree};
+            ]
+          ]
+        ]
+      ]
+    ]
+  \end{tikzpicture}
+  \caption{Parser flow}
+  \label{fig:ast}
+\end{figure}
+
+\filbreak
+
+\section{Group arithmetic}
+
+\subsection{Montgomery Product}
 
 Modular multiplications would involve trial division after the
 multiplication step were it not for the algorithm know as Montgomery

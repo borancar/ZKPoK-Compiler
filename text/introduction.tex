@@ -126,44 +126,6 @@ bigger decision and trade-offs can be made more granular
 
 \filbreak
 
-\section{Domain specific languages}
-
-C and C++ are currently the dominant languages for embedded system
-programming. It is therefore natural to expect that real-world
-embedded cryptography applications be implemented in either of those
-two languages. This can lead to hidden and difficult problems to
-debug. A lot of cases were left unspecified or undefined in the C or
-C++ standard. Hence, compiler implementations have a choice on how to
-implement it. The usual approach is to define it as what is most
-efficient in terms of the platform. This sacrifices the safety and
-portability to ensure efficiency.
-
-\filbreak
-
-\begin{lstlisting}[language=C]
-#include <stdio.h>
-
-int b(void) { puts("3"); return 3; }
-int c(void) { puts("4"); return 4; }
-
-int main(void)
-{
-  int a = b() + c();
-  printf("%d\n", a);
-}
-\end{lstlisting}
-
-The evaluation order is unspecified so depending on the compiler, the
-output may be 3, 4, 7 or 4, 3, 7. The compiler usually chooses the
-optimal way to calculate it given a platform.
-
-The security world does not handle undefined and unspecified values
-well. It makes sense to build protections against unsafe, undefined
-and unspecified operations into the language. It also makes sense to
-make the language easy to learn and understand. This is the common
-requirement of a domain specific language, a language tailored for a
-specific domain.
-
 %%% Local Variables: 
 %%% TeX-PDF-mode: t
 %%% TeX-master: "thesis"

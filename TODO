@@ -1,5 +1,0 @@
-- Implement a GEZEL TERMINAL ipblock to simulate host/hw device communication    (DONE)
-- Add CACE terminal IPC module                                                   (DONE)
-- Make a GEZEL stub verifier                                                     (DONE)
-- Make a GEZEL stub prover                                                       (DONE)
-- Write out LL(*) grammer for PIL                                                (FINAL TOUCH REMAINING)

@@ -21,5 +21,6 @@ auto
 *.cls
 *.sty
 *.pdf
+*.PDF
 *.tokens
 text/kulemt.cfg

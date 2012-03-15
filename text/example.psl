@@ -1,0 +1,23 @@
+Declarations {
+  Prime(1024) p;
+  Prime(160) q;
+  Zmod+(q) x;
+  Zmod*(p) g, y;
+}
+
+Inputs {
+  Public := y,p,q,g;
+  ProverPrivate := x;
+}
+
+Properties {
+  KnowledgeError := 80;
+  SZKParameter := 80;
+  ProtocolComposition := P_1;
+}
+
+SigmaPhi P_1 {
+  Homomorphism (phi : Zmod+(q) -> Zmod*(p) : (a) |-> (g^a));
+  ChallengeLength := 80;
+  Relation ((y) = phi(x));
+}
