@@ -10,3 +10,57 @@
   \item[\hskip\labelsep
                                      \bfseries Keywords:]}
      {\endlist}
+
+%\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{thm}{Theorem}
+\newtheorem{corr}{Corollary}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstdefinelanguage{PIL}{
+morekeywords={ExecutionOrder, Common, Prover, Verifier, Def, Void, Prime, Z, Int},
+otherkeywords={Zmod+, Zmod*},
+morecomment=[l]{//},
+morecomment=[s]{/*}{*/}
+}
+
+\lstdefinelanguage{PSL}{
+  morekeywords={Prime, Public, ProverPrivate,
+    KnowledgeError, SZKParameter, ProtocolComposition, Homomorphism,
+    ChallengeLength, SigmaPhi, Relation, Declarations, Inputs, Properties},
+  otherkeywords={Zmod+, Zmod*},
+  morecomment=[l]{//}, morecomment=[s]{/*}{*/}
+}
+
+\lstdefinelanguage{grammar}{
+  keywords={},
+  otherkeywords={}
+}
+
+\lstdefinelanguage{GEZEL}{
+  morekeywords={sfg, dp, always, reg, syg, system, ns, tc, out, in, use, sig},
+  otherkeywords={$display, $hex, $dec, $bin, $cycle},
+  morecomment=[l]{//}
+}
+
+\lstset{
+language=PIL,
+basicstyle=\footnotesize,
+commentstyle=\color{dkgreen},
+keywordstyle=\bfseries,
+frame=single,
+breaklines=true,
+breakatwhitespace=false
+}
+
+\usetikzlibrary{backgrounds,calc,shapes,shapes.geometric,shadows,arrows,chains,trees,fit,positioning}
+
+\tikzstyle{language}=[rectangle,draw=black,thin,inner sep=3pt, align=center]
+
+\tikzstyle{compiler}=[rectangle,rounded corners,draw=black,thin,inner
+sep=3pt, align=center]
+
+\tikzstyle{added}=[fill=gray]

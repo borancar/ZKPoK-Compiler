@@ -1,0 +1,899 @@
+
+@book{DBLP:books/sp/NipkowPW02,
+  author    = {Tobias Nipkow and
+               Lawrence C. Paulson and
+               Markus Wenzel},
+  title     = {Isabelle/HOL - A Proof Assistant for Higher-Order Logic},
+  publisher = {Springer},
+  series    = {LNCS},
+  volume    = {2283},
+  year      = {2002},
+  isbn      = {3-540-43376-7},
+  ee        = {http://dx.doi.org/10.1007/3-540-45949-9},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@inproceedings{DBLP:conf/crypto/FiatS86,
+  author    = {Amos Fiat and
+               Adi Shamir},
+  title     = {How to Prove Yourself: Practical Solutions to Identification
+               and Signature Problems},
+  booktitle = {CRYPTO},
+  year      = {1986},
+  pages     = {186-194},
+  ee        = {http://dx.doi.org/10.1007/3-540-47721-7_12},
+  crossref  = {DBLP:conf/crypto/1986},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+@proceedings{DBLP:conf/crypto/1986,
+  editor    = {Andrew M. Odlyzko},
+  title     = {Advances in Cryptology - CRYPTO '86, Santa Barbara, California,
+               USA, 1986, Proceedings},
+  booktitle = {CRYPTO},
+  publisher = {Springer},
+  series    = {LNCS},
+  volume    = {263},
+  year      = {1987},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@inproceedings{CACE,
+ author = {Almeida, Jos{\'e} Bacelar and Bangerter, Endre and Barbosa, Manuel and Krenn, Stephan and Sadeghi, Ahmad-Reza and Schneider, Thomas},
+ title = {A certifying compiler for zero-knowledge proofs of knowledge based on Sigma-protocols},
+ booktitle = {Proceedings of the 15th European conference on Research in computer security},
+ series = {ESORICS'10},
+ year = {2010},
+ isbn = {3-642-15496-4, 978-3-642-15496-6},
+ location = {Athens, Greece},
+ pages = {151--167},
+ numpages = {17},
+ url = {http://dl.acm.org/citation.cfm?id=1888881.1888894},
+ acmid = {1888894},
+ publisher = {Springer},
+ keywords = {formal verification, protocol compiler, zero-knowledge},
+}
+
+@INPROCEEDINGS{Bellare98ondefining,
+    author = {Mihir Bellare and Oded Goldreich},
+    title = {On Defining Proofs of Knowledge},
+    booktitle = {},
+    year = {1998},
+    pages = {390--420},
+    publisher = {Springer}
+}
+
+@article{Brassard:1988:MDP:53813.53817,
+ author = {Brassard, Gilles and Chaum, David and Cr\'{e}peau, Claude},
+ title = {Minimum disclosure proofs of knowledge},
+ journal = {J. Comput. Syst. Sci.},
+ volume = {37},
+ issue = {2},
+ year = {1988},
+ issn = {0022-0000},
+ pages = {156--189},
+ numpages = {34},
+ url = {http://dl.acm.org/citation.cfm?id=53813.53817},
+ doi = {10.1016/0022-0000(88)90005-0},
+ acmid = {53817},
+ publisher = {Academic Press, Inc.},
+}
+
+@phdthesis{quteprints16023,
+           title = {Heuristic Optimization of Boolean Functions and Substitution Boxes for Cryptography},
+          school = {Queensland University of Technology},
+          author = {Linda Dee Burnett},
+            year = {2005},
+        keywords = {boolean function, substitution box, heuristic techniques, Genetic Algorithm, Hill Climbing, cryptographic properties, autocorrelation, balance, nonlinearity, correlation immunity, resilience, propagation criteria},
+             url = {http://eprints.qut.edu.au/16023/},
+        abstract = {Fundamental to the electronic security of information and communication systems, is the correct use and application of appropriate ciphers. The strength of these ciphers, particularly in their ability to resist cryptanalytic attacks, directly in
+uences the overall strength of the entire system. The strength of the underlying cipher is reliant upon a robust structure and the carefully designed interaction between components in its architecture. Most importantly, however, cipher strength is critically dependent on the strength of the individual components of which it is comprised.
+Boolean functions and substitution boxes (s-boxes) are among the most common and essential components of ciphers. This is because they are able to provide a cipher with strengthening properties to resist known and potential cryptanalytic attacks. Thus, it is not surprising that significant research effort has been made in trying to develop ways of obtaining boolean functions and substitution boxes with
+optimal achievable measures of desirable cryptographic properties. Three of the
+main cryptographic properties required by strong boolean functions and s-boxes are nonlinearity, correlation immunity and propagation criteria, with different cryptographic applications requiring different acceptable measures of these and other properties. As combinations of cryptographic properties exhibited by functions
+can be conicting, finding cryptographically strong functions often means that a trade-off needs to be made when optimizing property values. Throughout this thesis, the term ``optimization'' specifically refers to seeking to obtain the best achievable combination of target property values which may be exhibited by boolean functions and s-boxes, regardless of whether the relevant properties are
+conflicting or complementary.
+This thesis focusses on a particular class of techniques for obtaining strong functions for cryptographic applications, referred to as heuristic methods or, simply, heuristics. Three new heuristic methods, each aimed at generating boolean functions optimizing one or more of the main cryptographic properties mentioned above, in addition to other desirable properties, are presented. The first of the new heuristic methods developed for this thesis focusses on generating boolean functions which are balanced and exhibit very high nonlinearities. Highly nonlinear balanced functions are critical to many cryptographic applications, as they provide good resistance to linear cryptanalytic attacks. This first method is based on the recursive modification of a starting bent function and is shown to be highly successful and efficient at generating numerous such functions, which also exhibit low autocorrelation values, in a very short computational time.
+The generation of balanced, correlation immune boolean functions that also exhibit the confl
+icting property of high nonlinearity is the focus of the second new heuristic method developed for this thesis. By concatenating selected pairs of lower-dimensional boolean functions together in the Walsh Hadamard transform domain, direct optimization for both resilience and nonlinearity was able to take place at each level towards and for the final function. This second method was able to generate examples of boolean functions with almost all of the best known optimal combinations of target property values. Experiments have shown the success of this method in consistently generating highly nonlinear resilient boolean functions, for a range of orders of resilience, with such functions possessing optimal algebraic degree.
+A third new heuristic method, which searches for balanced boolean functions which satisfy a non-zero degree of propagation criteria and exhibit high nonlinearity, is presented. Intelligent bit manipulations in the truth table of starting
+functions, based on fundamental relationships between boolean function transforms and measures, provide the design rationale for this method. Two new function generation schemes have been proposed for this method, to efficiently
+satisfy the requirements placed on the starting functions utilized in the computational
+process. An optional process attempts to increase the algebraic degree of the resulting functions, without sacrificing the optimalities that are achievable. The validity of this method is demonstrated through the success of various
+experimental trials.
+Switching the focus from single output boolean functions to multiple output boolean functions (s-boxes), the effectiveness of existing heuristic techniques (namely Genetic Algorithm, Hill Climbing Method and combined Genetic Algorithm/Hill Climbing) in primarily being applied to improve the nonlinearity of s-boxes of various dimensions, is investigated. The prior success of these heuristic techniques for improving the nonlinearity of boolean functions has been previously demonstrated, as has the success of hill climbing in isolation when applied to bijective s-boxes. An extension to the bijective s-box optimization work is presented in this thesis. In this new research, a Genetic Algorithm, Hill Climbing Method
+and the two in combination are applied to the nonlinearity and autocorrelation optimization of regular NxM s-boxes (N {\ensuremath{>}} M) to investigate the effectiveness and efficiency of each of these heuristics. A new breeding scheme, utilized in the Genetic Algorithm and combined Genetic Algorithm/Hill Climbing trials, is also presented. The success of experimental results compared to random regular s-box generation is demonstrated.
+New research in applying the Hill Climbing Method to construct NxM sboxes (N {\ensuremath{>}} M) required to meet specific property criteria is presented. The consideration of the characteristics desired by the constructed s-boxes largely dictated the generation process. A discussion on the generation process of the component functions is included. Part of the results produced by experimental trials were incorporated into a commonly used family of stream ciphers, thus further supporting the use of heuristic techniques as a useful means of obtaining strong functions suitable for incorporation into practical ciphers.
+An analysis of the cryptographic properties of the s-box used in the MARS block cipher, the method of generation and the computational time taken to obtain this s-box, led to the new research reported in this thesis on the generation of MARS-like s-boxes. It is shown that the application of the Hill Climbing
+Method, with suitable requirements placed on the component boolean functions, was able to generate multiple MARS-like s-boxes which satisfied the MARS sbox requirements and provided additional properties. This new work represented an alternative approach to the generation of s-boxes satisfying the MARS sbox
+property requirements but which are cryptographically superior and can be obtained in a fraction of the time than that which was taken to produce the MARS s-box. An example MARS-like s-box is presented in this thesis.
+The overall value of heuristic methods in generating strong boolean functions and substitution boxes is clearly demonstrated in this thesis. This thesis has made several significant contributions to the field, both in the development of new, specialized heuristic methods capable of generating strong boolean functions, and in the analysis and optimization of substitution boxes, the latter achieved
+through applying existing heuristic techniques.}
+}
+
+@INPROCEEDINGS{4259811,
+author={Alho, T. and Hamalainen, P. and Hanikainen, M. and Hamalainen, T.D.},
+booktitle={Automation Congress, 2006. WAC '06. World},
+title={Design of a Compact Modular Exponentiation Accelerator for Modern FPGA Devices},
+year={2006},
+volume={},
+number={},
+pages={1 -7},
+abstract={We present a compact FPGA implementation of a modular exponentiation accelerator suited for cryptographic applications. The implementation efficiently exploits the properties of modern FPGAs. The accelerator consumes 341 logic elements, 1 DSP block, and 13604 memory bits in Altera Stratix EP1S40. It performs modular exponentiations with up to 2250-bit integers and scales easily to larger exponentiations. Excluding pre and post processing time, 1024-bit and 2048-bit exponentiations are performed in 28.03 ms and 212.09 ms, respectively. Due to its compactness, standard interface, and support for different clock domains, the accelerator can effortlessly be integrated into a larger system in the same FPGA.},
+keywords={Altera Stratix EP1S40;DSP block;FPGA;clock domains;compact modular exponentiation accelerator;cryptographic applications;cryptography;digital signal processing chips;field programmable gate arrays;},
+doi={10.1109/WAC.2006.375738},
+ISSN={},}
+
+@inproceedings{smartcard_crypto_coprocs,
+author = {Helena Handschuh and Pascal Paillier},
+title = {Smart Card Crypto-Coprocessors for Public-Key Cryptography},
+booktitle = {CARDIS},
+year = {1998},
+pages = {372--379},
+masid = {647129}
+}
+
+@incollection{smartcard_crypto_coprocs2,
+author = {Helena Handschuh and Pascal Paillier},
+title = {Smart Card Crypto-Coprocessors for Public-Key Cryptography},
+pages= {386--394},
+booktitle = {Smart Card Research and Applications},
+editor = {Jean-Jeacques Quisquater and Bruce Schneier},
+publisher = {Springer},
+year = {2000}
+}
+
+@inproceedings{monpro_doubling,
+ author = {Yoshino, Masayuki and Okeya, Katsuyuki and Vuillau Camille},
+ title = {Unbridle the bit-length of a crypto-coprocessor with montgomery multiplication},
+ booktitle = {Proceedings of the 13th international conference on Selected areas in cryptography},
+ series = {SAC'06},
+ year = {2007},
+ isbn = {978-3-540-74461-0},
+ location = {Montreal, Canada},
+ pages = {188--202},
+ numpages = {15},
+ url = {http://portal.acm.org/citation.cfm?id=1756516.1756535},
+ acmid = {1756535},
+ publisher = {Springer},
+ keywords = {RSA, crypto-coprocessor, montgomery multiplication, smartcard},
+}
+
+@inproceedings{classic_doubling,
+ author = {Fischer, Wieland and Seifert, Jean-Pierre},
+ title = {Increasing the Bitlength of a Crypto-Coprocessor},
+ booktitle = {Revised Papers from the 4th International Workshop on Cryptographic Hardware and Embedded Systems},
+ series = {CHES '02},
+ year = {2003},
+ isbn = {3-540-00409-2},
+ pages = {71--81},
+ numpages = {11},
+ url = {http://portal.acm.org/citation.cfm?id=648255.752711},
+ acmid = {752711},
+ publisher = {Springer},
+ keywords = {arithmetical coprocessor, hardware architecture, hardware/software codesign, modular multiplication},
+}
+
+@incollection {llvm_general,
+title="{LLVM}",
+author="Chris Lattner",
+pages="155--171",
+booktitle="The Architecture of Open Source Applications: Elegance, Evolution, and a Few Fearless Hacks",
+editor="Brown, A. and Wilson, G.",
+publisher="CreativeCommons",
+url="http://www.aosabook.org/en/llvm.html",
+year="2011",
+isbn={9781257638017}
+}
+
+@InProceedings{LLVM:CGO04,
+  author    = {Chris Lattner and Vikram Adve},
+  title     = "{LLVM: A Compilation Framework for Lifelong Program Analysis \& Transformation}",
+  booktitle = "{Proceedings of the 2004 International Symposium on Code Generation and Optimization (CGO'04)}",
+  year      = {2004},
+  url="http://llvm.org/pubs/2004-01-30-CGO-LLVM.html"
+}
+
+@article{Turing,
+author = {Turing, A. M.},
+title = {On Computable Numbers, with an Application to the Entscheidungsproblem},
+volume = {s2-42},
+number = {1},
+pages = {230-265},
+year = {1937},
+doi = {10.1112/plms/s2-42.1.230},
+URL = {http://plms.oxfordjournals.org/content/s2-42/1/230.short},
+eprint = {http://plms.oxfordjournals.org/content/s2-42/1/230.full.pdf+html},
+journal = {Proceedings of the London Mathematical Society}
+}
+
+@book{Hopcroft,
+ author = {Hopcroft, John E. and Ullman, Jeffrey D.},
+ title = {Introduction To Automata Theory, Languages, And Computation},
+ year = {1990},
+ isbn = {020102988X},
+ edition = {1st},
+ publisher = {Addison-Wesley Longman Publishing Co., Inc.}
+}
+
+@book{Schaumont,
+  author = {Patrick R. Schaumont},
+  title = {A Practical Introduction to Hardware/Software Codesign},
+  year = {2010},
+  isbn = {978-1-4419-5999-7},
+  publisher = {Springer}
+}
+
+@article{Montgomery,
+author = {Peter L. Montgomery},
+title = {Modular Multiplication Without Trial Division},
+year = {1985},
+volume = {44},
+number = {170},
+pages = {519-521},
+journal = {Mathematics of Computation},
+URL = {http://www.jstor.org/pss/2007970}
+}
+
+@Article{Koc,
+  author = 	 {\c{C}etin Kaya Ko\c{c} and Tolga Acar and Burton S. Kaliski Jr.},
+  title = 	 {Analyzing and Comparing Montgomery Multiplication Algorithms},
+  journal = 	 {IEEE Micro},
+  year = 	 1996,
+  volume = 	 16,
+  number = 	 3,
+  pages = 	 {26-33}
+}
+
+@inproceedings{ANTLR,
+ author = {Parr, Terence and Fisher, Kathleen},
+ title = {LL(*): the foundation of the ANTLR parser generator},
+ booktitle = {Proceedings of the 32nd ACM SIGPLAN conference on Programming language design and implementation},
+ series = {PLDI '11},
+ year = {2011},
+ location = {San Jose, California, USA},
+ pages = {425--436},
+ publisher = {ACM}
+} 
+
+@article{ANTLR2,
+ author = {Parr, T. J. and Quong, R. W.},
+ title = {ANTLR: a predicated-LL(k) parser generator},
+ journal = {Software Practice and Experience},
+ issue_date = {July 1995},
+ volume = {25},
+ year = {1995},
+ pages = {789--810},
+ publisher = {John Wiley \& Sons, Inc.}
+} 
+
+@book{HAC,
+ author = {Menezes, Alfred J. and Vanstone, Scott A. and Oorschot, Paul C. Van},
+ title = {Handbook of Applied Cryptography},
+ year = 1996,
+ isbn = 0849385237,
+ edition = {1st},
+ publisher = {CRC Press, Inc.},
+}
+
+@article{softeninghw,
+ author = {Vahid, Frank},
+ title = {The Softening of Hardware},
+ journal = {Computer},
+ volume = {36},
+ issue = {4},
+ year = {2003},
+ issn = {0018-9162},
+ pages = {27--34},
+ numpages = {8},
+ url = {http://dx.doi.org/10.1109/MC.2003.1193225},
+ doi = {http://dx.doi.org/10.1109/MC.2003.1193225},
+ acmid = {766186},
+ publisher = {IEEE Computer Society Press},
+}
+
+@online{cace-proj,
+title = {Computer Aided Cryptography Engineering},
+url = {http://http://www.cace-project.eu/},
+}
+
+@online{llvm_ir,
+author = {Chris Lattner},
+title = {{LLVM Language Reference Manual}},
+url = {http://llvm.org/docs/LangRef.html},
+}
+
+@online{antlrworks,
+title = {ANTLRWorks: The ANTLR GUI Development Environment},
+url = {http://www.antlr.org/works/index.html},
+}
+
+@online{extending_llvm,
+title = {Extending LLVM: Adding instructions, intrinsics, types, etc.},
+url = {http://llvm.org/docs/ExtendingLLVM.html}
+}
+
+@article{llvmmasterthesis,
+    author  = {Chris Lattner},
+    title   = "{LLVM: An Infrastructure for Multi-Stage Optimization}",
+    school  = "{Computer Science Dept., University of Illinois at Urbana-Champaign}",
+    year    = 2002,
+    note    = {{\em See {\texttt{http://llvm.cs.uiuc.edu}}.}}
+  }
+
+@MastersThesis{simplified_daa,
+author = {Antonio Diaz Castano},
+title = {Anonymous ePetitions with secure hardware for smart phones},
+school = {Universida de Vigo},
+year = {2011}
+}
+
+@techreport{c++_multi_methods,
+  author = {Peter Pirkelbauer and Yuriy Solodkyy and Bjarne Stroustrup},
+  title = {Report on language support for Multi-Methods and Open-Methods for C++.},
+  year = {2007},
+  number = {N2216},
+  institution = {{JTC1}/{SC22}/{WG21} {C++} Standards Committee},
+  url = {http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2216.pdf},
+  keywords = {C++, Multi-methods, multi-dispatch}
+}
+
+@book{Eckel,
+ author = {Eckel, Bruce},
+ title = {Thinking in C++},
+ year = {1995},
+ isbn = {0-13-917709-4},
+ publisher = {Prentice-Hall, Inc.},
+}
+
+@phdthesis{Cameni98,
+    author     = {Jan Camenisch},
+    title      = {Group Signature Schemes and Payment Systems Based on the Discrete Logarithm Problem},
+    year       = 1998,
+    note       = {Reprint as vol.~2 of {\em ETH Series in Information Security and Cryptography}, {ISBN} 3-89649-286-1, {H}artung-{G}orre {V}erlag, {K}onstanz, 1998},
+    school     = {{ETH Zurich}}
+}
+
+@book{cryptography_introduction,
+    abstract = {{Nigel Smart's "Cryptography" provides the rigorous detail required for
+advanced cryptographic studies, yet approaches the subject matter in an
+accessible style in order to gently guide new students through difficult
+mathematical topics.}},
+    author = {Smart, Nigel},
+    citeulike-article-id = {5008496},
+    day = {30},
+    howpublished = {Paperback},
+    isbn = {0077099877},
+    keywords = {cryptography},
+    posted-at = {2009-06-29 09:59:04},
+    priority = {2},
+    publisher = {Mcgraw-Hill College},
+    title = {{Cryptography: An Introduction}},
+    url = {http://www.amazon.com/exec/obidos/redirect?tag=citeulike07-20\&path=ASIN/0077099877},
+    year = {2004}
+}
+
+@incollection {schnorr_protocol,
+   author = {Schnorr, C.},
+   affiliation = {Universit\"{a}t Frankfurt Frankfurt},
+   title = {Efficient Identification and Signatures for Smart Cards},
+   booktitle = {Advances in Cryptology — CRYPTO 89 Proceedings},
+   series = {LNCS},
+   editor = {Brassard, Gilles},
+   publisher = {Springer Berlin / Heidelberg},
+   isbn = {978-0-387-97317-3},
+   keyword = {Computer Science},
+   pages = {239-252},
+   volume = {435},
+   year = 1990
+}
+
+@inproceedings{camenisch_stadler,
+ author = {Camenisch, Jan and Stadler, Markus},
+ title = {Efficient Group Signature Schemes for Large Groups (Extended Abstract)},
+ booktitle = {Proceedings of the 17th Annual International Cryptology Conference on Advances in Cryptology},
+ series = {CRYPTO '97},
+ year = {1997},
+ isbn = {3-540-63384-7},
+ pages = {410--424},
+ numpages = {15},
+ url = {http://dl.acm.org/citation.cfm?id=646762.706305},
+ acmid = {706305},
+ publisher = {Springer},
+}
+
+@online{formal_languages,
+author = {Tao Jiang and Ming Li and Bala Ravikumar and Kenneth W. Regan},
+title = {Formal Grammars and Languages},
+url = {http://www.cs.ucr.edu/~jiang/cs215/tao-new.pdf}
+}
+
+@inproceedings{DBLP:conf/ccs/BrickellCC04,
+  author    = {Ernest F. Brickell and
+               Jan Camenisch and
+               Liqun Chen},
+  title     = {Direct anonymous attestation},
+  booktitle = {ACM Conference on Computer and Communications Security},
+  year      = {2004},
+  pages     = {132-145},
+  ee        = {http://doi.acm.org/10.1145/1030083.1030103},
+  crossref  = {DBLP:conf/ccs/2004ccs},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@proceedings{DBLP:conf/ccs/2004ccs,
+  editor    = {Vijayalakshmi Atluri and
+               Birgit Pfitzmann and
+               Patrick Drew McDaniel},
+  title     = {Proceedings of the 11th ACM Conference on Computer and Communications
+               Security, CCS 2004, Washington, DC, USA, October 25-29,
+               2004},
+  booktitle = {ACM Conference on Computer and Communications Security},
+  publisher = {ACM},
+  year      = {2004},
+  isbn      = {1-58113-961-6},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@INPROCEEDINGS{fast_multiplication,
+author={Sent\"{u}rk, A. and Gok, M.},
+booktitle={Intelligent Information Hiding and Multimedia Signal Processing (IIH-MSP), 2010 Sixth International Conference on}, title={A Fast Modular Multiplication Method},
+year={2010},
+volume={},
+number={},
+pages={204 -207},
+keywords={C program;GNU multiple precision library;fast modular multiplication method;general-purpose architectures;public key cryptography;C language;public key cryptography;software libraries;},
+doi={10.1109/IIHMSP.2010.58},
+ISSN={},}
+
+@article{hoare_logic,
+ author = {Hoare, C. A. R.},
+ title = {An axiomatic basis for computer programming},
+ journal = {Commun. ACM},
+ volume = {12},
+ number = {10},
+ year = {1969},
+ issn = {0001-0782},
+ pages = {576--580},
+ numpages = {5},
+ url = {http://doi.acm.org/10.1145/363235.363259},
+ doi = {10.1145/363235.363259},
+ acmid = {363259},
+ publisher = {ACM},
+ keywords = {axiomatic method, formal language definition, machine-independent programming, program documentation, programming language design, theory of programming' proofs of programs}
+}
+
+@inproceedings{Goldwasser:1985:KCI:22145.22178,
+ author = {Goldwasser, S and Micali, S and Rackoff, C},
+ title = {The knowledge complexity of interactive proof-systems},
+ booktitle = {Proceedings of ACM Symposium on Theory of Computing},
+ series = {STOC '85},
+ year = {1985},
+ pages = {291--304},
+ publisher = {ACM}
+}
+
+@inproceedings{Goldreich:1987:PNZ:36664.36675,
+ author = {Goldreich, Oded and Micali, Silvio and Wigderson, Avi},
+ title = {{How to prove all NP-statements in zero-knowledge, and a methodology of cryptographic protocol design}},
+ booktitle = {Advances in cryptology -- CRYPTO '86},
+ year = {1987},
+ pages = {171--185},
+ publisher = {Springer}
+}
+
+@article{springerlink:10.1007/BF02351717,
+   author = {Feige, Uriel and Fiat, Amos and Shamir, Adi},
+   title = {Zero-knowledge proofs of identity},
+   journal = {Journal of Cryptology},
+   publisher = {Springer},
+   pages = {77-94},
+   volume = {1},
+   issue = {2},
+   year = {1988}
+}
+
+@inproceedings{DBLP:conf/crypto/Chaum82,
+  author    = {David Chaum},
+  title     = {Blind Signatures for Untraceable Payments},
+  booktitle = {Advances in cryptology -- CRYPTO '82},
+  year      = {1982},
+  pages     = {199-203},
+  editor    = {David Chaum and
+               Ronald L. Rivest and
+               Alan T. Sherman},
+  publisher = {Plenum Press},
+  year      = {1983}
+}
+
+@INPROCEEDINGS{Camenisch05compacte-cash,
+    author = {Jan Camenisch and Susan Hohenberger and Anna Lysyanskaya},
+    title = {Compact e-cash},
+    booktitle = {EUROCRYPT, volume 3494 of LNCS},
+    year = {2005},
+    pages = {302--321},
+    publisher = {Springer}
+}
+
+@inproceedings{Groth:2005:NZA:2134532.2134564,
+ author = {Groth, Jens},
+ title = {Non-interactive zero-knowledge arguments for voting},
+ booktitle = {Proceedings of the Third international conference on Applied Cryptography and Network Security},
+ series = {ACNS'05},
+ year = {2005},
+ isbn = {3-540-26223-7, 978-3-540-26223-7},
+ location = {New York, NY},
+ pages = {467--482},
+ numpages = {16},
+ url = {http://dx.doi.org/10.1007/11496137_32},
+ doi = {10.1007/11496137_32},
+ acmid = {2134564},
+ publisher = {Springer}
+}
+
+@INPROCEEDINGS{Damgard03thetheory,
+    author = {Ivan Damg{\aa}rd and Jens Groth and Gorm Salomonsen},
+    title = {The Theory and Implementation of an Electronic Voting System },
+    booktitle = {Secure Electronic Voting},
+    year = {2003},
+    pages = {77--100},
+    publisher = {Kluwer Academic Publishers}
+}
+
+@inproceedings{Brickell:2004:DAA:1030083.1030103,
+ author = {Brickell, Ernie and Camenisch, Jan and Chen, Liqun},
+ title = {Direct anonymous attestation},
+ booktitle = {Proceedings of the 11th ACM conference on Computer and communications security},
+ series = {CCS '04},
+ year = {2004},
+ isbn = {1-58113-961-6},
+ location = {Washington DC, USA},
+ pages = {132--145},
+ numpages = {14},
+ url = {http://doi.acm.org/10.1145/1030083.1030103},
+ doi = {10.1145/1030083.1030103},
+ acmid = {1030103},
+ publisher = {ACM}
+}
+
+@INPROCEEDINGS{Nguyen05dynamick-times,
+    author = {Lan Nguyen and Rei Safavi-naini},
+    title = {Dynamic k-Times Anonymous Authentication},
+    booktitle = {ACNS 2005, number 3531 in LNCS},
+    year = {2005},
+    pages = {318--333},
+    publisher = {Springer Verlag}
+}
+
+@inproceedings{Meiklejohn:2010:ZLS:1929820.1929838,
+ author = {Meiklejohn, Sarah and Erway, C. Chris and K\"{u}p\c{c}\"{u}, Alptekin and Hinkle, Theodora and Lysyanskaya, Anna},
+ title = {{ZKPDL}: a language-based system for efficient zero-knowledge proofs and electronic cash},
+ booktitle = {Proceedings of the 19th USENIX conference on Security},
+ series = {USENIX Security'10},
+ year = {2010},
+ isbn = {888-7-6666-5555-4},
+ location = {Washington, DC},
+ pages = {13--13},
+ numpages = {1},
+ url = {http://dl.acm.org/citation.cfm?id=1929820.1929838},
+ acmid = {1929838},
+ publisher = {USENIX Association}
+}
+
+@inproceedings{Almeida:2010:CCZ:1888881.1888894,
+ author = {Almeida, Jos{\'e} Bacelar and Bangerter, Endre and Barbosa, Manuel and Krenn, Stephan and Sadeghi, Ahmad-Reza and Schneider, Thomas},
+ title = {A certifying compiler for zero-knowledge proofs of knowledge based on \&\#931;-protocols},
+ booktitle = {Proceedings of the 15th European conference on Research in computer security},
+ series = {ESORICS'10},
+ year = {2010},
+ isbn = {3-642-15496-4, 978-3-642-15496-6},
+ location = {Athens, Greece},
+ pages = {151--167},
+ numpages = {17},
+ url = {http://dl.acm.org/citation.cfm?id=1888881.1888894},
+ acmid = {1888894},
+ publisher = {Springer},
+ keywords = {formal verification, protocol compiler, zero-knowledge}
+}
+
+@inproceedings{Camenisch:2002:DII:586110.586114,
+ author = {Camenisch, Jan and Van Herreweghen, Els},
+ title = {Design and implementation of the idemix anonymous credential system},
+ booktitle = {Proceedings of the 9th ACM conference on Computer and communications security},
+ series = {CCS '02},
+ year = {2002},
+ isbn = {1-58113-612-9},
+ location = {Washington, DC, USA},
+ pages = {21--30},
+ numpages = {10},
+ url = {http://doi.acm.org/10.1145/586110.586114},
+ doi = {10.1145/586110.586114},
+ acmid = {586114},
+ publisher = {ACM},
+ keywords = {anonymous credential systems, cryptographic protocols, privacy}
+}
+
+@Misc{DamgardSigma2004,
+ author = {Ivan Damg{\aa}rd},
+ title = {On Sigma Protocols},
+ year = {2004}
+}
+
+@inproceedings{citeulike:7079130,
+    author = {Bangerter, Endre and Barbosa, Manuel and Bernstein, Daniel J. and Damg\r{a}rd, Ivan and Page, Dan and Pagter, Jakob I. and Sadeghi, Ahmad-Reza and Sovio, Sampo},
+    booktitle = {ISSE 2009 Securing Electronic Business Processes: Highlights of the Information Security Solutions Europe 2009 Conference},
+    citeulike-article-id = {7079130},
+    editor = {Pohlmann, Norbert and Reimer, Helmut and Schneider, Wolfgang},
+    keywords = {prog},
+    location = {The Hague, Netherlands},
+    pages = {291--301},
+    posted-at = {2010-04-25 06:17:48},
+    priority = {2},
+    publisher = {Vieweg+Teubner Verlag},
+    title = {Using Compilers to Enhance Cryptographic Product Development},
+    year = {2009}
+}
+
+@inproceedings{DBLP:conf/weworc/LucksST05,
+  author    = {Stefan Lucks and
+               Nico Schmoigl and
+               Emin Islam Tatli},
+  title     = {Issues on Designing a Cryptographic Compiler},
+  booktitle = {WEWoRC},
+  year      = {2005},
+  pages     = {109-122},
+  ee        = {http://subs.emis.de/LNI/Proceedings/Proceedings74/article3802.html},
+  crossref  = {DBLP:conf/weworc/2005},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+@proceedings{DBLP:conf/weworc/2005,
+  editor    = {Christopher Wolf and
+               Stefan Lucks and
+               Po-Wah Yau},
+  title     = {WEWoRC 2005 - Western European Workshop on Research in Cryptology,
+               July 5-7, 2005, Leuven, Belgium},
+  booktitle = {WEWoRC},
+  publisher = {GI},
+  series    = {LNI},
+  volume    = {74},
+  year      = {2005},
+  isbn      = {3-88579-403-9},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@inproceedings{DBLP:conf/issa/BangerterKSU11,
+  author    = {Endre Bangerter and
+               Stephan Krenn and
+               Matrial Seifriz and
+               Ulrich Ultes-Nitsche},
+  title     = {{cPLC - A Cryptographic Programming Language and Compiler}},
+  booktitle = {ISSA},
+  year      = {2011},
+  ee        = {http://icsa.cs.up.ac.za/issa/2011/Proceedings/Full/50_paper.pdf},
+  crossref  = {DBLP:conf/issa/2011},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+@proceedings{DBLP:conf/issa/2011,
+  editor    = {Hein S. Venter and
+               Marijke Coetzee and
+               Marianne Loock},
+  title     = {Information Security South Africa Conference 2011, Hyatt
+               Regency Hotel, Rosebank, Johannesburg, South Africa, August
+               15-17, 2011. Proceedings ISSA 2011},
+  booktitle = {ISSA},
+  publisher = {ISSA, Pretoria, South Africa},
+  year      = {2011},
+  isbn      = {978-1-4577-1482-5},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@inproceedings{DBLP:conf/uss/MalkhiNPS04,
+  author    = {Dahlia Malkhi and
+               Noam Nisan and
+               Benny Pinkas and
+               Yaron Sella},
+  title     = {Fairplay - Secure Two-Party Computation System},
+  booktitle = {USENIX Security Symposium},
+  year      = {2004},
+  pages     = {287-302},
+  ee        = {http://www.usenix.org/publications/library/proceedings/sec04/tech/malkhi.html},
+  crossref  = {DBLP:conf/uss/2004},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+@proceedings{DBLP:conf/uss/2004,
+  title     = {Proceedings of the 13th USENIX Security Symposium, August
+               9-13, 2004, San Diego, CA, USA},
+  booktitle = {USENIX Security Symposium},
+  publisher = {USENIX},
+  year      = {2004},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@inproceedings{DBLP:conf/pkc/DamgardGKN09,
+  author    = {Ivan Damg{\aa}rd and
+               Martin Geisler and
+               Mikkel Kr{\o}igaard and
+               Jesper Buus Nielsen},
+  title     = {Asynchronous Multiparty Computation: Theory and Implementation},
+  booktitle = {Public Key Cryptography},
+  year      = {2009},
+  pages     = {160-179},
+  ee        = {http://dx.doi.org/10.1007/978-3-642-00468-1_10},
+  crossref  = {DBLP:conf/pkc/2009},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+@proceedings{DBLP:conf/pkc/2009,
+  editor    = {Stanislaw Jarecki and
+               Gene Tsudik},
+  title     = {Public Key Cryptography - PKC 2009, 12th International Conference
+               on Practice and Theory in Public Key Cryptography, Irvine,
+               CA, USA, March 18-20, 2009. Proceedings},
+  booktitle = {Public Key Cryptography},
+  publisher = {Springer},
+  series    = {LNCS},
+  volume    = {5443},
+  year      = {2009},
+  isbn      = {978-3-642-00467-4},
+  ee        = {http://dx.doi.org/10.1007/978-3-642-00468-1},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@inproceedings{DBLP:conf/ccs/HeneckaKSSW10,
+  author    = {Wilko Henecka and
+               Stefan K{\"o}gl and
+               Ahmad-Reza Sadeghi and
+               Thomas Schneider and
+               Immo Wehrenberg},
+  title     = {TASTY: tool for automating secure two-party computations},
+  booktitle = {ACM Conference on Computer and Communications Security},
+  year      = {2010},
+  pages     = {451-462},
+  ee        = {http://doi.acm.org/10.1145/1866307.1866358},
+  crossref  = {DBLP:conf/ccs/2010},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+@proceedings{DBLP:conf/ccs/2010,
+  editor    = {Ehab Al-Shaer and
+               Angelos D. Keromytis and
+               Vitaly Shmatikov},
+  title     = {Proceedings of the 17th ACM Conference on Computer and Communications
+               Security, CCS 2010, Chicago, Illinois, USA, October 4-8,
+               2010},
+  booktitle = {ACM Conference on Computer and Communications Security},
+  publisher = {ACM},
+  year      = {2010},
+  isbn      = {978-1-4503-0245-6},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@inproceedings{	TUD-CS-2005-0034,
+	author = {Ahmad-Reza Sadeghi and Markus Rohe and Jan Camenisch },
+	title = {Sokrates - A Compiler Framework for Zero-Knowledge Protocols},
+	year = {2005},
+	booktitle = {Western European Workshop on Research in Cryptology (WEWoRC 2005)},
+	location = {Leuven, Belgium},
+	pubkey = {TUD-CS-2005-0034},
+}
+
+@inproceedings{DBLP:conf/europki/BangerterBHKSS09,
+  author    = {Endre Bangerter and
+               Thomas Briner and
+               Wilko Henecka and
+               Stephan Krenn and
+               Ahmad-Reza Sadeghi and
+               Thomas Schneider},
+  title     = {Automatic Generation of Sigma-Protocols},
+  booktitle = {EuroPKI},
+  year      = {2009},
+  pages     = {67-82},
+  ee        = {http://dx.doi.org/10.1007/978-3-642-16441-5_5},
+  crossref  = {DBLP:conf/europki/2009},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+@proceedings{DBLP:conf/europki/2009,
+  editor    = {Fabio Martinelli and
+               Bart Preneel},
+  title     = {Public Key Infrastructures, Services and Applications -
+               6th European Workshop, EuroPKI 2009, Pisa, Italy, September
+               10-11, 2009, Revised Selected Papers},
+  booktitle = {EuroPKI},
+  publisher = {Springer},
+  series    = {LNCS},
+  volume    = {6391},
+  year      = {2010},
+  isbn      = {978-3-642-16440-8},
+  ee        = {http://dx.doi.org/10.1007/978-3-642-16441-5},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@MISC{Bangerter_yaczk:yet,
+    author = {Endre Bangerter and Stephan Krenn and Ahmad-reza Sadeghi and Thomas Schneider},
+    title = {YACZK: Yet Another Compiler for Zero-Knowledge (Poster Abstract)},
+    year = {}
+}
+
+@inproceedings{DBLP:conf/stoc/CanettiLOS02,
+  author    = {Ran Canetti and
+               Yehuda Lindell and
+               Rafail Ostrovsky and
+               Amit Sahai},
+  title     = {Universally composable two-party and multi-party secure
+               computation},
+  booktitle = {STOC},
+  year      = {2002},
+  pages     = {494-503},
+  ee        = {http://doi.acm.org/10.1145/509907.509980},
+  crossref  = {DBLP:conf/stoc/2002},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+@proceedings{DBLP:conf/stoc/2002,
+  editor    = {John H. Reif},
+  title     = {Proceedings on 34th Annual ACM Symposium on Theory of Computing,
+               May 19-21, 2002, Montr{\'e}al, Qu{\'e}bec, Canada},
+  booktitle = {STOC},
+  publisher = {ACM},
+  year      = {2002},
+  isbn      = {1-58113-495-9},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@inproceedings{DBLP:conf/crypto/FujisakiO97,
+  author    = {Eiichiro Fujisaki and
+               Tatsuaki Okamoto},
+  title     = {Statistical Zero Knowledge Protocols to Prove Modular Polynomial
+               Relations},
+  booktitle = {CRYPTO},
+  year      = {1997},
+  pages     = {16-30},
+  ee        = {http://dx.doi.org/10.1007/BFb0052225},
+  crossref  = {DBLP:conf/crypto/1997},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+@proceedings{DBLP:conf/crypto/1997,
+  editor    = {Burton S. Kaliski Jr.},
+  title     = {Advances in Cryptology - CRYPTO '97, 17th Annual International
+               Cryptology Conference, Santa Barbara, California, USA, August
+               17-21, 1997, Proceedings},
+  booktitle = {CRYPTO},
+  publisher = {Springer},
+  series    = {LNCS},
+  volume    = {1294},
+  year      = {1997},
+  isbn      = {3-540-63384-7},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@article{DBLP:journals/iacr/BangerterCKS008,
+  author    = {Endre Bangerter and
+               Jan Camenisch and
+               Stephan Krenn and
+               Ahmad-Reza Sadeghi and
+               Thomas Schneider},
+  title     = {Automatic Generation of Sound Zero-Knowledge Protocols},
+  journal   = {IACR Cryptology ePrint Archive},
+  volume    = {2008},
+  year      = {2008},
+  pages     = {471},
+  ee        = {http://eprint.iacr.org/2008/471},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@misc{citeulike:1716843,
+    author = {Damg{\aa}rd, Ivan},
+    citeulike-article-id = {1716843},
+    citeulike-linkout-0 = {\#},
+    keywords = {security},
+    posted-at = {2007-10-01 20:37:11},
+    priority = {0},
+    title = {On {Sigma-Protocols}},
+    url = {www.daimi.au.dk/\~{}ivan/Sigma.pdf}
+}
+
+@article{Montgomery85,
+    author = {Montgomery, P. L.},
+    journal = {Mathematics of Computation},
+    number = {170},
+    pages = {519--521},
+    title = {{Modular Multiplication without Trial Division}},
+    volume = {44},
+    year = {1985}
+}

@@ -1,6 +1,58 @@
-\chapter{Use case: Direct Anonymous Attestation}
+\chapter{Use Case: Direct Anonymous Attestation}
 
-%%% Local Variables: 
+This chapter will attempt to show the advantages of the custom
+framework by implementing a simplified Direct Anonymous Attestation
+(DAA) Join protocol taken from \cite{simplified_daa}. The reason Join
+was chosen is that it is not a $\Sigma$ protocol and cannot be
+implemented using the CACE Project Zero Knowledge Compiler. Join
+protocol also serves as an example of a more complex and specific
+protocol as it is a multiparty protocol. Again, the benefit
+of the custom framework is that it allows the input of basic PIL as
+well. The Sign protocol is not of interest here.
+
+
+\section{Join protocol}
+
+The Join protocol is the first phase in the DAA protocol. Its goal is
+to establish the certificate. The protocol is shown in figure
+\ref{fig:daa_join}. The protocol is not a Sigma protocol and cannot be
+specified using the PSL language. Also, the protocol uses 3 parties
+which the CACE Project Zero Compiler does not support. This, and
+similar multiparty protocols were the reason for extensions to the PIL
+language (see Sub-section \ref{subsec:pil_extensions}) in the first
+place. It is observable how the specification in the PIL language
+closely follows the protocol flow diagram.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[>=stealth]
+    \node[matrix,column sep=1cm] {
+      \node{Smartcard};                       &                           & \node{Host}; &                             & \node{Credential Issuer}; \\
+      \node{$f \in \{0,1\}^{l_f+l_\phi+l_H+2}$};   &                           &              &                             &                   \\
+      \node{$v' \in \{0,1\}^{l_f+l_\phi+l_H+2}$};  &                           &              &                             &                   \\
+      \node{$U = \pm R^f S^{v'} \pmod{n}$};     & \node(scard_round1_s){};  &              & \node(cred_round1_r){};     & \\
+                                               &                           &              &                             & \node{$\hat{v} \in \{0,1\}^{l_v-1}$}; \\
+                                               &                           &              &                             & \node{$v'' = \hat{v} + 2^{l_v-1}$}; \\
+                                               &                           &              &                             & \node{$e \in \left[ 2^{l_e-1}, 2^{l_e-1} + 2^{l_{e'}-1} \right]$}; \\
+                                               &                           &              &                             & \node{$A = \left( \frac{Z}{U S^{v''}} \right)^{\frac{1}{e}} \pmod{n}$}; \\
+      \node{$v''$};                            & \node(scard_round2_r){};  &              & \node(cred_round1_s){};     & \node{$(A, e, v'')$};\\
+      \node{$v = v' + v''$};                   &                           &              &                             & \\
+    };
+    \draw[->] (scard_round1_s) -- (cred_round1_r);
+    \draw[<-] (scard_round2_r) -- (cred_round1_s);
+  \end{tikzpicture}
+  \caption{DAA Join protocol}
+  \label{fig:daa_join}
+\end{figure}
+
+It is also visible how the usage of constant expressions aids the
+writer in specifying the protocol. It suffices to only change the
+parameter and the constant expressions will recompute the sizes
+according to the expression.
+
+\lstinputlisting[language=PIL]{Join.pil}
+
+%%% Local Variables:
 %%% TeX-PDF-mode: t
 %%% TeX-master: "thesis"
-%%% End: 
+%%% End:

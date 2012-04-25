@@ -3,10 +3,13 @@
 .cpp.o:
 	g++ -fPIC -Wall -c $<
 
-all: libterm.so
+all: libterm.so libtransceiver.so
 
 libterm.so: ipterm.o
-	g++ -shared $< -lipconfig -lfdl -lgmp -ldl -o $@
+	g++ -g -fPIC -shared $< -lipconfig -lfdl -lgmp -ldl -o $@
+
+libtransceiver.so: iptransceiver.cpp
+	g++ -g -fPIC -shared $< -lipconfig -lfdl -lgmp -ldl -o $@
 
 link:
 	socat PTY,link=./my_term PTY,link=./out&
@@ -15,8 +18,7 @@ unlink:
 	pkill socat
 
 test: libterm.so
-	gtkterm -p out&
-	fdlsim testterm.fdl -1
+	fdlsim testtransceiver.fdl -1
 
 clean:
 	rm -f *.o

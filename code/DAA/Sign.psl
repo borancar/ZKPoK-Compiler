@@ -1,0 +1,83 @@
+/* CACE WP3 Zero-Knowledge Proof of Knowledge Compiler
+ * http://zkc.cace-project.eu
+ * Example input
+ * Author: Stephan Krenn (stephan [dot] krenn [at] bfh [dot] ch)
+ * Last edited: Mar. 31st, 2010
+ *
+ * This is a PSL file describing a ring signature scheme. That
+ * is, it proves that at least 2 out of 3 representations of 
+ * public values in fixed bases are known.
+ *
+ * In detail, it shows that values r_1, r_2, r_3, x_1, x_2, x_3
+ * are known, such that two of the following three relations are
+ * satisfied: y_1 = g^x_1 * h^r_1, 
+ *            y_2 = g^x_2 * h^r_2, 
+ *            y_3 = g^x_3 * h^r_3
+ */
+
+Declarations {
+  Prime(1024) n;
+  Prime(1024) gamma;
+Prime(160) q;
+  G=Zmod+(q) f_0, f_1, v, e, w, r, ew, ee, er;
+// x[1..3] is a shortcut for x[1], x[2], x[3]. Note that this
+// array notation is interpreted equivalently to x_1, x_2, x_3.
+// 
+// G is here used as an alias for Zmod+(q). This allows to easily
+// exchange groups by only changing them in the Declaration-
+// section. In the remainder of the section the alias is being used,
+// and therefore no changes have to be made there. 
+  H=Zmod*(n) g@{order=q}, h@{order=q}, g1@{order=q}, T_1@{order=q}, T_2@{order=q}, R_0@{order=q}, R_1@{order=q}, S@{order=q}, Zed@{order=q}, N_V@{order=q};
+  H1=Zmod*(gamma) sigm;
+// g@{order=q} specifies that the order of g has to be equal to q,
+// that is, g^q = 1 must be satisfied. This check is also performed at
+// runtime.
+// In the case of y[1..3], the check is performed for each element
+// separately.
+}
+
+Inputs {
+  Public := g,h,g1, T_1, T_2, R_0, R_1, S;
+  ProverPrivate := f_0, f_1, v, e, w, r, ew, ee, er;
+}
+
+Properties {
+  KnowledgeError := 80;
+  SZKParameter := 80;
+  ProtocolComposition := P_1 And P_2 And P_3 And P_4;
+// Predicates can be combined in arbitrarily nested ways using the 
+// logical operators And and Or. Further, a threshold operator 
+// is available. Using this, the above proof goal could also be 
+// written as: Threshold((P_1,P_2,P_3),2);
+// That is, 2 out of the predicates mentioned before have to be
+// satisfied for the proof to be valid. 
+}
+
+GlobalHomomorphisms{
+// Globally defined homomorphisms can be used in any subsequent
+// predicate.
+  Homomorphism (trsh2 : G^5 -> H : (a,b,c,d,e) |-> (T_1^(2*e) * R_0^(2*f_0) * R_1^(2*f_1) * S^(2*v) * h^(2*(-ew))));
+  Homomorphism (ghg12 : G^3 -> H : (a,b,c) |-> (g^(2*a) * h^(2*b) * g1^(2*c)));
+  Homomorphism (tghg12 : G^4 -> H : (a,b,c,d) |-> (T_2^(2*(-e)) * g^(2*b) * h^(2*c) * g1^(2*d)));
+  Homomorphism (sigma : G^2 -> H1 : (a,b) |-> (sigm^(a+b*2^1024)));
+}
+
+SigmaPhi P_1 {
+  ChallengeLength := 80;
+  Relation ((Zed^2) = trsh2(e,f_0,f_1,v,ew));
+}
+
+SigmaPhi P_2 {
+  ChallengeLength := 80;
+  Relation ((T_2^2) = ghg12(w,e,r));
+}
+
+SigmaPhi P_3 {
+  ChallengeLength := 80;
+  Relation ((1) = tghg12(e,ew,ee,er));
+}
+
+SigmaPhi P_4 {
+  ChallengeLength := 80;
+  Relation ((N_V) = sigma(f_0, f_1));
+}

@@ -1,0 +1,581 @@
+ipblock my8051_coproc {
+  iptype "i8051system";
+  ipparm "exec=main.ihx";
+  ipparm "verbose=0";
+  ipparm "period=1";
+}
+
+ipblock my8051_coproc_control(out data : ns(8)) {
+  iptype "i8051systemsource";
+  ipparm "core=my8051_coproc";
+  ipparm "port=P1";
+}
+
+ipblock my8051_coproc_xram(in idata : ns(8);
+			   out odata : ns(8);
+			   in address : ns(16);
+			   in wr : ns(1)) {
+
+  iptype "i8051buffer";
+  ipparm "core=my8051_coproc";
+  ipparm "xbus=0x1000";
+  ipparm "xrange=0x201"; // 0x1000 to 0x1200 including both
+}
+
+dp add_sub (in inx, iny : ns(1026);
+            in kind     : ns(1);     //kind = 1 -> add ; kind = 0 -> subtract
+            out output  : ns(1026))
+{
+  always {
+    output = kind ? inx+iny : inx+ ~iny + 1;
+  }
+}
+
+dp shifter (in input : ns(1026);
+            in en, dir     : ns(1);
+            out output  : ns(1026))
+{
+  sig shifted : ns(1026);
+
+  always {
+    shifted = dir ? input << 1 : input >> 1;
+    output = en ? shifted : input;
+  }
+}
+dp sys {
+
+  sig cnt                : ns(8);
+  sig ramidata, ramodata : ns(8);
+  sig ramadr             : ns(16); 
+  sig wr                 : ns(1);
+  sig t_out              : ns(1024);
+  sig shift_en, shift_dir : ns(1);
+	
+  reg d                  : ns(8);
+  reg mem_adr            : ns(10);
+  reg rcnt               : ns(8);
+  reg upc                : ns(10);
+  reg rcmd               : ns(8);
+  reg sign 				 : ns(1);
+	
+  use my8051_coproc;
+  use my8051_coproc_control(cnt);
+  use my8051_coproc_xram(ramidata, ramodata, ramadr, wr);
+
+  // Montgomery computations (sfgs)
+  
+  
+  //reg reg_x, reg_y,
+  reg reg_p               : ns(1024);
+  reg reg_u, reg_v	  	  : ns(1024);
+  reg R, S                : ns(1026);
+  reg counter             : ns(11);
+  reg Q                   : ns(1024);
+
+  reg power 		      : ns(16);	
+
+  sig int_res, res	     : ns(1026);
+  sig prod               : ns(1026);
+  sig x                  : ns(1026);
+  sig y                  : ns(1026);
+  sig p_in		         : ns(1024);
+  sig int_k              : ns(1);
+
+  use add_sub(x, y, int_k, int_res);
+  use shifter(int_res, shift_en, shift_dir, res);	
+  
+  // Product
+  
+  sfg init_monpro {
+    R = 0;
+    Q = 0;
+    S = reg_v;
+    // reg_u = reg_u[0:1023];
+    // reg_v = reg_v[0:1023];
+  }
+  
+  sfg init_monpro_sq {
+    R = 0;
+    Q = 0;
+    S = reg_u;
+  }
+		
+  sfg p_mul {
+    prod = S[0] ? reg_u : 0;
+    S = S >> 1;
+    //$display($hex, "reg_x=", reg_x);
+  }
+
+  sfg sel_prod {
+    y = prod;
+  }
+	
+  sfg sel_y_M {
+    y = reg_p;
+  }
+	
+  sfg sel_0 {
+    y = 0;
+  }
+	
+  sfg sel_add {
+    int_k = 1;
+  }
+	
+  sfg sel_sub {
+    int_k = 0;
+  }
+  
+  sfg q_reg_update {
+    Q = (R[0] << 1023) | (Q >> 1);
+  }
+
+  sfg display_q {
+    // $display("Q: ", Q);
+  }
+  
+  sfg assign_R {
+    R = res;
+  }
+  
+  sfg shift_right {
+    shift_en = 1;
+    shift_dir = 0;
+    //res = int_res >> 1;
+    //$display($hex, "int_R=", int_R);
+    //$display($hex, "R=", R);
+  }
+	
+  sfg shift_left {
+    shift_en = 1;
+    shift_dir = 1;
+    //res = int_res << 1;
+    //$display($hex, "int_R=", int_R);
+    //$display($hex, "R=", R);
+  }
+
+  sfg no_shift {
+    shift_en = 0;
+    shift_dir = 0;
+    //res = int_res;
+    //$display($hex, "int_R=", int_R);
+    //$display($hex, "R=", R);
+  }
+  
+  sfg get_sign {
+    sign = int_res[1025];
+    //$display($hex, "sign=", sign);
+  }
+
+  sfg q_congruent {
+    Q = int_res;
+  }
+  	
+  sfg count {
+    counter = counter - 1;
+    //$display($hex, "count_value=", counter);
+  }
+	
+  sfg count_init {
+    counter = 1024;
+  }
+	
+  sfg display_result {
+    t_out = reg_u;
+    $display("Cycle: ", $cycle, " Result: 0x", t_out);
+  }
+
+  // hand-shake sfgs
+ 
+  sfg idle_datapath {
+    //res = 0;
+    shift_en = 0;
+    shift_dir = 0;
+    prod = 0;
+    int_k = 1;
+    y = 0;
+    x = 0;	
+  }
+
+  always {
+    rcnt = cnt;
+  }
+	
+  sfg set_done {
+    ramidata = 0x01;
+    ramadr = 0x200;
+    wr = 1;
+  }
+	
+  sfg set_not_done {
+    ramidata = 0x00;
+    ramadr = 0x200;
+    wr = 1;
+  }
+
+  sfg idle {
+    prod = 0; 
+    y = 0;	
+  }
+	
+  sfg init_mem_adr_0 {
+    mem_adr = 0x00;
+  }
+
+  sfg init_mem_adr_80 {
+    mem_adr = 0x80;
+  }
+
+  sfg init_mem_adr_100 {
+    mem_adr = 0x100;
+  }
+  
+  sfg init_mem_adr_180 {
+    mem_adr = 0x180;
+  }
+  
+  sfg init_mem_adr_200 {
+    mem_adr = 0x180;
+  }
+	
+  sfg incr_mem_adr {
+    mem_adr = mem_adr + 1;
+  }
+  
+  sfg read_data_to_u {
+    ramidata = 0x00;
+    ramadr = mem_adr;
+    wr = 0;
+    reg_u = (reg_u << 8) | ramodata;
+  }
+	
+  sfg read_data_to_v {
+    ramidata = 0x00;
+    ramadr = mem_adr;
+    wr = 0;
+    reg_v = (reg_v << 8) | ramodata;
+  }
+	
+  sfg read_data_to_p {
+    ramidata = 0x00;
+    ramadr = mem_adr;
+    wr = 0;	
+    reg_p = (reg_p << 8) | ramodata;
+  }
+	
+  sfg write_data {		
+    ramidata = R[1016:1023];
+    ramadr = mem_adr;
+    wr = 1;	
+    R = R << 8;
+  }
+  
+  sfg write_data_from_q {		
+    ramidata = Q[1016:1023];
+    ramadr = mem_adr;
+    wr = 1;	
+    Q = Q << 8;
+  }
+
+  sfg init_upc {
+    upc = 0x180;
+  }
+
+  sfg read_cmd {
+    ramidata = 0;
+    ramadr = upc;
+    wr = 0;
+    rcmd = ramodata;
+    // $display("Cmd at ", upc, " : ", rcmd);
+  }
+
+  sfg incr_upc {
+    upc = upc + 1;
+  }
+
+  sfg init_regs {
+    reg_u = 0;
+    reg_v = 0;
+    reg_p = 0;
+    R = 0;
+
+    // $display("Init cycle: ", $cycle);
+  }
+
+  sfg init_operands {
+    reg_u = 0;
+    reg_v = 0;
+    R = 0;
+  }
+	
+  sfg display_input {
+    // $display("u: ", reg_u);
+    // $display("v: ", reg_v);
+    // $display("p: ", reg_p);
+  }
+
+  sfg no_read {
+    ramidata = 0x00;
+    ramadr = 0x00;
+    wr = 0;
+  }
+  
+  sfg copy_p_to_u {
+    // $display("Inversion");
+    reg_u = reg_p;
+  }
+
+  sfg copy_u_to_v {
+    reg_v = reg_u;
+  }
+  
+  sfg copy_R_to_u {
+    reg_u = R;
+	
+  }
+  
+  // Inverse
+  
+  sfg init_inverse {
+    S = 1;
+    R = 0;
+  }
+	
+  sfg sel_x_u {
+    x = reg_u;
+  }
+	
+  sfg sel_x_v {
+    x = reg_v;
+  }
+	
+  sfg sel_x_0 {
+    x = 0;
+  }
+	
+  sfg sel_x_r {
+    x = R;
+  }
+	
+  sfg sel_x_s {
+    x = S;
+  }
+	
+  sfg sel_x_power {
+    x = power;
+  }
+	
+  sfg sel_x_q {
+    x = Q;
+  }
+  
+  sfg sel_x_1 {
+    x = 1;
+  }
+		
+  sfg sel_x_preg {
+    x = reg_p;
+  }
+
+  sfg sel_y_u {
+    y = reg_u;
+  }
+
+  sfg sel_y_v {
+    y = reg_v;
+  }
+
+  sfg sel_y_0 {
+    y = 0;
+  }
+
+  sfg sel_y_r {
+    y = R;
+  }
+
+  sfg sel_y_s {
+    y = S;
+  }
+
+  sfg sel_y_preg {
+    y = reg_p;
+  }
+
+  sfg sel_y_1 {
+    y = 1;
+  }
+
+  sfg assign_u {
+    // $display("U: ", reg_u);
+    reg_u = res;
+  }
+
+  sfg assign_v {
+    // $display("V: ", reg_v);
+    reg_v = res;
+  }
+
+  sfg assign_s {
+    // $display("S: ", S);
+    S = res;
+  }
+	
+  sfg assign_r {
+    //$display("R: ", R);
+    R = res;
+  }
+	
+  sfg assign_power {
+    power = res;
+    //$display("power = ", $dec, power);
+  }
+
+  sfg debug_all {
+    // $display("Debug: \\");
+    // $display("U: ", reg_u);
+    // $display("V: ", reg_v);
+    // $display("S: ", S);
+    // $display("R: ", R);
+    // $display("Debug end\\");
+  }
+}
+
+fsm sys_cnt(sys) {
+  initial s_init;
+  state s_fetch_1, s_fetch_2, s_fetchdecode, s_init_loadP, s_loadU_1, s_loadU_2, s_loadU_3,  s_loadV_1, s_loadV_2, s_loadV_3, s_monpro_0, s_monpro_1, s_monpro_2, s_monpro_3, s_monpro_4, s_monpro_congruentQ, s_inv_0, s_inv_cmpvgteu, s_inv_1, s_inv_21, s_inv_22, s_inv_31, s_inv_32, s_inv_41, s_inv_42, s_inv_5, s_inv_6, s_inv_gtep, s_inv_7, s_inv_8, s_inv_9, s_finished, s_write_res, s_write_res1, s_write_res2, s_write_res3, s_write_res4, s_write_res5;
+
+  // initialize
+  @s_init (idle_datapath, init_regs, no_read) -> s_fetch_1;
+	
+  // Fetch-decode phase
+  @s_fetch_1 if(rcnt == 0x01) then (init_upc, set_not_done, idle_datapath) -> s_fetch_2;
+  else (idle_datapath, no_read) -> s_fetch_1;
+		
+  @s_fetch_2 if(rcnt == 0x02) then (idle_datapath, read_cmd, incr_upc) -> s_fetchdecode;
+  else (idle_datapath, no_read) -> s_fetch_2;
+
+  @s_fetchdecode if(rcmd == 0x00) then (idle_datapath, set_done) -> s_fetch_1;                                     // end the comand queueing
+  else if(rcmd == 0x01) then (idle_datapath, init_mem_adr_0, read_cmd, incr_upc, init_monpro) -> s_monpro_0;  	  // Montgomery Product
+  else if(rcmd == 0x02) then (idle_datapath, init_mem_adr_0, read_cmd, incr_upc, init_monpro_sq) -> s_monpro_0;  // Montgomery Squaring
+  else if(rcmd == 0x03) then (idle_datapath, init_mem_adr_100, read_cmd, incr_upc) -> s_init_loadP;			  // load P
+  else if(rcmd == 0x99) then (idle_datapath, init_mem_adr_0, read_cmd, incr_upc, copy_p_to_u, copy_u_to_v) -> s_inv_0;		  // Montgomery Inversion
+  
+  else if(rcmd == 0x40) then (idle_datapath, init_mem_adr_0, read_cmd, incr_upc) -> s_loadU_1;
+  else if(rcmd == 0x41) then (idle_datapath, init_mem_adr_80, read_cmd, incr_upc) -> s_loadU_2;
+  else if(rcmd == 0x42) then (idle_datapath, init_mem_adr_100, read_cmd, incr_upc) -> s_loadU_3;
+  else if(rcmd == 0x44) then (idle_datapath, init_mem_adr_0, read_cmd, incr_upc) -> s_loadV_1;
+  else if(rcmd == 0x45) then (idle_datapath, init_mem_adr_80, read_cmd, incr_upc) -> s_loadV_2;
+  else if(rcmd == 0x46) then (idle_datapath, init_mem_adr_100, read_cmd, incr_upc) -> s_loadV_3;
+  
+  else if(rcmd == 0x50) then (idle_datapath, init_mem_adr_0, read_cmd, incr_upc) -> s_write_res;
+  else if(rcmd == 0x51) then (idle_datapath, init_mem_adr_80, read_cmd, incr_upc) -> s_write_res1;
+  else if(rcmd == 0x52) then (idle_datapath, init_mem_adr_100, read_cmd, incr_upc) -> s_write_res2;
+  
+  else if(rcmd == 0x60) then (idle_datapath, init_mem_adr_0, read_cmd, incr_upc) -> s_write_res3;
+  else if(rcmd == 0x61) then (idle_datapath, init_mem_adr_80, read_cmd, incr_upc) -> s_write_res4;
+  else if(rcmd == 0x62) then (idle_datapath, init_mem_adr_100, read_cmd, incr_upc) -> s_write_res5;
+
+  else if(rcmd == 0xFF) then (idle_datapath, display_result, read_cmd, incr_upc) -> s_fetchdecode;
+
+  else (idle_datapath, no_read) -> s_fetchdecode;
+
+  @s_init_loadP if (mem_adr == 0x180) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (incr_mem_adr, read_data_to_p, idle_datapath) -> s_init_loadP;
+  
+  @s_loadU_1 if(mem_adr == 0x80) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (incr_mem_adr, read_data_to_u, idle_datapath) -> s_loadU_1;
+  
+  @s_loadU_2 if(mem_adr == 0x100) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (incr_mem_adr, read_data_to_u, idle_datapath) -> s_loadU_2;
+  
+  @s_loadU_3 if(mem_adr == 0x180) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (incr_mem_adr, read_data_to_u, idle_datapath) -> s_loadU_3;
+  
+  @s_loadV_1 if(mem_adr == 0x80) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (incr_mem_adr, read_data_to_v, idle_datapath) -> s_loadV_1;
+  
+  @s_loadV_2 if(mem_adr == 0x100) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (incr_mem_adr, read_data_to_v, idle_datapath) -> s_loadV_2;
+  
+  @s_loadV_3 if(mem_adr == 0x180) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (incr_mem_adr, read_data_to_v, idle_datapath) -> s_loadV_3;
+    
+  // Montgomery phase
+  @s_monpro_0(idle_datapath, count_init, display_input,  no_read) -> s_monpro_1;
+
+  @s_monpro_1 if(counter == 0) then (idle_datapath,  no_read) -> s_monpro_3;
+  else (p_mul, sel_prod, sel_add, no_shift, assign_R, sel_x_r, count,  no_read) -> s_monpro_2;
+
+  @s_monpro_2 if(R[0] == 0) then (sel_y_0, sel_add, shift_right, assign_R, sel_x_r,  no_read, q_reg_update) -> s_monpro_1;
+  else (sel_y_M, sel_add, shift_right, assign_R, sel_x_r,  no_read, q_reg_update) -> s_monpro_1;
+  
+  @s_monpro_3 (sel_x_r, sel_y_M, sel_sub, get_sign, no_shift, no_read) -> s_monpro_4;
+
+  @s_monpro_4 if(sign == 0) then (sel_sub, sel_y_M, no_shift, assign_R, sel_x_r,  no_read) -> s_monpro_congruentQ;
+  else (idle_datapath,  no_read, display_q) -> s_finished;
+
+  //@s_monpro_congruentQ (idle_datapath, no_read, display_q) -> s_finished;
+  
+  @s_monpro_congruentQ (sel_x_q, sel_y_0, sel_sub, no_shift, no_read, init_mem_adr_80) -> s_write_res4;
+  
+  // Inversion phase-1
+  @s_inv_0 (init_inverse, idle_datapath, no_read) -> s_inv_cmpvgteu;
+  
+  @s_inv_cmpvgteu (sel_x_v, sel_y_u, sel_sub, get_sign, no_shift, no_read) -> s_inv_1;
+  
+  @s_inv_1 if (reg_v == 0) then (sel_x_0, sel_y_0, sel_sub, no_shift, no_read) -> s_inv_6;
+  else if (~reg_u[0]) then (sel_x_u, sel_y_0,sel_sub, shift_right, assign_u, no_read) -> s_inv_21;
+  else if (~reg_v[0]) then (sel_x_v, sel_y_0, sel_sub, shift_right, assign_v, no_read) -> s_inv_22;
+  else if (sign == 0) then (sel_x_v, sel_y_u, sel_sub, shift_right, assign_v, no_read) -> s_inv_41;
+  else (sel_x_u, sel_y_v, sel_sub, shift_right, assign_u, no_read) -> s_inv_31;
+  
+  @s_inv_21 (sel_x_s, sel_y_0, sel_sub, shift_left, assign_s, no_read) -> s_inv_5;
+  @s_inv_22 (sel_x_r, sel_y_0, sel_sub, shift_left, assign_r, no_read) -> s_inv_5;
+	
+  @s_inv_31 (sel_x_r, sel_y_s, sel_add, no_shift, assign_r, no_read) -> s_inv_32;
+  @s_inv_32 (sel_x_s, sel_y_0, sel_sub, shift_left, assign_s, no_read) -> s_inv_5;
+	
+  @s_inv_41 (sel_x_s, sel_y_r, sel_add, no_shift, assign_s, no_read) -> s_inv_42;
+  @s_inv_42 (sel_x_r, sel_y_0, sel_sub, shift_left, assign_r, no_read) -> s_inv_5;
+
+  @s_inv_5 (sel_x_power, sel_y_1, sel_add, no_shift, assign_power, no_read) ->s_inv_cmpvgteu;
+  
+  @s_inv_6 (sel_x_r, sel_y_M, sel_sub, get_sign, no_shift, no_read) -> s_inv_gtep;
+	
+  @s_inv_gtep if(sign == 0) then (sel_x_r, sel_y_preg, sel_sub, no_shift, assign_r, no_read) -> s_inv_7;
+  else (sel_x_0, sel_y_0, sel_sub, no_shift, no_read) -> s_inv_7;
+		
+  @s_inv_7 (sel_x_preg, sel_y_r, sel_sub, no_shift, assign_r, no_read) -> s_inv_8;
+	
+  // Inversion phase-2
+  @s_inv_8 if(power == 1024) then (sel_x_0, sel_y_0, sel_sub, no_shift, no_read) -> s_finished;
+  else if(~R[0]) then (sel_x_r, sel_y_0, sel_sub, shift_right, assign_r, no_read) -> s_inv_9;
+  else (sel_x_r, sel_y_preg, sel_add, shift_right, assign_r, no_read) -> s_inv_9;
+		
+  @s_inv_9 (sel_x_power, sel_y_1, sel_sub, no_shift, assign_power, no_read) -> s_inv_8;
+
+  // Write result to reg u
+  @s_finished (idle_datapath, no_read, copy_R_to_u) -> s_fetchdecode;
+  
+  @s_write_res if(mem_adr == 0x80) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (idle_datapath, incr_mem_adr, write_data) -> s_write_res;
+  
+  @s_write_res1 if(mem_adr == 0x100) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (idle_datapath, incr_mem_adr, write_data) -> s_write_res1;
+  
+  @s_write_res2 if(mem_adr == 0x180) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (idle_datapath, incr_mem_adr, write_data) -> s_write_res2;
+  
+  @s_write_res3 if(mem_adr == 0x80) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (idle_datapath, incr_mem_adr, write_data_from_q) -> s_write_res3;
+  
+  @s_write_res4 if(mem_adr == 0x100) then (idle_datapath, no_read) -> s_finished;
+  else (idle_datapath, incr_mem_adr, write_data_from_q) -> s_write_res4;
+  
+  @s_write_res5 if(mem_adr == 0x180) then (idle_datapath, no_read) -> s_fetchdecode;
+  else (idle_datapath, incr_mem_adr, write_data_from_q) -> s_write_res5;
+}
+
+system S {
+  sys;
+}

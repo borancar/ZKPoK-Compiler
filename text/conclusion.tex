@@ -1,21 +1,62 @@
-\chapter{Conclusion}
+\chapter{Conclusions and Future Work}
 
-\section{Future work}
+\section{Conclusions}
+
+Previous compiler frameworks for Zero Knowledge Proofs of Knowledge
+targeted general purpose processors. It has been shown that the PIL
+language is expressive, yet abstract enough for Data Flow Graph (DFG)
+extraction. A direct hardware realization has thus been made possible
+while also allowing the implementation to target general purpose
+processors. This opens a path for Control Flow Graph (CFG) generation
+such that hardware software co-design can be done in an automated way
+with a high-level control from the user. The changes introduced do not
+interfere with the standard CACE work-flow as it is still possible to
+define a PSL and generate a PIL from it. The advantage is that
+multiple architecture are now supported.
+
+The extensions to the CACE Project Zero Knowledge Compiler support
+library have allowed communication over serial ports and have thus
+allowed multiple combinations of general purpose computer and embedded
+device interconnectivity. Serial port communication is easier to
+implement and this can also serve for cross-checking and
+cross-validating of custom implementations.
+
+The extensions to the PIL Language have allowed a complex protocols
+such as the Direct Anonymous Attestation (DAA) Join protocol to be
+implemented easily by just translating the protocol flow specification
+to PIL. The transformation is also reversible thanks to the CACE
+Project Zero Knowledge Compiler \LaTeX{} output. The advantages of a
+domain specific language have clearly been shown.
+
+\section{Future Work}
 
 LLVM should be extended with the modular residue group types and this
-work should be submitted upstream. The gains were already discussed in
-section \ref{sec:pil_frontend}. This will require some standardization
-before changes are applied and will take some time. This is one of the
-main reasons it was not done within the course of this thesis.
+work should be submitted upstream to the development tree of LLVM. The
+gains were already discussed in Section \ref{sec:pil_frontend}. This
+will require some standardization before changes are applied and will
+take some time. This is one of the main reasons it was not done within
+the course of this thesis.
 
 While extending the CACE Project Zero Knowledge Compiler, it was
-noticed that each of the tools have their own lower-level language. In
-the long run, this only makes it difficult to contribute new
-features/extend, optimize and target new platforms. It is possible for
-LLVM to become a common language for all the tools from the CACE
-Project. This not only makes it portable to a wider range of platforms
-but it also moves the burden of optimizations to an already proven
-framework.
+noticed that each of the tools from the CACE Project have their own
+lower-level language. In the long run, this only makes it difficult to
+contribute new features/extend, optimize and target new platforms. It
+is possible for LLVM to become a common language for all the tools
+from the CACE Project. This not only makes it portable to a wider
+range of platforms but it also moves the burden of optimizations to an
+already proven framework.
+
+The CACE Project Zero Knowledge Compiler does not support automatic
+generation of parameters. This is something an extension of this
+framework should also allow. Leaving these choices to the end user
+might be problematic both from a usage perspective as well as security
+perspective. The user simply cannot and should not know all the needed
+constraints. The only constraints the user should set are the bit
+sizes. The framework developed within the course of this thesis
+already allows for compile time/constant expression. This expressions
+can be used as a starting point for defining a generator
+macro/function that should automatically generate the required
+parameters.
 
 The framework developed during the course of this thesis could and
 should serve as a starting point for HW-SW codesign automation tools.
@@ -23,7 +64,18 @@ Due to lack of time, and lack of support in the simulators, limited
 exploration was done in this context, targeting only GEZEL code. There
 is no reason not to include C-GEZEL code co-generation and employ an
 8051. Such a micro-controller is usually found on modern-day
-smart-cards.
+smart-cards. This would require writing an 8051 back-end.
+
+There is no reason not to go beyond writing LLVM back-ends. A pseudo
+Virtual Machine can be realized by function calls in C. Such a Virtual
+Machine is then easily deployable to even more architectures as C is
+an industry standard compiler.
+
+The generated hardware uses a primitive CFG and implements the entire
+DFG. A DFG uniquely defines an algorithm, while a CFG only defines the
+execution. Automated CFG-DFG balancing (controlled via a parameter)
+could be made that allows trading speed for smaller device size and
+less power consumption.
 
 %%% Local Variables: 
 %%% TeX-PDF-mode: t

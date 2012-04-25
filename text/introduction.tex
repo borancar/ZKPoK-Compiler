@@ -1,130 +1,165 @@
 \chapter{Introduction}
 
-\section{Zero Knowledge Proofs of Knowledge}
+\section{Motivation}
 
-Today's state-of-the-art cryptosystems are based on the following hard
-problems:
-\begin{itemize}
-\item Discrete Logarithm Problem
-\item Factorization Problem
-\end{itemize}
+Cryptography involves complex building blocks. Yet, it is so
+widespread today that the user cannot even browse the web without
+it. Whenever the user browses a secure web-site, a plethora of
+cryptographic exchanges that happen underneath is abstracted away. The
+protocol referred to is the Transport Layer Security (TLS) and its
+predecessor, Secure Sockets Layer (SSL). All these exchanges involve
+even more exchanges and sub-protocols at a lower level.
 
-Such problems are not solvable using deterministic Turing machines
-within polynomial time.  As long as computers are based on
-deterministic Turing machines this does not pose as problem.  Simply
-scaling the solution space has provided an effective countermeasure so
-far. This is all about to change as the world sees the emergence of
-quantum computers.
+TLS allows to establish a secure channel and communicate securely with
+another party. This is the base then for log-in procedures where the
+user enters his credentials and the system performs checks for each of
+the operations the user wants to execute. Such checks involve at their
+heart knowing which user is requesting. The modern society is based
+around anonymity, however. The users do not want to be tracked when
+performing everyday tasks like parking a car at a parking lot, buying
+a public transportation ticket or proving that they are of age. Such
+things need to be secure while at the same time anonymous. The
+traditional approach was to use paper and this is still used for
+voting. The advantages of computer processing and the need to be fast
+and profitable is in direct contrast with traditional approaches and
+providers are slowly introducing electronic systems. Anonymous
+credentials are needed to ensure both the processing efficiency for
+the providers and the anonymity for users.. Zero Knowledge Proofs of
+Knowledge allow one to prove knowledge of a secret without actually
+revealing it. As such, they are a basic building block for such
+anonymous credential proving and the field is seeing more and more
+advancements. New crypto protocols are being proposed such as
+e-voting, e-petitions, e-cash, group signatures and others.
 
-In a post-quantum computer world we would like to seek other problems
-which are again not solvable within polynomial time using the machines
-of the present.
+The notion of the user need not be specifically linked to a human
+user. Direct Anonymous Attestation (DAA) specifically targets Trusted
+Platform Computing (TPM) devices that can be found in, but not limited
+to general purpose computers. The user can also be a smart sensor
+network or a smart accessory (both of which are common today). A
+recent advancement is the introduction of self-driving cars. Such
+embedded devices were a niche when SSL was first designed (not to
+mention DES and RSA). Today these devices are mainstream (smart cards,
+tablets, smart-phones\ldots), taking more and more of the field from
+general purpose computers. The advantages are mostly small-size and
+low-power but other trade-offs can be made when designing such small
+devices. These trade-offs give rise to a plethora of unique system
+and/or processor architectures. It is up to the designer of such
+embedded devices to implement the industry standard protocols to allow
+intercommunication with other existing devices. Most programmers are
+not cryptographers and are prone to many errors if implementing
+cryptography protocols in a general purpose programming language.
+Even cryptographers themselves are prone to errors which is easily
+observable by the amount of iterations of
+OpenSSL\footnote{http://www.openssl.org} and
+GnuTLS\footnote{http://www.gnu.org/software/gnutls/} that are released per year. The
+protocols that currently dominate the web (protocols up to TLS 1.2)
+were specified a long time ago, yet the errors introduced by
+implementing them in a general purpose language could still not be
+avoided. Worse for that matter is that the need for secure embedded
+devices rises well beyond the available cryptographers. Automated
+tools are thus needed for implementing cryptography protocols.
 
-Another motivation is that in our modern world, privacy is of the
-uttermost importance. Let's look at a couple of everyday examples:
-\begin{itemize}
-\item Buying a public-transport ticket
-\item Voting
-\item Filling out anonymous questionnaires
-\end{itemize}
+When it comes to embedded devices, the barrier between the hardware
+and the software is getting thinner and is no longer uncommon for
+implementations crossing from one side to the other even at later
+stages of the design work-flow. This has been dubbed ``The Softening
+of Hardware'' \cite{softeninghw}. This allows for more granular
+trade-offs and can lead to more efficient designs. The automated
+framework should also allow this exploration.
 
-So far, using traditional methods, privacy was not a big issue here. For
-each of the cases:
-\begin{itemize}
-\item you paid for a piece of paper that nobody (unless he hires
-  forensic) could connect to you
-\item you circled your vote and put it in a box that nobody (again,
-  unless he uses sophisticated methods) could connect to you
-\item you filled in your questionnaire that nobody could connect to
-  you
-\end{itemize}
+Cryptographers themselves could also benefit from such automated
+tools.  Current general purpose languages and tools for the
+cryptography field involve a lot of common, shared code that has to be
+rewritten over and over. A domain specific language that
+cryptographers can easily understand and read fluently without
+ambiguities can only lead to better tested and proven protocols. The
+ideal split of this word would be for cryptographers to test, specify
+and write protocols in such a language and the users to use that
+language for their applications. Lastly, to quote: ``Computers are
+incredibly fast, accurate, and stupid. Human beings are incredibly
+slow, inaccurate, and brilliant. Together they are powerful beyond
+imagination.''\footnote{Unknown author, falsely attributed to Albert
+  Einstein}
 
-The real problem comes from trying to put these things into electronic
-form. Using smart cards for public transport poses a big problem
-w.r.t. privacy as nothing assures the user that the system does not
-track him/her. The advantage of putting these things into electronic
-form is multiple:
-\begin{itemize}
-\item less paper is wasted (smaller footprint)
-\item less clutter if multiple smart cards are merged into a single
-  one
-\item less chance of the user losing his smart card if he only has one
-\end{itemize}
+\section{Related Work}
 
-However, one disadvantage strikes more than the others. The
-possibility of the system to track the user and the user being
-incapable of protecting his privacy. Traditional authentication
-schemes required the user identifying himself so this tracking step
-was an inherent property.
+The need for automated tools for Zero Knowledge Proofs of Knowledge
+has led to the creation of the
+CACE\footnote{http://www.cace-project.eu} Project Framework, the ZKPDL
+Library and IBM's Idemix\footnote{http://www.zurich.ibm.com/idemix/}
+project. These tools were built for general purpose computers. They
+use higher level tools (such as GMP\footnote{http://gmplib.org/}, a
+multi-precision library) and are not very well suited for small,
+embedded devices. While these tools could in theory be ported to
+embedded devices, this is usually not practical as the generality
+sacrifices some efficiency. Even in the best case, these tools do not
+allow exploring the hardware-software (HW-SW) codesign.
 
-The desired property here is not disseminating any knowledge while
-still proving to the system that certain properties hold (e.g. the
-user has privileges and is allowed to proceed with an action).
+\section{Original Contribution}
 
-\section{HW-SW codesign}
+A custom framework is needed to address the specific needs of HW-SW
+codesign. The approach taken is to extend the CACE Project Zero
+Knowledge Compiler as designing a complete framework from scratch is
+deemed impractical. The CACE Project Zero Knowledge Compiler already
+provides a sufficiently good Zero Knowledge Proof of Knowledge
+compiler for $\Sigma$ protocols (a zero knowledge proof of knowledge
+protocol involving 3 rounds: commitment, challenge and response). This
+compiler compiles a higher level language (PSL) into a lower level
+language (PIL). This lower level language was extended so that another
+work-flow can be taken for non-supported features in the CACE Project
+Zero Knowledge compiler. Such features are multi-party protocols and
+constant expressions. These both allow for specifying other protocols
+that are not $\Sigma$ transformable. Such an example is the Direct
+Anonymous Attestation Join protocol.
 
-Traditional embedded device programming was separate from hardware
-design. The separation went to such extents as having two separate
-entities within a company working on each of those fields. The
-software part is generic while the hardware part is faster and more
-energy efficient.
+The LLVM (a compiler infrastructure framework targeting tailored for
+aggressive optimizations) is used to transform this low level language
+into a even more lower level representation (LLVM IR) that can be
+compiled on most of the general purpose processors LLVM supports (x86,
+ARM, PowerPC, MIPS). The LLVM IR does not allow for modular arithmetic
+so the framework is extended with type tracking and inference. The
+tracked types have a defined mapping to the LLVM IR types that back
+them in the lower level. This choice presented itself easier than
+extending the LLVM IR, which is a very cumbersome process. A GEZEL (a
+cycle-accurate co-simulation environment) back-end was written for
+LLVM such that it is possible to synthesize the protocol directly onto
+hardware. This also allows to explore HW-SW co-design by means of Data
+Flow Graph - Control Flow Graph (DFG-CFG) balancing. GEZEL and CACE
+were also extended to allow terminal communication with the
+``outside'' world (outside referring here to the other side of the
+communication terminal).
 
-Today's stringent measures require a bigger inter-dependency. Instead
-of searching for a best algorithm tailored for specific hardware or
-searching for the best hardware tailored to a specific algorithm/task,
-why not design the hardware and software at the same time. This way
-bigger decision and trade-offs can be made more granular
-\cite{softeninghw}.
+\section{Thesis Structure}
 
-\begin{figure}[hbt!]
-  \centering
-  \begin{tikzpicture}[>=stealth',font=\sffamily,auto,on grid]
-    %\input{y_chart_common}
-    \coordinate (behaviouralNode) at (135:4cm);
-    \coordinate (structuralNode) at (45:4cm);
-    \coordinate (physicalNode) at (270:4cm);
-    \coordinate (originNode) at (0:0cm);
+Chapter 2 covers the needed preliminaries for understanding the
+background behind this thesis. Formal languages, grammars and parsers
+are covered as the custom framework will include a textual front-end.
+Next we explain the mathematical background in group theory and modular
+arithmetic, followed by a definition for Zero Knowledge Proofs of
+Knowledge. The chapter ends with discussing Data Flow Graphs and
+Control Flow Graphs, basic tool in HW-SW codesign.
 
-    \draw[fill] (barycentric cs:behaviouralNode=1.0,originNode=0) circle (2pt);
-    \draw[fill] (barycentric cs:behaviouralNode=0.8,originNode=0.2) circle (2pt);
-    \draw[fill] (barycentric cs:behaviouralNode=0.6,originNode=0.4) circle (2pt);
-    \draw[fill] (barycentric cs:behaviouralNode=0.4,originNode=0.6) circle (2pt);
-    \draw[fill] (barycentric cs:behaviouralNode=0.2,originNode=0.8) circle (2pt);
+Chapter 3 gives a basic overview of the CACE Project Zero Knowledge
+Compiler. The compiler defines a higher-level and a lower level
+language and both will be covered in some detail. Next are the tools
+which were to create the custom framework.
+ANTLR\footnote{http://www.antlr.org} is a parser generator tool that
+was used to create the parser. The code generated from the parsed
+input is fed to LLVM\footnote{http://llvm.org}, a compiler
+infrastructure framework. GEZEL, a co-simulation environment, is the
+end-target in which the designs can be verified and validated.
 
-    \draw[fill] (barycentric cs:structuralNode=1.0,originNode=0) circle (2pt);
-    \draw[fill] (barycentric cs:structuralNode=0.8,originNode=0.2) circle (2pt);
-    \draw[fill] (barycentric cs:structuralNode=0.6,originNode=0.4) circle (2pt);
-    \draw[fill] (barycentric cs:structuralNode=0.4,originNode=0.6) circle (2pt);
-    \draw[fill] (barycentric cs:structuralNode=0.2,originNode=0.8) circle (2pt);
+Chapter 4 gives details of the custom framework. It shows how the
+custom framework was extended from the CACE Project Zero Knowledge
+Compiler. Next it details the needed extensions to allow more protocols
+to be implemented.
 
-    \draw[fill] (barycentric cs:physicalNode=1.0,originNode=0) circle (2pt);
-    \draw[fill] (barycentric cs:physicalNode=0.8,originNode=0.2) circle (2pt);
-    \draw[fill] (barycentric cs:physicalNode=0.6,originNode=0.4) circle (2pt);
-    \draw[fill] (barycentric cs:physicalNode=0.4,originNode=0.6) circle (2pt);
-    \draw[fill] (barycentric cs:physicalNode=0.2,originNode=0.8) circle (2pt);
+Chapter 5 gives a use case of the custom framework. It shows how to
+specify and compile a protocol (the DAA protocol in this case).
 
-    \draw[black!50] (0,0) circle (4.0cm);
-    \draw[black!50] (0,0) circle (3.2cm);
-    \draw[black!50] (0,0) circle (2.4cm);
-    \draw[black!50] (0,0) circle (1.6cm);
-    \draw[black!50] (0,0) circle (0.8cm);
-
-    \node [above=1em] at (behaviouralNode) {\textbf{Behavioural Domain}};
-    \node [above=1em] at (structuralNode) {\textbf{Structural Domain}};
-    \node [below=1em] at (physicalNode) {\textbf{Physical Domain}};
-
-    \draw[-, very thick] (behaviouralNode.south) -- (0,0) node[left,pos=0]{Systems} node[left,pos=0.2]{Algorithms} node[left,pos=0.4]{Register transfers} node[left,pos=0.6]{Logic} node[left,pos=0.8]{Transfer functions};
-
-    \draw[-, very thick] (structuralNode.south) -- (0,0) node[pos=0]{ } node[pos=0.2]{Processors} node[pos=0.4]{ALUs, RAM, etc.} node[pos=0.6]{Gates, flip-flops, etc.} node[pos=0.8]{Transistors};
-
-    \draw[-, very thick] (physicalNode.south) -- (0,0) node[right,pos=0]{Physical partitions} node[right,pos=0.2]{Floorplans} node[right,pos=0.4]{Module layout} node[right,pos=0.6]{Cell layout} node[right,pos=0.8]{Transistor layout};
-
-  \end{tikzpicture}
-  \caption{Gajski-Kuhn \index{Gajski-Kuhn Y-chart}Y-chart} 
-  \label{figure:gajski_kuhn_y_chart__levels_of_abstraction}
-\end{figure}
-
-\filbreak
+Chapter 6 concludes and gives future work ideas that were not done
+during the course of this thesis, but the custom framework
+nevertheless allows for such implementations.
 
 %%% Local Variables: 
 %%% TeX-PDF-mode: t

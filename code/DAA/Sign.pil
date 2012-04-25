@@ -1,0 +1,95 @@
+ExecutionOrder := (Host.Round1, Credential.Round2, Host.Round2, Smartcard.Round3, Host.Round4, Smartcard.Round5, Host.Round6);
+
+Common (
+  Z l_n = 1024;
+  Z l_f = 160;
+  Z l_e = 410;
+  Z l_e_1 = 120;
+  Z l_v = 1512;
+  Z l_phi = 80;
+  Z l_H = 160;
+  Prime(l_n) n;
+  
+  Zmod*(n) S, _Z, R
+) {
+
+}
+
+TPM (
+  Int(l_v) v;
+  Int(l_f) f
+) {
+  Int(l_v + l_phi + l_H) r_v;
+  Int(l_f + l_phi + l_H) r_f;
+  Int(1024) m;
+
+  Def (Void): Round0(Void) {
+  
+  }
+  
+  Def (Void): Round1(Zmod*(Gamma) S) {
+    Verify(S^p == 1);
+  }
+  
+  Def(Zmod*(Gamma) N_V): Round2(Void) {
+    N_V := S^(f_0 + f_1 * 2^l_f);
+  }
+  
+  Def (Zmod*(n) T_1_t, Zmod*(Gamma) N_V_1): Round3(Void) {
+    r_v := Random(Int(l_v + l_phi + l_H));
+    r_f_0 := Random(Int(l_f + l_phi + l_H));
+    r_f_1 := Random(Int(l_f + l_phi + l_H));
+  
+    T_1_t := R_0^r_f_0 * R_1^r_f_1 * S^r_v;
+    r_f := r_f_0 + r_f_1 * 2^l_f;
+  }
+}
+
+Host (
+
+) {
+  Int(l_e_1 + l_phi + l_H) r_e;
+  Int(l_e + l_n + l_phi + l_H) r_w;
+  Int(l_H) n_v;
+  Int(l_n + l_phi) w, r;
+  Zmod*(n) T_1, T_2, A;
+  
+  Def (Void): Round0(Void) {
+
+  }
+  
+  Def (Zmod*(Gamma) S): Round1(Void) {
+    S = Random(Zmod*(Gamma));
+  }
+
+  Def (Void): Round2(Void) {
+    w := Random(Int(l_n + l_phi));
+    r := Random(Int(l_n + l_phi));
+    T_1 := A * h^w;
+    T_2 := g^w * h^e * (g_1)^r;
+  }
+  
+  Def (c_h, m): Round4(Zmod*(n) T_1_t) {
+    r_e := Random(Int(l_e_1 + l_phi + l_H));
+    r_w := Random(Int(l_e + l_n + l_phi + l_H));
+    
+    T_1_1 := T_1_t * T_1 ^ r_e * S ^ r_w;
+    
+    c_h := SHA256(SHA256(n||R||S||_Z)||T_1||T_1_1||n_v);
+  }
+  
+  Def(T_1,c,n_t,s_v_1,s_f,s_e,m): Round6(c, n_t, s_v, s_f) {
+    s_e := r_e + c *(e - 2^(l_e-1));
+    s_v_1 := s_v + r_w + c * (e*w);
+  }
+}
+
+Credential (
+
+) {
+  Int(l_H) n_v;
+
+  Def (n_v): Round2(Void) {
+    n_v := Random(Int(l_H));
+  }
+}

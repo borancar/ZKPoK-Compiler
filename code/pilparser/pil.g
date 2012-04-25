@@ -35,17 +35,17 @@ execution_order
 	:	'ExecutionOrder' ':=' '(' step (',' step)* ')' ';' -> (step)*
 	;
 
-step	:	ID'.'ID -> ^(ID ID)
+step	:	IDENT'.'IDENT -> ^(IDENT IDENT)
 	;
 
-block 	:	ID '(' (params+=variable_declaration)? (';' params+=variable_declaration)* ')'
+block 	:	IDENT '(' (params+=variable_declaration)? (';' params+=variable_declaration)* ')'
 		'{' (vars+=variable_declaration ';')* (function_declaration)* '}'
-			-> ^(ID ^(PARAM $params*)? ^(VARIABLE $vars*)? ^(FUNCTION function_declaration*)?)
+			-> ^(IDENT ^(PARAM $params*)? ^(VARIABLE $vars*)? ^(FUNCTION function_declaration*)?)
 	;
 
 function_declaration
-	:	'Def' '(' function_params ')' ':' ID '(' function_params ')' '{' body '}' 
-			-> ^(ID ^(OUTPUT function_params) ^(INP function_params) ^(BODY body)?)
+	:	'Def' '(' function_params ')' ':' IDENT '(' function_params ')' '{' body '}' 
+			-> ^(IDENT ^(OUTPUT function_params) ^(INP function_params) ^(BODY body)?)
 	;
 	
 function_params
@@ -62,7 +62,7 @@ body
 	;
 	
 statement
-	:	ID ':=' expr ';' -> ^(':=' ID expr)
+	:	IDENT ':=' expr ';' -> ^(':=' IDENT expr)
 	|	function_call ';'!
 	|	ifknown
 	;
@@ -86,13 +86,21 @@ priExpr	:	(('('! expr ')'!) | terminal) (('^'^|'*'^) priExpr)?
 terminal
 	:	NUMBER
 	|	function_call
-	|	ID
+	|	IDENT
+	;
+	
+concat	:	(IDENT | hash) ('||'^ IDENT | hash)*
+	;
+
+hash
+	:	'SHA256'^ '('! concat ')'!
 	;
 	
 function_call
 	:	'Random'^ '('! type ')'!
+	|	hash
 	|	'Verify'^ '('! topExpr ')'!
-	|	'CheckMembership'^ '('! ID ','! type ')'!
+	|	'CheckMembership'^ '('! IDENT ','! type ')'!
 	;
 
 variable_declaration
@@ -100,7 +108,7 @@ variable_declaration
 	;
 	
 variable_init[pANTLR3_BASE_TREE t]
-	:	ID ('=' NUMBER)? -> ^(ID {$t} NUMBER?)
+	:	IDENT ('=' NUMBER)? -> ^(IDENT {$t} NUMBER?)
 	;
 
 type	: 	alias
@@ -108,11 +116,11 @@ type	: 	alias
 	|	interval
 	;
 	
-alias	:	(ID '=' )=> ID! '='! (group { aliases[(const char*)$ID.text->chars] = $group.tree; } | interval { aliases[(const char*)$ID.text->chars] = $interval.tree; })
-	|	ID -> { aliases[(const char*)$ID.text->chars] }
+alias	:	(IDENT '=' )=> IDENT! '='! (group { aliases[(const char*)$IDENT.text->chars] = $group.tree; } | interval { aliases[(const char*)$IDENT.text->chars] = $interval.tree; })
+	|	IDENT -> { aliases[(const char*)$IDENT.text->chars] }
 	;
 
-group	:	('Zmod+'|'Zmod*')^ ('('! expr ')'!) 
+group	:	('Zmod+'|'Zmod*')^ ('('! IDENT ')'!) 
 	|	'Prime'^ ('('! expr ')'!)
 	|	'Int'^ ('('! expr ')'!)
 	|	'Z'
@@ -121,7 +129,7 @@ group	:	('Zmod+'|'Zmod*')^ ('('! expr ')'!)
 interval:	'[' from=expr ',' to=expr ']' -> ^(INTERVAL $from $to)
 	;
 
-ID  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
+IDENT  :	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
     ;
 
 NUMBER	:	('0'..'9'|'a'..'z'|'A'..'Z')+;

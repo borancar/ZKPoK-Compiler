@@ -3,15 +3,16 @@
 \setup{
 title={Implementation and Evaluation of Zero-Knowledge Proofs of Knowledge},
 author={Boran Car},
-promotor={Bart Preneel \and Ingrid Verbauwhede},
-assessor={Claudia Diaz \and Francky Catthoor},
-assistant={Josep Balasch \and Alfredo Rial}
+promotor={Prof.\,dr.\,ir. Bart Preneel \and Prof.\,dr.\,ir. Ingrid Verbauwhede},
+assessor={Prof.\,dr.\,ir. Claudia Diaz \and Prof.\,dr.\,ir. Francky Catthoor},
+assistant={Ir. Josep Balasch \and Ir. Alfredo Rial}
 }
 
 \usepackage[pdfusetitle,colorlinks,plainpages=false]{hyperref}
 \usepackage{biblatex}
 \usepackage{tikz}
 \usepackage{tikz-qtree}
+\usepackage{tikz-uml}
 \usepackage[caption=false]{subfig}
 \usepackage{tabularx}
 \usepackage{color}
@@ -21,17 +22,20 @@ assistant={Josep Balasch \and Alfredo Rial}
 \usepackage{amsthm}
 \usepackage{algpseudocode}
 \usepackage{algorithm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 
 \theoremstyle{definition}
 \newtheorem{defn}{Definition}
 \newtheorem{thm}{Theorem}
+\newtheorem{corr}{Corollary}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 
 \lstdefinelanguage{PIL}{
-morekeywords={ExecutionOrder, Common, Def, Void, Prime, Z, Int},
+morekeywords={ExecutionOrder, Common, Prover, Verifier, Def, Void, Prime, Z, Int},
 otherkeywords={Zmod+, Zmod*},
 morecomment=[l]{//},
 morecomment=[s]{/*}{*/}
@@ -51,7 +55,7 @@ morecomment=[s]{/*}{*/}
 }
 
 \lstdefinelanguage{GEZEL}{
-  morekeywords={sfg, dp, always, reg, syg, system, ns, tc, out, in},
+  morekeywords={sfg, dp, always, reg, syg, system, ns, tc, out, in, use, sig},
   otherkeywords={$display, $hex, $dec, $bin, $cycle},
   morecomment=[l]{//}
 }
@@ -66,7 +70,7 @@ breaklines=true,
 breakatwhitespace=false
 }
 
-\usetikzlibrary{backgrounds,calc,shapes,shadows,arrows,chains,trees,fit,positioning}
+\usetikzlibrary{backgrounds,calc,shapes,shapes.geometric,shadows,arrows,chains,trees,fit,positioning}
 
 \tikzstyle{language}=[rectangle,draw=black,thin,inner sep=3pt, align=center]
 
@@ -86,12 +90,30 @@ sep=3pt, align=center]
 \tableofcontents*
 
 \begin{abstract}
-
+  Zero-Knowledge Proofs of Knowledge are protocols that allow one to
+  prove possession or knowing of a secret without actually revealing
+  it. Goals of current Zero-Knowledge Proofs of Knowledge compiler
+  frameworks are to make the implementation of these protocols easy
+  for those outside the field of cryptography while at the same time
+  making it easy for those inside the field to prototype such
+  protocols. We acknowledge that such frameworks have made it easy to
+  develop the protocols but we note that they have not made it easy or
+  general to those implementing the protocols on the end devices. Such
+  frameworks either target C/C++ code generation or an interpreted
+  language. They also use high-level multi-precision arithmetic
+  libraries which are too resource demanding for small embedded
+  devices. These limitations as well as hidden pitfalls of C/C++ have
+  motivated us to extend one of those frameworks and build our own
+  framework from it. This framework is targeted specifically at HW-SW
+  co-design exploration while not losing any generality of the
+  framework it extends. We hope that this will ease the work for those
+  outside the field and allow for a more widespread usage of these
+  protocols.
 \end{abstract}
 
 \listoffigures
 
-\listoftables
+%\listoftables
 
 \mainmatter
 
@@ -107,21 +129,22 @@ sep=3pt, align=center]
 
 \input{conclusion}
 
-\appendixpage*
+%\appendixpage*
 
-\appendix
+%\appendix
 
-\lstinputlisting{pil.g}
+%\lstinputlisting{pil.g}
 
-\lstinputlisting{codegen.g}
+%\lstinputlisting{codegen.g}
 
 \backmatter
 
 \printbibliography
 
+
 \end{document}
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% TeX-PDF-mode: t
 %%% TeX-master: t
-%%% End: 
+%%% End:

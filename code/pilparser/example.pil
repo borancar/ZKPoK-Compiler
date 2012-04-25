@@ -11,14 +11,13 @@
 ExecutionOrder := (Prover.Round0, Verifier.Round0, Prover.Round1, Verifier.Round1, Prover.Round2, Verifier.Round2);
 Common (
     Z SZKParameter = 80; 
-    Prime(1024) p = 17; 
-    Prime(160) q = 1; 
-    Zmod*(p) y = 1, g=3
+    Prime(1024) p = 23; 
+    Prime(160) q = 11; 
+    Zmod*(p) y = 12, g = 3
 ) {
 }
-
-Prover(Zmod+(q) x) {
-    Zmod+(q) _s_1=1, _r_1=4;
+Prover(Zmod+(q) x=4) {
+    Zmod+(q) _s_1, _r_1;
 
         Def (Void): Round0(Void) {
         }
@@ -31,7 +30,6 @@ Prover(Zmod+(q) x) {
         Def (_s_1): Round2(_C=Int(80) _c) {
             _s_1 := (_r_1+(x*_c));
         }
-
 }
 
 Verifier() {

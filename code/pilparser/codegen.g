@@ -13,6 +13,7 @@ options {
 	#include "llvm/LLVMContext.h"
 	#include "llvm/Linker.h"
 	#include "llvm/Module.h"
+	#include "llvm/Intrinsics.h"
 	#include "llvm/PassManager.h"
 	#include "llvm/Analysis/Verifier.h"
 	#include "llvm/Analysis/Passes.h"
@@ -20,10 +21,12 @@ options {
 	#include "llvm/Transforms/Scalar.h"
 	#include "llvm/Support/IRBuilder.h"
 	#include "llvm/Support/TargetSelect.h"
+	#include <algorithm>
 	#include <cstdio>
 	#include <cstdlib>
 	#include <vector>
 	#include <map>
+	#include <stack>
 	#include "GroupType.h"
 	using namespace std;
 	using namespace llvm;
@@ -54,13 +57,20 @@ options {
 	static Module *Common = new Module("Common", getGlobalContext());
 	static Module *TheModule;
 	static IRBuilder<> Builder(getGlobalContext());
-	static map<const char*, Variable, cmp_str> Vars;
+	static stack< map<const char*, Variable, cmp_str>* > Vars;
 	static map<const char*, NumberT*, cmp_str> Types;
 				
-	Value* operator_call(const char *name, const char *fname, Value *a, Value *b, Value *mod)
+	Value* operator_call(const char *name, Intrinsic::ID id, Value *a, Value *b, Value *mod)
 	{
-		Function *function = TheModule->getFunction(fname);
+		vector<Type*> types;
+		
+		types.push_back(mod->getType());
+		types.push_back(a->getType());
+		types.push_back(b->getType());
+		types.push_back(mod->getType());
 	
+		Function *function = Intrinsic::getDeclaration(TheModule, id, types);
+		
 		vector<Value*> args;
 		
 		args.push_back(a);
@@ -71,47 +81,13 @@ options {
 	}
 	
 	void init_common() 
-	{
-		Function::Create(
-			FunctionType::get(
-				Type::getIntNTy(getGlobalContext(), 1024),
-				vector<Type *>(0, Type::getIntNTy(getGlobalContext(), 1024)),
-				false),
-			Function::ExternalLinkage, "Random", Common);		
+	{	
 		Function::Create(
 			FunctionType::get(
 				Type::getInt1Ty(getGlobalContext()),
 				vector<Type *>(1, Type::getIntNTy(getGlobalContext(), 1024)),
 				false),
 			Function::ExternalLinkage, "CheckMembership", Common);
-		
-		Function::Create(
-			FunctionType::get(
-				Type::getIntNTy(getGlobalContext(), 1024),
-				vector<Type *>(3, Type::getIntNTy(getGlobalContext(), 1024)),
-				false),
-			Function::ExternalLinkage, "modadd1024", Common);
-	
-		Function::Create(
-			FunctionType::get(
-				Type::getIntNTy(getGlobalContext(), 1024),
-				vector<Type *>(3, Type::getIntNTy(getGlobalContext(), 1024)),
-				false),
-			Function::ExternalLinkage, "modsub1024", Common);
-	
-		Function::Create(
-			FunctionType::get(
-				Type::getIntNTy(getGlobalContext(), 1024),
-				vector<Type *>(3, Type::getIntNTy(getGlobalContext(), 1024)),
-				false),
-			Function::ExternalLinkage, "modmul1024", Common);
-	
-		Function::Create(
-			FunctionType::get(
-				Type::getIntNTy(getGlobalContext(), 1024),
-				vector<Type *>(3, Type::getIntNTy(getGlobalContext(), 1024)),
-				false),
-			Function::ExternalLinkage, "modexp1024", Common);
 		
 		Function::Create(
 			FunctionType::get(
@@ -127,67 +103,70 @@ options {
 	NumberT *NumberT::mulWithExpOn(const NumberT *first) const { return const_cast<NumberT*>(first); }
 	NumberT *NumberT::mulWithExpOn(const GroupT *first) const { return const_cast<GroupT*>(first); }
 	
-	Value * NumberT::createNeg(Value *a) const  {
-		return Builder.CreateNeg(a);
+	Value * NumberT::createNeg(const char *id, Value *a) const  {
+		return Builder.CreateNeg(a, id);
 	}
 	
-	Value * NumberT::createAdd(Value *a, Value *b) const {
-		return Builder.CreateAdd(a, b);
+	Value * NumberT::createAdd(const char *id, Value *a, Value *b) const {
+		return Builder.CreateAdd(a, b, id);
 	}
 	
-	Value * NumberT::createSub(Value *a, Value *b) const {
-		return Builder.CreateSub(a, b);
+	Value * NumberT::createSub(const char *id, Value *a, Value *b) const {
+		return Builder.CreateSub(a, b, id);
 	}
 	
-	Value * NumberT::createMul(Value *a, Value *b) const {
-		return Builder.CreateMul(a, b);
+	Value * NumberT::createMul(const char *id, Value *a, Value *b) const {
+		return Builder.CreateMul(a, b, id);
 	}
 	
-	Value * NumberT::createExp(Value *a, Value *b) const {
-		return Builder.CreateMul(a, b);
+	Value * NumberT::createExp(const char *id, Value *a, Value *b) const {
+		return Builder.CreateMul(a, b, id);
 	}
 	
-	Value * GroupT::createNeg(Value *a) const {
-		return operator_call("", "modsub1024", ConstantInt::get(getGlobalContext(), APInt(1024, 0)), a, Builder.CreateIntCast(this->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false));
+	Value * GroupT::createNeg(const char *id, Value *a) const {
+		return operator_call(id, Intrinsic::modsub, ConstantInt::get(getGlobalContext(), APInt(1024, 0)), a, this->getModulusConstant());
 	}
 	
-	Value * GroupT::createAdd(Value *a, Value *b) const {
-		return operator_call("", "modadd1024", a, b, Builder.CreateIntCast(this->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); 	
+	Value * GroupT::createAdd(const char *id, Value *a, Value *b) const {
+		return operator_call(id, Intrinsic::modadd, a, b, this->getModulusConstant()); 	
 	}
 	
-	Value * GroupT::createSub(Value *a, Value *b) const {
-		return operator_call("", "modsub1024", a, b, Builder.CreateIntCast(this->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); 		
+	Value * GroupT::createSub(const char *id, Value *a, Value *b) const {
+		return operator_call(id, Intrinsic::modsub, a, b, this->getModulusConstant()); 		
 	}
 	
-	Value * GroupT::createMul(Value *a, Value *b) const {
-		return operator_call("", "modmul1024", a, b, Builder.CreateIntCast(this->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); 	
+	Value * GroupT::createMul(const char *id, Value *a, Value *b) const {
+		return operator_call(id, Intrinsic::modmul, a, b, this->getModulusConstant()); 	
 	}
 	
-	Value * GroupT::createExp(Value *a, Value *b) const {
-		return operator_call("", "modexp1024", a, b, Builder.CreateIntCast(this->getModulusConstant(), IntegerType::get(getGlobalContext(), 1024), false)); 	
+	Value * GroupT::createExp(const char *id, Value *a, Value *b) const {
+		return operator_call(id, Intrinsic::modexp, a, b, this->getModulusConstant()); 	
 	}
 }
 
 proof[const char *part]
-	: { init_common(); }^(PROOF execution_order common (block[$part])*)
+	: { init_common(); Vars.push(new map<const char*, Variable, cmp_str>()); }^(PROOF execution_order common (block[$part])*)
+		{ delete Vars.top(); Vars.pop(); }
 	;
 
 execution_order
 	:	^(ORDER (step)*)
 	;
 	
-step	:	^(ID ID)
+step	:	^(IDENT IDENT)
 	;
 
-common	:	^(BLOCK ^(ID { TheModule = Common; } param? global? function?))
+common	:	^(BLOCK ^(IDENT { TheModule = Common; } param? global? function?))
 	;
 
 block[const char *part]
-	:	^(BLOCK ^(ID {
-			Linker *linker = new Linker((const char*)$ID.text->chars, (const char*)$ID.text->chars, getGlobalContext());
+	:	^(BLOCK ^(IDENT {
+			Linker *linker = new Linker((const char*)$IDENT.text->chars, (const char*)$IDENT.text->chars, getGlobalContext());
 			linker->LinkInModule(Common);
 			TheModule = linker->getModule();
-			} param? global? function?)) { TheModule->dump(); }
+			map<const char*, Variable, cmp_str> previous = (*(Vars.top()));
+			Vars.push(new map<const char*, Variable, cmp_str>(previous));
+			} param? global? function?)) { TheModule->dump(); delete Vars.top(); Vars.pop();}
 	;
 	
 param	:	^(PARAM (param_declaration)*)
@@ -200,7 +179,7 @@ function:	^(FUNCTION (function_declaration)*)
 	;
 
 param_declaration returns [Value *value]
-	:	^(par=ID type=type_declaration
+	:	^(par=IDENT type=type_declaration
 			(NUMBER
 			{$value = ConstantInt::get(getGlobalContext(), APInt($type.type->getBitWidth(), (const char*)$NUMBER.text->chars, 10));}
 			| {$value = ConstantInt::get(getGlobalContext(), APInt($type.type->getBitWidth(), 0)); }))
@@ -210,13 +189,13 @@ param_declaration returns [Value *value]
 		parx.type = $type_declaration.type;
 		parx.variable = false;
 
-		Vars[(const char*) $par.text->chars] = parx;
+		(*(Vars.top()))[(const char*) $par.text->chars] = parx;
 	}
 	;
 
 global_declaration returns [Value *value]
-	: ^(var=ID type_declaration
-	{ 	$value = new GlobalVariable(*TheModule, $type_declaration.type->getType(), false, GlobalVariable::ExternalLinkage, 0, (const char *) $var.text->chars);
+	: ^(var=IDENT type_declaration
+	{ 	$value = new GlobalVariable(*TheModule, $type_declaration.type->getType(), false, GlobalVariable::ExternalLinkage, 0, (const char *) $var.text->chars, 0, true, 0);
 	} (NUMBER)?)
 	{
 		Variable varx;
@@ -224,22 +203,22 @@ global_declaration returns [Value *value]
 		varx.type = $type_declaration.type;
 		varx.variable = true;
 
-		Vars[(const char*) $var.text->chars] = varx;
+		(*(Vars.top()))[(const char*) $var.text->chars] = varx;
 	}
 	;
 
 argument_declaration returns [Arg *arg]
-	: (^(ID type_declaration))=> ^(var=ID type_declaration {
+	: (^(IDENT type_declaration))=> ^(var=IDENT type_declaration {
 		arg = new Arg();
-		$arg->id = (const char*)$ID.text->chars;
+		$arg->id = (const char*)$IDENT.text->chars;
 		$arg->type = $type_declaration.type;
 		$arg->global_reference = false;
 		})
-	| (var=ID {
+	| (var=IDENT {
 		arg = new Arg();
-		$arg->id = (const char*)$ID.text->chars;
-		$arg->type = Vars[$arg->id].type;
-		$arg->value = Vars[$arg->id].value;
+		$arg->id = (const char*)$IDENT.text->chars;
+		$arg->type = (*(Vars.top()))[$arg->id].type;
+		$arg->value = (*(Vars.top()))[$arg->id].value;
 		$arg->global_reference = true;
 		})
 	;
@@ -250,7 +229,7 @@ type_declaration returns [NumberT *type]
 	;
 
 function_declaration returns [Function *func, vector<Arg *> outs, vector<Arg *> inps]
-	:	^(ID ^(OUTPUT ('Void'|(out=argument_declaration { $outs.push_back($out.arg); })*)) 
+	:	^(IDENT ^(OUTPUT ('Void'|(out=argument_declaration { $outs.push_back($out.arg); })*)) 
 			^(INP ('Void'|(inp=argument_declaration { $inps.push_back($inp.arg); })*)) 
 		{
 			vector<Type *> Inps;
@@ -258,16 +237,22 @@ function_declaration returns [Function *func, vector<Arg *> outs, vector<Arg *> 
 			for(vector<Arg *>::iterator i = $inps.begin(); i != $inps.end(); i++) {
 				Inps.push_back((*i)->type->getType());
 			}
+			
+			vector<Type *> Outs;
+			
+			for(vector<Arg *>::iterator i = $outs.begin(); i != $outs.end(); i++) {
+				Outs.push_back((*i)->type->getType());
+			}
 
 			FunctionType *FT;
 			
 			if($outs.size() == 0) {
 				FT = FunctionType::get(Type::getVoidTy(getGlobalContext()), Inps, false);
 			} else {
-				FT = FunctionType::get($outs[0]->type->getType(), Inps, false);
+				FT = FunctionType::get(StructType::create(getGlobalContext(), Outs, "rty"), Inps, false);
 			}
 		
-			$func = Function::Create(FT, Function::ExternalLinkage, (const char*) $ID.text->chars, TheModule);
+			$func = Function::Create(FT, Function::ExternalLinkage, (const char*) $IDENT.text->chars, TheModule);
 			
 			BasicBlock *entry_block = BasicBlock::Create(getGlobalContext(), "entry", $func);
 			
@@ -279,7 +264,7 @@ function_declaration returns [Function *func, vector<Arg *> outs, vector<Arg *> 
 					varx.type = (*def)->type;
 					varx.variable = false;
 				
-					Vars[(*def)->id] = varx;
+					(*(Vars.top()))[(*def)->id] = varx;
 				}
 			}
 			
@@ -296,27 +281,36 @@ function_declaration returns [Function *func, vector<Arg *> outs, vector<Arg *> 
 					varx.type = (*def)->type;
 					varx.variable = false;
 				
-					Vars[(*def)->id] = varx;
+					(*(Vars.top()))[(*def)->id] = varx;
 				} else {
 					arg->setName((*def)->id);
 				
 					Builder.CreateStore(arg, (*def)->value);
 				}
-			}			
+			}
 		}	
 		body?)
 		{	
-			if($outs.size() > 0) {
-				Variable varx = Vars[$outs[0]->id];
+			Value **values = new Value*[$outs.size()];
 			
-				if(varx.variable) {
-					Builder.CreateRet(Builder.CreateLoad(varx.value, $outs[0]->id));
-				} else {
-					Builder.CreateRet(varx.value);
-				}
-			} else {
-				Builder.CreateRetVoid();
+			int pos = 0;
+		
+			for(vector<Arg *>::iterator i = $outs.begin(); i != $outs.end(); i++) {
+				Variable varx = (*(Vars.top()))[(*i)->id];				
+				
+				if(varx.variable)
+					values[pos++] = Builder.CreateLoad(varx.value, $outs[0]->id);
+				else
+					values[pos++] = varx.value;
 			}
+			
+			if($outs.size() > 0) {
+				Builder.CreateAggregateRet(values, $outs.size());
+			} else {
+				Builder.CreateRetVoid();			
+			}
+			
+			delete[] values;
 		}
 	;
 
@@ -325,40 +319,71 @@ body	:	^(BODY statement*)
 	
 statement
 	:	assignment
-	|	function_call
+	|	function_call["call"]
 	;
 
 assignment returns [Value *value]
-	:	^(':=' ID expr[(const char*)$ID.text->chars])
-		{
-			const char *id = (const char*) $ID.text->chars;
+	:	^(':=' IDENT expr[(const char*)$IDENT.text->chars])
+		{			
+			const char *id = (const char*) $IDENT.text->chars;
 		
-			if(Vars.find(id) == Vars.end()) {
+			if((*(Vars.top())).find(id) == (*(Vars.top())).end()) {
 				Variable varx;
 				varx.variable = false;
 				varx.type = $expr.type;
-				Vars[id] = varx;
+				(*(Vars.top()))[id] = varx;
 			}
 		
-			Variable dest = Vars[id];
+			Variable dest = (*(Vars.top()))[id];
 			
 			if(!dest.variable) {
 				dest.value = $expr.value;
 				
-				Vars[id] = dest;
+				(*(Vars.top()))[id] = dest;
 			} else {
-				$value = Builder.CreateStore(Builder.CreateIntCast($expr.value, dest.type->getType(), false), dest.value);			
+				$value = Builder.CreateStore($expr.value, dest.value);			
 			}
 		}
 	;
 	
-function_call returns [Value *value, NumberT *type]
+concat [const char *id] returns [Value *value]	
+	:	IDENT
+	|	hash[$id]
+	|	^('||' concat[$id] concat[$id])
+	;
+	
+hash [const char *id] returns [Value *value, NumberT *type]
+	:	^('SHA256' concat[$id])
+		{
+			$value = ConstantInt::get(getGlobalContext(), APInt(256, 0));
+			$type = new NumberT(256);
+		}
+	;
+	
+function_call [const char *id] returns [Value *value, NumberT *type]
 	:	^('Random' type_declaration)
 		{
-			Function *CalleeF = TheModule->getFunction("Random");
-			$value = Builder.CreateCall(CalleeF, vector<Value*>(), "calltmp");
+			$type = $type_declaration.type;			
+		
+			vector<Value*> args;
+			vector<Type*> types;
 			
-			$type = $type_declaration.type;
+			types.push_back($type->getType());
+			types.push_back($type->getType());
+
+			Function *function = Intrinsic::getDeclaration(TheModule, Intrinsic::random, types);
+			
+			if(GroupT *group_t = dynamic_cast<GroupT*>($type))
+				args.push_back(ConstantInt::get(getGlobalContext(), group_t->getModulus()));
+			else
+				args.push_back(ConstantInt::get(getGlobalContext(), APInt($type->getBitWidth(), 0)));
+
+			$value = Builder.CreateCall(function, args, id);			
+		}
+	|	hash[$id]
+		{
+			$value = $hash.value;
+			$type = $hash.type;
 		}
 	|	^('CheckMembership' argument type_declaration)
 		{
@@ -368,7 +393,7 @@ function_call returns [Value *value, NumberT *type]
 			
 			ArgsV.push_back($argument.value);
 			
-			$value = Builder.CreateCall(CalleeF, ArgsV, "calltmp");
+			$value = Builder.CreateCall(CalleeF, ArgsV, id);
 			
 			$type = new GroupT(APInt(1024,0));			
 		}
@@ -380,7 +405,7 @@ function_call returns [Value *value, NumberT *type]
 			
 			ArgsV.push_back($expr.value);
 			
-			$value = Builder.CreateCall(CalleeF, ArgsV, "calltmp");
+			$value = Builder.CreateCall(CalleeF, ArgsV, id);
 			
 			$type = new GroupT(APInt(1024,0));			
 		}
@@ -395,14 +420,14 @@ group returns [NumberT *type]
 	:	'Z' { $type = new NumberT(32); }
 	|	^('Prime' expr["group"]) { $type = new NumberT(static_cast<ConstantInt*>($expr.value)->getValue().getLimitedValue(1024)); }
 	|	^('Int' expr["group"]) { $type = new NumberT(static_cast<ConstantInt*>($expr.value)->getValue().getLimitedValue(1024)); }
-	|	^('Zmod+' expr["group"]) { $type = new GroupT(static_cast<ConstantInt*>($expr.value)->getValue()); }
-	|	^('Zmod*' expr["group"]) { $type = new GroupT(static_cast<ConstantInt*>($expr.value)->getValue()); }
+	|	^('Zmod+' IDENT) { $type = new GroupT(static_cast<ConstantInt*>((*Vars.top())[(const char*)$IDENT.text->chars].value)->getValue()); }
+	|	^('Zmod*' IDENT) { $type = new GroupT(static_cast<ConstantInt*>((*Vars.top())[(const char*)$IDENT.text->chars].value)->getValue()); }
 	;
 
 alias returns [NumberT *type]
-	:	^('=' ID (group {$type=$group.type; } | interval {$type=$interval.type; }))
+	:	^('=' IDENT (group {$type=$group.type; } | interval {$type=$interval.type; }))
 		{
-			Types[(const char*)$ID.text->chars] = $type;
+			Types[(const char*)$IDENT.text->chars] = $type;
 		}
 	;
 	
@@ -411,22 +436,22 @@ interval returns [NumberT *type]
 	;
 	
 expr[const char *id] returns [Value *value, NumberT *type]
-	:	('-' val=expr[$id]) {$type = $val.type; $value = $type->createNeg($val.value); }
-	|	^('+' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type + *$rhs.type; $value = $type->createAdd($lhs.value, $rhs.value); }
-	|	^('-' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type - *$rhs.type; $value = $type->createSub($lhs.value, $rhs.value); }
-	|	^('*' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type * *$rhs.type; $value = $type->createMul($lhs.value, $rhs.value); }
-	|	^('^' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type ^ *$rhs.type; $value = $type->createExp($lhs.value, $rhs.value); }
+	:	('-' val=expr[$id]) {$type = $val.type; $value = $type->createNeg($id, $val.value); }
+	|	^('+' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type + *$rhs.type; $value = $type->createAdd($id, $lhs.value, $rhs.value); }
+	|	^('-' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type - *$rhs.type; $value = $type->createSub($id, $lhs.value, $rhs.value); }
+	|	^('*' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type * *$rhs.type; $value = $type->createMul($id, $lhs.value, $rhs.value); }
+	|	^('^' lhs=expr[$id] rhs=expr[$id]) {$type = *$lhs.type ^ *$rhs.type; $value = $type->createExp($id, $lhs.value, $rhs.value); }
 	|	^('==' lhs=expr[$id] rhs=expr[$id]) {$value = Builder.CreateICmpEQ($lhs.value, $rhs.value, $id);}
 	|	^('!=' lhs=expr[$id] rhs=expr[$id]) {$value = Builder.CreateICmpNE($lhs.value, $rhs.value, $id);}
-	|	function_call {$type = $function_call.type; $value = $function_call.value;}
-	|	ID
+	|	function_call[$id] {$type = $function_call.type; $value = $function_call.value;}
+	|	IDENT
 		{
-			Variable varx = Vars[(const char *) $ID.text->chars];
+			Variable varx = (*(Vars.top()))[(const char *) $IDENT.text->chars];
 			$type = varx.type;
 			if(!varx.variable) {
-				$value = Builder.CreateIntCast(varx.value, IntegerType::get(getGlobalContext(), 1024), false, (const char*)$ID.text->chars);
+				$value = varx.value;
 			} else {
-				$value = Builder.CreateIntCast(Builder.CreateLoad(varx.value, (const char*) $ID.text->chars), IntegerType::get(getGlobalContext(), 1024), false, (const char*)$ID.text->chars);
+				$value = Builder.CreateLoad(varx.value, (const char*) $IDENT.text->chars);
 			}
 		}
 	|	NUMBER {$type = new NumberT(1024); $value = ConstantInt::get(getGlobalContext(), APInt(1024, (const char*) $NUMBER.text->chars, 10));}

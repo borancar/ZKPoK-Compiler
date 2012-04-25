@@ -1,0 +1,12 @@
+\frametitle {Credential Issuer PIL}\begin {lstlisting}[language=PIL]
+Credential (
+
+) {
+  Def (Zmod*(n) A; Int(l_e) e; Int(l_v-1) v_2): Round0(Zmod*(n) U) {
+    v := Random(Int(l_v-1));
+    v_2 := v + 2^(l_v-1);
+    e := Random([2^(l_e-1), 2^(l_e-1) + 2^(l_e_1-1)]);
+    A := (_Z * (U * S^v_2)^(-1))^(e^(-1));
+  }
+}
+\end{lstlisting}

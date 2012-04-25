@@ -1,0 +1,72 @@
+ipblock my_term(in tx    : ns(1024);
+                out rx   : ns(1024);
+                in sr    : ns(2);
+                out done : ns(1)) {
+  iptype "transceiver";
+}
+
+dp testtransceiver {
+  sig to_send      : ns(1024);
+  reg received     : ns(1024);
+  reg a, b, res    : ns(1024);
+  sig send_receive : ns(2);
+  reg done         : ns(1);
+  
+  use my_term(to_send, received, send_receive, done);
+
+  sfg init {
+    to_send = 1010;
+    send_receive = 1;
+  }
+  
+  sfg do_receive {
+    $display("in do_receive");
+  
+    to_send = 0;
+    send_receive = 2;
+  }
+  
+  sfg receive_a {
+    to_send = 0;
+    send_receive = 0;
+    a = received;
+  }
+  
+  sfg receive_b {
+    to_send = 0;
+    send_receive = 0;
+    b = received;
+  }
+  
+  sfg send_res {
+    to_send = res;
+    send_receive = 1;
+  }
+  
+  sfg finish {
+    $display("a = ", a);
+    $finish;
+  }
+   
+  sfg idle {
+    to_send = 0;
+    send_receive = 0;
+  }
+}
+
+fsm fsm_testtransceiver(testtransceiver) {
+  initial s0;
+  state s1, s2, s3;
+
+  @s0 (init) -> s1;
+  @s1 if(~done) then (init) -> s1;
+      else (do_receive) -> s2;
+  @s2 if(~done) then (do_receive) -> s2;
+      else (receive_a) -> s3;
+      
+  @s3 (idle, finish) -> s3;
+} 
+
+system S {
+  testtransceiver;
+}

@@ -1,0 +1,126 @@
+%-	ANTLR
+%-	LLVM
+%-	GEZEL
+
+
+
+\subsection{LLVM: A Compiler Framework}
+\label{llvm}
+
+LLVM\footnote{http://llvm.org} is a compiler framework designed to
+support transparent, life-long program analysis and transformation for
+arbitrary programs, by providing high-level information to compiler
+transformations at compile-time, link-time, run-time, and in idle time
+between runs \cite{LLVM:CGO04}.
+
+Traditional compilers were tailored for only a few languages (with the
+exception of GCC). However, all traditional compilers suffer from the
+large inter-dependency of the basic blocks (Front-end, Optimizer,
+Back-end). LLVM tries to solve this by providing an intermediate form
+called the LLVM IR. A typical flow involving the basic blocks is
+depicted in Figure \ref{fig:llvm_flow}.
+
+\begin{figure}[hb!]
+  \centering
+   \begin{tikzpicture}[>=stealth]
+    \tikzstyle{lang}=[rectangle,draw=black,thin,font=\tiny,inner
+    sep=0pt, align=center,minimum width=2cm,minimum height=2.2em]
+
+    \tikzstyle{txt}=[font=\tiny]
+
+    \node[lang](llvm_opt){LLVM \\ Optimizer};
+    \node[lang](ppc_back)[right=1 cm of llvm_opt]{LLVM \\ PowerPC Backend};
+    \node[txt](ppc)[right=of ppc_back]{PowerPC};
+    \node[lang](x86_back)[above of=ppc_back]{LLVM \\ x86 Backend};
+    \node[txt](x86)[right=of x86_back]{x86};
+    \node[lang](arm_back)[below of=ppc_back]{LLVM \\ ARM Backend};
+    \node[txt](arm)[right=of arm_back]{ARM};
+
+    \node[lang](gcc_front)[left=1 cm of llvm_opt]{llvm-gcc \\ Frontend};
+    \node[txt](fortran)[left=of gcc_front]{Fortran};
+    \node[lang](clang_front)[above of=gcc_front]{Clang C/C++/ObjC \\ Frontend};
+    \node[txt](c)[left=of clang_front]{C};
+    \node[lang](ghc_front)[below of=gcc_front]{GHC \\ Frontend};
+    \node[txt](haskell)[left=of ghc_front]{Haskell};
+
+    \draw[->] (clang_front.east) -- (llvm_opt.west);
+    \draw[->] (gcc_front.east) -- (llvm_opt.west);
+    \draw[->] (ghc_front.east) -- (llvm_opt.west);
+
+    \draw[->] (llvm_opt.east) -- (x86_back.west);
+    \draw[->] (llvm_opt.east) -- (ppc_back.west);
+    \draw[->] (llvm_opt.east) -- (arm_back.west);
+
+    \draw[->] (x86_back) -- (x86);
+    \draw[->] (ppc_back) -- (ppc);
+    \draw[->] (arm_back) -- (arm);
+
+    \draw[->] (c) -- (clang_front);
+    \draw[->] (fortran) -- (gcc_front);
+    \draw[->] (haskell) -- (ghc_front);
+  \end{tikzpicture}
+  \caption{LLVM typical workflow \cite{llvm_general}}
+  \label{fig:llvm_flow}
+\end{figure}
+
+\subsubsection{LLVM IR.}
+
+The LLVM IR is the intermediate representation language of the LLVM
+project. On its own it is a first-class language with well defined
+semantics \cite{llvm_general,llvmmasterthesis}. Variables are in the SSA (Static Single
+Assignment) form meaning that they can only be assigned once and they
+keep that value for their entire lifetime. All the values residing in
+memory need to be loaded to a variable first and stored back to memory
+if they wish to be saved. Instructions operate solely upon
+variables. In this respect, the LLVM IR resembles the assembly
+language of an infinitely many registers Load-Store based RISC
+processor.
+
+The central concept in constructing LLVM IR is the Module. Each module
+consists of functions, global variables and symbol table entries.
+Modules can be combined using the LLVM linker \cite{llvm_ir}.
+
+\subsection{GEZEL: A Hardware Description Language}
+\label{gezel}
+
+GEZEL\footnote{http://rijndael.ece.vt.edu/gezel2/} is a cycle-accurate hardware description language (HDL) using the
+Finite-State-Machine + Datapath (FSMD) model. The basic element is a Signal Flow Graph (SFG). It groups operations that
+are to be executed concurrently in the same clock cycle. One or more of these SFGs are used to form a datapath, which is the
+main building block. A datapath is the smallest GEZEL unit that can stand on
+its own and be simulated. Datapaths can be thought of as
+\emph{modules} in Verilog or \emph{entities} in VHDL.
+
+Figure \ref{fig:gezel_workflow} shows how the GEZEL language
+can be used as an input to the following tools: \emph{fdlvhd}, a generator that can output synthesizeable VHDL or Verilog code; \emph{fdlsim}, a cycle accurate simulator used to verify and validate the design; and \emph{gplatform}, a co-simulation tool used for HW/SW co-design purposes.
+
+\begin{figure}[hb!]
+  \centering
+  \begin{tikzpicture}[>=stealth, font=\tiny]
+    \tikzstyle{edge from parent}=[draw,->]
+
+    \Tree[.\node[language](fdl){GEZEL language \\ *.fdl};
+      [.\node[compiler](fdlvhd){Code Generator \\ fdlvhd};
+        [.\node[language](vhdl){VHDL \\ Verilog};]
+      ]
+      [.\node[compiler](fdlsim){Simulator \\ fdlsim};
+        [.\node[language](sim){Verification \\ Profiling};]
+      ]
+      [.\node[compiler](gplatform){CoSimulator \\ gplatform};
+        [.\node[language](cosim){Verification \\ Profiling};]
+      ]
+    ]
+  \end{tikzpicture}
+  \caption{GEZEL workflow}
+  \label{fig:gezel_workflow}
+\end{figure}
+
+The co-simulation tool allows to cosimulate GEZEL designs with
+instruction-set simulations. Supported processors include
+ARM, AVR, 8051, MicroBlaze and PicoBlaze. The cosimulation tool allows
+for designing a processor-coprocessor pair for a general purpose
+processor and a custom dedicated coprocessor~\cite{Schaumont}.
+
+%%% Local Variables:
+%%% TeX-PDF-mode: t
+%%% TeX-master: "main"
+%%% End:

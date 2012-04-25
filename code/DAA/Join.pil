@@ -8,32 +8,34 @@ Common (
   Z l_v = 1512;
   Z l_phi = 80;
   Z l_H = 160;
-  Prime(l_n) n = 17
+  Prime(l_n) n;
+  
+  Zmod*(n) S, _Z, R
 ) {
 
 }
 
-Smartcard (
-  Zmod*(n) p, q;
-  Int(l_f + l_phi + l_H) f
+TPM (
+
 ) {
-  Zmod*(n) S, _Z, R;
+  Int(l_f + l_phi + l_H+2) f;
   Int(l_n + l_phi) v_1;
   Int(l_v) v;
 
   Def (Zmod*(n) U): Round0(Void) {
-    x := Random(Zmod*(n));
-    S := x^2;
-
-    x_0 := Random(Zmod*(n));
-    x_z := Random(Zmod*(n));
-
-    _Z := S^x_z;
-    R := S^x_0;
-
-    v_1 := Random(Int(l_n + l_phi));
+    f := Random(Int(l_f + l_phi + l_H + 2));
+  
+    v_1 := Random(Int(l_f + l_phi + l_H + 2));
 
     U := R^f * S^v_1;
+  }
+  
+  Def (Void): Round3(Zmod*(Gamma) S_I) {
+    Verify(S_I^p == 1);
+  }
+  
+  Def (Void): Round4(Void) {
+    
   }
 
   Def (Void): Round1(Int(l_v-1) v_2) {
@@ -45,12 +47,17 @@ Host (
 
 ) {
   Zmod*(n) A;
-
+  Int(l_e) e;
+  
   Def (Zmod*(n) U_o): Round0(Zmod*(n) U_i) {
     U_o := U_i;
   }
 
-  Def (Int(l_v-1) v_2_o): Round1(A; Int(l_e) e; Int(l_v-1) v_2_i) {
+  Def (Zmod*(Gamma) S_I): Round2(Void) {
+    S_I := SHA256(1||bsn)^((Gamma-1)/p);
+  }
+  
+  Def (Int(l_v-1) v_2_o): Round1(A; e; Int(l_v-1) v_2_i) {
     v_2_o := v_2_i;
   }
 }
@@ -60,8 +67,8 @@ Credential (
 ) {
   Def (Zmod*(n) A; Int(l_e) e; Int(l_v-1) v_2): Round0(Zmod*(n) U) {
     v := Random(Int(l_v-1));
-    e := Random([2^(l_e-1), 2^(l_e-1) + 2^(l_e_1-1)]);
-    v_2 := v + 2^(l_v-1);
+    v_2 := v;//v + 2^(l_v-1);
+    e := Random(Int(l_e-1));//Random([2^(l_e-1), 2^(l_e-1) + 2^(l_e_1-1)]);
     A := (_Z * (U * S^v_2)^(-1))^(e^(-1));
   }
 }

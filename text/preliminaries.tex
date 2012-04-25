@@ -1,10 +1,21 @@
-\chapter{Technical preliminaries}
+\chapter{Technical Preliminaries}
 
-The chapter has the goal of introducing the math and theory behind
+This chapter has the goal of introducing the math and theory behind
 formal languages, parsers, algebra, (zero knowledge) proofs of
-knowledge.
+knowledge, control and data flow in a program. Knowledge behind formal
+languages is needed to design a parser. A parser will later be used to
+create a custom compiler. Since the thesis deals with cryptography
+applications, knowledge of group theory and modular arithmetic is
+needed as well. The definition of (zero knowledge) proofs of knowledge
+follows. They are a basic building block for this thesis. Last is the
+definition of control and data flow in a program. This will be used to
+analyze and transform the protocols into hardware.
 
-\section{Formal Languages \cite{Hopcroft}}
+\section{Formal Languages}
+
+The theory outlined here attempts to give a short overview of
+formal languages and is based on \cite{formal_languages}. A more
+detailed approach can be found in \cite{Hopcroft}.
 
 \begin{defn}[Alphabet]
   An alphabet $\Sigma$ is a set of symbols.
@@ -21,8 +32,8 @@ knowledge.
 \end{defn}
 
 \begin{defn}[Sets]
-  The $\Sigma^*$ denotes the set of all the strings over the alphabet
-  $\Sigma$, likewise $\Sigma^+$ denotes the set of all the non-empty
+  $\Sigma^*$ denotes the set of all the strings over the alphabet
+  $\Sigma$. Likewise, $\Sigma^+$ denotes the set of all the non-empty
   strings over the alphabet $\Sigma$. $$\Sigma^+ \subseteq \Sigma^*
   \setminus \{ \epsilon \}$$ The empty set of strings is denoted
   $\emptyset$.
@@ -42,8 +53,8 @@ knowledge.
 \begin{defn}[Kleene closure]
   Let $L$ be a language over $\Sigma$. Define 
   $$L^0 = \{ \epsilon \}$$
-  $$L^i = L L^{i-1} \textrm{for} i \ge 1$$
-  the \emph{Kleene closure} of $L$, denoted by $L^*$ is the language:
+  $$L^i = L L^{i-1} \; \textrm{for} \; i \ge 1$$
+  The \emph{Kleene closure} of $L$, denoted by $L^*$, is the language:
   $$ L^* = \bigcup_{i \ge 0} L^i $$
   the \emph{positive closure} is
   $$ L^+ = \bigcup_{i \ge 1} L^i $$
@@ -52,7 +63,7 @@ knowledge.
   $$ L^+ = L L^* $$
 \end{defn}
 
-\subsection{Regular expression}
+\subsection{Regular Expression}
 
 \begin{defn}[Regular expression]
   A regular expression over $\Sigma$ is defined inductively as follows:
@@ -103,8 +114,9 @@ knowledge.
 
 \subsection{Concrete Syntax Tree}
 
-A Concrete Syntax Tree, also called a Parse Tree is an ordered tree
+A Concrete Syntax Tree, also called a Parse Tree, is an ordered tree
 representation of the input according to a given formal grammar.
+
 For example, given the following input:
 \begin{lstlisting}
 a := b * c + d;
@@ -172,6 +184,14 @@ arbitrary.
   \label{fig:simple_ast}
 \end{figure}
 
+\subsection{Parser}
+
+Given a string $L$, satisfying grammar $G$, a parser tries to find the
+derivation of $L$ from $S$. This derivation is the Concrete Syntax
+Tree (Parse Tree). This derivation may further be abstracted into an
+Abstract Syntax Tree that is easier for manipulation later. Figure
+\ref{fig:parser_flow} shows the typical parser flow.
+
 \begin{figure}[hbt!]
   \centering
   \begin{tikzpicture}[>=stealth,level distance=1.5cm,font=\tiny]
@@ -189,228 +209,334 @@ arbitrary.
     ]
   \end{tikzpicture}
   \caption{Parser flow}
-  \label{fig:ast}
+  \label{fig:parser_flow}
 \end{figure}
 
-\filbreak
+There are two approaches to parsing:
+\begin{description}
+\item[Top-down parsing] the derivation starts from the top (the root)
+  of the parse tree and proceeds downwards.
+\item[Bottom-up parsing] the derivation starts from the bottom (the
+  leaves) of the parse tree and proceeds upwards.
+\end{description}
 
-\section{Group arithmetic}
+The most popular top-down parser is an LL (left to right left-most
+derivation) parser. The parser reads the input left to right and at
+each step produces the left-most derivation of the input. Sub-types of
+this parser include the symbol look-ahead which is the amount of next,
+unseen symbols the parser can ``look at''. For example, an LL(1)
+parser can only look 1 symbol ahead while an LL(*) parser is a parser
+with arbitrary look-ahead.
 
-\subsection{Montgomery Product}
+\section{Group Theory and Modular Arithmetic}
 
-Modular multiplications would involve trial division after the
-multiplication step were it not for the algorithm know as Montgomery
-product invented by Peter L. Montgomery \cite{Montgomery}.
+The theory here is based on \cite{HAC}. The approach is to start with
+the general and build the specific from it.
 
-The basic step and the property of the algorithm is computing the
-residues modulo $N$.
+\begin{defn}[Group]
+  A group $(G, \circ)$ is a set G with a binary operation $\circ$ defined on it
+  that satisfies the following properties:
+  \begin{enumerate}
+  \item (Closure) $a, b \in G \implies a \circ b \in G$ 
+  \item (Associativity) $(a \circ b) \circ c = a \circ (b \circ c)$ $\forall a,b,c \in G$
+  \item (Identity element) $\exists I \in G$ such that $a \circ I = I \circ a = a$
+  \item (Inverse element) ($\forall a \in G)(\exists a^{-1} \in G)$ such that $a \circ
+    a^{-1} = a^{-1} \circ a = I$
+  \end{enumerate}
+\end{defn}
+
+\begin{defn}[Abelian Group]
+  A group $G$ is abelian iff $a \circ b = b \circ a$ $\forall a,b \in G$
+\end{defn}
+
+\begin{defn}[Finiteness and Order]
+  A group $G$ is finite iff $|G|$ is finite. The number of elements in
+  $G$ is called the \emph{order} of the group.
+\end{defn}
+
+\begin{defn}[Subgroup]
+  A non-empty subset $H \subseteq G$ is a subgroup iff $H$ itself is a
+  group w.r.t. to the binary operation of $G$. $H$ is a proper subgroup
+  iff $H \neq G$.
+\end{defn}
+
+\begin{defn}[Cyclic Group]
+  A group $G$ is cyclic iff $(\exists a \in G)(\forall b \in G)(i is
+  Integer | b = a^i)$. Such an $a$ is called a generator of $G$. The
+  group generated by $a$ is denoted as $\left< a \right>$.
+\end{defn}
+
+\begin{defn}[Order]
+  Let $G$ be a group and $a \in G$. The order of $a$ is the least
+  positive integer $t$ such that $a^t = I$, provided that such an
+  integer exists.  If such an integer does not exist, the order is
+  defined to be $\infty$.
+\end{defn}
+
+\begin{thm}[Lagrange's Theorem]
+  If $G$ is a finite group and $H$ is a subgroup of $G$ then $|H|$ divides
+  $|G|$.
+\end{thm}
+
+\begin{corr}
+  The order of $a \in G$ divides $|G|$.
+\end{corr}
+
+\begin{defn}[Congruency]
+  An integer $a$ is said to be congruent to integer $b$ modulo integer
+  $n$, written $a \equiv b \pmod{n}$, iff $n$ divides $a-b$ (denoted as
+  $n | a - b$). $n$ is called the \emph{modulus} of the congruency.
+\end{defn}
+
+\begin{defn}[Greatest Common Divisor]
+  Given two integers $a$ and $b$, the greatest common divisor
+  $d=\gcd(a,b)$ is the largest integer $d$ such that $d | a$ and $d | b$.
+\end{defn}
 
 \begin{defn}
-  Define an radix $R$ such that $R R^{-1} - N N' = 1$. The residue
-  $\overline{a}$ of $a$ is $\overline{a} = a R$
+  Two integers, $a$ and $b$, are relatively prime to each other iff
+  \mbox{$\gcd(a,b)=1$}.
+\end{defn}
+
+\begin{defn}
+  The integers modulo $n$, denoted $Z_n$, is the set of integers
+  \mbox{$\{ 0,1,2,\ldots,n-1 \}$}.
 \end{defn}
 
 \begin{thm}
-  The algorithm for Montgomery reduction is
-  \begin{algorithm}[hbt!]
-    \caption{Montgomery reduction}
-    \begin{algorithmic}
-      \Function{Reduce}{$T$}
-      \State $m \gets (T \bmod{R}) N' \bmod{R}$
-      \State $t \gets (T + m N)/R$
-      \If{$t \ge N$} \Return $t - N$
-      \Else \, \Return $t$
-      \EndIf
-      \EndFunction
-    \end{algorithmic}
-  \end{algorithm}
+  Let $d = \gcd(a, n)$. Then the congruence equation $a x = b \pmod{n}$ has
+  $d$ solutions $x$ iff $d$ divides $b$.
 \end{thm}
-\begin{proof}
-  Assume $T < R$, then
-  \begin{align*}
-      m & = T N' \\
-    m N & = T N' N \\
-        & = T R R^{-1} - T \\
-        & = - T \bmod{R} \\
-    t R & = T + m N \\
-        & = T \bmod{N}
-  \end{align*}
-\end{proof}
 
-To compute the Montgomery product, one can now apply the reduction to
-the product of the reduced $\overline{a}$ and $\overline{b}$:
-\begin{algorithmic}
-  \Function{MontgomeryProduct}{$\overline{a}$, $\overline{b}$}
-    \State $t \gets \overline{a} \cdot \overline{b}$
-    \State \Return \Call{Reduce}{$t$}
-  \EndFunction
-\end{algorithmic}
+\begin{corr}
+  Let $a \in Z_n$. $a$ has a multiplicative inverse, denoted $a^{-1}$,
+  iff \mbox{$\gcd(a, n) = 1$}.
+\end{corr}
 
-Ko\c{c} goes a step further and inlines the reduction to see possible
-optimizations when implementing the algorithm on multiple
-architectures \cite{Koc}:
+\begin{defn}
+  The multiplicative group of $Z_n$ is $Z_n^* = \{a | \gcd(a,n) = 1
+  \}$.  Specifically, if $n$ is prime, $Z_n^* = \{a | 1 \leq a \leq n-1
+  \}$. The identity element of the multiplicative group is $1$.
+\end{defn}
 
-\begin{algorithm}[hbt!]
-  \begin{algorithmic}
-    \Function{MontgomeryProduct}{$\overline{a}$, $\overline{b}$}
-      \State $m \gets (\overline{a} \cdot \overline{b} \bmod{R}) N' \bmod{R}$
-      \State $t \gets (\overline{a} \cdot \overline{b} + m N)/R$
-      \If{$t \ge N$} \Return $t - N$
-      \Else \, \Return $t$
-      \EndIf 
-   \EndFunction
-  \end{algorithmic}
-\end{algorithm}
+\begin{defn}
+  The additive group of $Z_n$ is $Z_n^+ = \{a | 0 \leq a \leq n-1 \}$.
+\end{defn}
 
-If such a primitive is provided on an architecture, the reduction then
-becomes:
+\begin{defn}[Euler Phi Function]
+  The Euler phi function, $\phi(n)$, also called Euler totient
+  function, gives the number of integers from the interval $[1,n]$
+  which are relatively prime to $n$.
+\end{defn}
 
-\begin{algorithm}
-  \begin{algorithmic}
-    \Function{MontgomeryReduce}{$T$}
-      \State \Return \Call{MontgomeryProduct}{$T$, $R^2$}
-    \EndFunction
-  \end{algorithmic}
-\end{algorithm}
+\begin{corr}
+  The order of the group $Z_n^*$ is $\phi(n)$.
+\end{corr}
 
-Montgomery product eliminates the trial division. It does so at the
-expense of computing the residues. However, these residues can be
-precomputed in the beginning. Then, for a sufficient number of
-Montgomery multiplications, the amortized cost is negligible. The
-problem of computing the modular product is then given by:
+\begin{corr}
+  For a prime $p$, $\phi(p) = p-1$.
+\end{corr}
+
+\begin{corr}
+  If $\gcd(m, n) = 1$, $\phi(m n) = \phi(m) \phi(n)$.
+\end{corr}
+
+\begin{thm}[Euler's Theorem]
+  If $a \in Z_n^*$, then $a^{\phi(n)} = 1 \pmod{n}$.
+\end{thm}
+
+\begin{corr}[Fermat's Theorem]
+  If $a \in Z_p^*$, where $p$ is prime, then $a^{p-1} = 1 \pmod{p}$.  
+\end{corr}
+
+\begin{corr}
+  $a \in Z_n^*$ is a generator of the group $Z_n^*$ iff the order of
+  $a$ is $\phi(n)$. $a$ is also called a primitive element of $Z_n^*$
+  then.
+\end{corr}
+
+\section{Zero Knowledge Proofs of Knowledge}
+
+The definitions are taken from \cite{Cameni98} and presented as a
+brief overview. Some minor additions were made for clarity.
+
+\begin{defn}[Interactive Proof of Knowledge]
+  Let $R \subseteq \{0,1\}^* \times \{0,1\}^*$ be a polinomially
+  bounded binary relation and let $L_R$ be the language defined by
+  $R$. An interactive proof of knowledge is a protocol $(P, V)$ that
+  has the following properties:
+  \begin{enumerate}
+  \item (Completeness) $(x,w) \in R \implies [V, P(w)](x) = T$
+  \item (Validity) There exists a probabilistic expected polynomial-time
+    machine $K$ (Knowledge extractor) such that for every $\tilde{P}$, for
+    all polynomials $f(\cdot)$ and all sufficiently large $x \in L_R$:
+    \[
+    p((x, K^{\tilde{P}(x)}) \in R) \geq p([V, \tilde{P}](x) = T) -
+    \frac{1}{f(|x|)}
+    \]
+    The probabilities are taken over all random choices of $V$, $P$,
+    $\tilde{P}$, $K$. The notation $\left[V, P(w)\right](x)$ denotes
+    the protocol execution with the secret $x$ and the prover output
+    $w$. $\tilde{P}$ includes malicious provers. $K^{\tilde{P}(x)}$
+    denotes oracle access to $\tilde{P}(x)$. $f(\cdot)$ denotes the
+    knowledge error.
+  \end{enumerate}
+\end{defn}
+
+\begin{defn}[Soundness] $(\forall \tilde{P})(\forall x \notin
+  L_R)(p([V, \tilde{P}](x) = T) < \frac{1}{2})$
+\end{defn}
+The additional soundness property is associated with $x \notin L_R$.  By
+repeating the protocol many times, it can be made arbitrarily small
+\cite{Cameni98}.
+
+\begin{defn}[Indistinguishability]
+  Let $L \in \{0,1\}^*$ be a language and let $A = \{A(x)\}_{x \in L}$
+  and $B = \{B(x)\}_{x \in L}$ be two ensembles of random variables
+  indexed by $L$. Ensembles $A$ and $B$ are:
+  \begin{itemize}
+  \item perfectly indistinguishable if for all $x \in L$ the variables
+    $A(x)$ and $B(x)$ are identically distributed
+  \item statistically indistinguishable if for every polynomial $f()$
+    and for all sufficiently long $x \in L$:
+    \[
+    \sum_{\alpha \in \{0,1\}^*} | p(A(x) = \alpha) - p(B(x) = \alpha)|
+    < \frac{1}{f(|x|)}
+    \]
+  \item computationally indistinguishable if for every probabilistic
+    polynomial-time algorithm $D$, for every polynomial $f()$ and for
+    all sufficiently long $x \in L$:
+    \[
+    |p(D(x, A(x) = 1) - p(D(x, B(x) = 1)| < \frac{1}{f(|x|)}
+    \]
+  \end{itemize}
+\end{defn}
+
+\begin{defn}[Zero-Knowledge]
+  An interactive protocol $(P, V)$ is said to be
+  perfectly/statistically/computationally zero-knowledge if for
+  every probabilistic polynomial-time verifier $\tilde{V}$ there
+  exists a probabilistic expected polynomial time simulator
+  $S_{\tilde{V}}$ so that the two ensembles
+  \[
+  \{[\tilde{V}, P(w)](x)\}_{x \in L} \; \textrm{and} \; \{S_{\tilde{V}}(x)\}
+  \]
+  are perfectly/statistically/computationally indistinguishable.
+\end{defn}
+
+\begin{defn}[Honest Verifier Zero-Knowledge]
+  An interactive protocol $(P, V)$ is said to be
+  perfectly/statistically/computationally zero-knowledge if there
+  exists a probabilistic expected polynomial time simulator
+  $S_{\tilde{V}}$ so that the two ensembles
+  \[
+  \{[V, P(w)](x)\}_{x \in L} \; \textrm{and} \; \{S_V(x)\}
+  \]
+  are perfectly/statistically/computationally indistinguishable.
+\end{defn}
+
+\subsection{$\Sigma$-protocols}
+
+A $\Sigma$-protocol is a three round honest verifier zero-knowledge
+proof of knowledge \cite{cryptography_introduction}. The name comes
+from the protocol's flow resemblance to the Greek letter $\Sigma$ as
+shown in Figure \ref{fig:sigma_flow}. The rounds of the protocol are:
 \begin{enumerate}
-\item Transform into the Montgomery domain
-\item Compute the product in the Montgomery domain
-\item Transform the result back into the integer domain
+\item Commitment ($t$) - the prover commits to a value and sends that
+  value to the verifier
+\item Challenge ($c$) - the verifier computes a random challenge and asks
+  the prover to output a value for that challenge
+\item Response ($s$) - the prover responds with a new computed value
 \end{enumerate}
-This is also depicted in Figure \ref{fig:montpro_flow} where both paths
-are shown when starting from the integer domain.
+
+\begin{figure}[hb!]
+  \centering
+  \begin{tikzpicture}[>=stealth]
+    \node[matrix,column sep=2cm] {
+      \node{Prover};                  &                           & &                             & \node{Verifier}; \\
+      \node{Commitment};          & \node(commitment_s){}; & & \node(commitment_r){}; & \\
+                                      & \node(challenge_r){}; & & \node(challenge_s){}; & \node{Challenge}; \\
+      \node{Response}; & \node(response_s){}; & & \node(response_r){}; & \\
+    };
+    \draw[->] (commitment_s) -- (commitment_r) node[midway, anchor=south]{$t$};
+    \draw[<-] (challenge_r) -- (challenge_s) node[midway, anchor=south]{$c$};
+    \draw[->] (response_s) -- (response_r) node[midway, anchor=south]{$s$};
+  \end{tikzpicture}
+  \caption{Sigma protocol flow}
+  \label{fig:sigma_flow}
+\end{figure}
+
+\subsubsection{Schnorr's Identification Protocol}
+\label{subsubsec:schnorr_protocol}
+
+A simple example of a $\Sigma$ protocol is Schnorr's Identification
+Protocol \cite{schnorr_protocol, cryptography_introduction}. The
+secret is a discrete logarithm $x$ of $y$ with respect to $g$ in some
+finite group $G = \left< g \right>$ with prime order $q$, subgroup of
+$Z_p^*$. The prover must prove knowledge of this secret to a verifier under
+the homomorphism $f(a) : Z_q^+ \rightarrow G \subset Z_p^* := g^a$.
 
 \begin{figure}[hbt!]
   \centering
   \begin{tikzpicture}[>=stealth]
-    \tikzstyle{dom}=[rectangle,draw=black,thin,align=center]
-
-    \node[matrix, column sep=1cm, row sep=1cm](matrix){
-      \node[dom](intd){$a$, $b$}; & \node[dom](montd){$\overline{a}$, $\overline{b}$}; \\
-      \node[dom](intpro){$a \cdot b$}; &\node[dom](montpro){$\overline{a} \cdot \overline{b}$}; \\
+    \node[matrix,column sep=2cm] {
+      \node{Prover};                  &                           & &                             & \node{Verifier}; \\
+      \node{$r_1 \in Z_q^+$};                   &                           & &                             &                   \\
+      \node{$t_1 = g^{r_1}$};          & \node(prover_round1_s){}; & & \node(verifier_round1_r){}; & \\
+                                      & \node(prover_round2_r){}; & & \node(verifier_round1_s){}; & \node{$c \in \{0,1\}^*$}; \\
+      \node{$s_1 = r_1 + x \cdot c$}; & \node(prover_round2_s){}; & & \node(verifier_round2_r){}; & \\
+                                      &                           & &                             & \node{$s_1 \stackrel{?}{\in} Z_q^+$}; \\
+                                      &                           & &                             & \node{$t_1 y^c \stackrel{?}{=} g^{s_1}$}; \\
     };
-
-    \draw[<->] (intd) -- (montd);
-    \draw[->] (montd) -- (montpro);
-    \draw[<->] (montpro) -- (intpro);
-    \draw[->] (intd) -- (intpro);
+    \draw[->] (prover_round1_s) -- (verifier_round1_r) node[midway, anchor=south]{$t_1$};
+    \draw[<-] (prover_round2_r) -- (verifier_round1_s) node[midway, anchor=south]{$c$};
+    \draw[->] (prover_round2_s) -- (verifier_round2_r) node[midway, anchor=south]{$s_1$};
   \end{tikzpicture}
-  \caption{Montgomery product flow}
-  \label{fig:montpro_flow}
+  \caption{Schnorr's Identification Protocol}
+  \label{fig:schnorr_steps}
 \end{figure}
 
-\filbreak
+\subsubsection{Camenisch-Stadler Notation}
+\label{subsubsec:camenisch_stadler}
 
-\section{Turing Machine}
-
-A Turing machine is a mathematical model of computation \cite{Turing}.
-Informally, it consists of:
-\begin{itemize}
-\item A tape divided into cells
-\item A head that reads and writes
-\item A finite table (action table or transition function)
-\item A state
-\end{itemize}
-
-\begin{figure}[hbt!]
-\centering
-\begin{tikzpicture}[
-      start chain=1 going right,start chain=2 going below,node distance=-0.15mm
-    ]
-    \node [on chain=2] {Tape};
-    \node [on chain=1] at (-1.5,-.4) {\ldots};  
-    \foreach \x in {1,2,...,11} {
-        \x, \node [draw,on chain=1] {};
-    } 
-    \node [name=r,on chain=1] {\ldots}; 
-    \node [name=k, arrow box, draw,on chain=2,
-        arrow box arrows={east:.25cm, west:0.25cm}] at (-0.335,-.65) {};    
-    \node at (1.5,-.85) {Read/write head};
-    \node [on chain=2] {};
-    \node [draw,on chain=2] {Program};
-    \chainin (k) [join];
-\end{tikzpicture}
-\caption{Turing machine}
-\label{fig:turing}
-\end{figure}
-
-A more formal definition comes from Hopcroft \cite{Hopcroft}. A Turing machine
-is defined as a 7-tuple $M = \left< Q, \Gamma, b, \Sigma, q_0, F, \delta \right>$
-\begin{itemize}
-\item $Q$ is a finite, non-empty set of states
-\item $\Gamma$ is a finite, non-empty set of the tape alphabet/symbols
-\item $b \in \Gamma$ is the blank smybol
-\item $\Sigma \subseteq \Gamma \setminus \{ b \}$ the set of input symbols
-\item $q_0 \in Q$ is the initial state
-\item $F \subseteq Q$ is the set of final or accepting states
-\item $\delta : Q \setminus F \times \Gamma \rightarrow Q \times \Gamma \times \{ L,R \}$ is the transition relation
-\end{itemize}
-
-\section{Zero Knowledge Proofs of Knowledge}
-
-Sometimes one party wants to prove knowing a secret to the other party
-but without actually revealing that secret. Let's take a corporate
-espionage example. Suppose that we wish to buy a secret but are not
-convinced of the seller's honesty (he may leave us without money and
-run away with our secret). We then devise a protocol by which we can
-be convinced that the seller knows the secret.
-
-\filbreak
-
-To define a proof a knowledge it is convenient to use a Turing
-machine. In this case let's define an interactive Turing machine (ITM)
-with 5 tapes:
-\begin{itemize}
-\item Input tape (read-only)
-\item Receiving tape (read-only)
-\item Sending tape (write-only)
-\item Output tape (write-only)
-\item Working tape (read-write)
-\end{itemize}
-
-An interactive protocol is an ordered pair of ITMs that share the same
-input tape, and have receiving and sending tapes cross-connected
-(sending to receiving, receiving to sending).
-
-An interactive proof system can be represented by the following two
-properties:
-\begin{itemize}
-\item Completeness $(x,w) \in \mathcal{R} \Rightarrow P(accept) > \frac{2}{3}$
-\item Soundness $(x,w) \notin \mathcal{R} \Rightarrow P(accept) < \frac{1}{3}$
-\end{itemize}
-
-Informally, the previous two properties state that
-\begin{itemize}
-\item if a statement is true, a honest prover will be able to convince the verifier of the validity with a large probability
-\item if a statement is false, no dishonest prover will be able to convince the verifier of the validity with a probability larger than the threshold
-\end{itemize}
-
-To make it a zero-knowledge an additional property is needed. We can
-state that the prover should not release any knowledge on the secret
-it possesses. To make it more formal, we state that a third party
-should not be able to distinguish between a successful communication
-and an unsuccessful one. Depending on how indistinguishable it is, we
-can differentiate three cases:
-\begin{itemize}
-\item perfectly indistinguishable
-\item statistically indistinguishable
-\item computationally indistinguishable
-\end{itemize}
+A simple and popular notation for specifying Sigma protocols is the
+Camenisch-Stadler notation \cite{CACE, camenisch_stadler}. The Schnorr
+Identification Protocol can be represented by the following:
+\[
+  \textrm{ZPK}\left[ (x): y = g^x \right]
+\]
+meaning prove knowledge of $x$, using a zero knowledge proof of
+knowledge, such that $y=g^x$.
 
 \section{Data Flow Graph and Control Flow Graph}
 
-An algorithm is completely and uniquely defined by its Data Flow Graph (DFG),
-whereas the implementation of an algorithm is what gives it its Control Flow
-Graph (CFG).
+\begin{defn}[Data Edge]
+  A data edge is an ordered relation between two operations such that
+  the output/result of one operation is the input to the other
+  operation.
+\end{defn}
 
-The usual step in converting an algorithm in software to an algorithm
-in hardware is to extract the DFG \cite{Schaumont}.
+\begin{defn}[Control Edge]
+  A control edge is an ordered relation between two operations such
+  that the second operation has to be executed after the first finishes
+  executing.
+\end{defn}
+
+\begin{defn}[Data Flow Graph]
+  A data flow graph is a graph of the nodes representing the
+  operations connected by data edges.
+\end{defn}
+
+\begin{defn}
+  A control flow graph is a graph of the nodes representing the
+  operations connected by control edges.
+\end{defn}
+
+An algorithm is completely and uniquely defined by its Data Flow Graph
+(DFG), whereas the implementation of an algorithm is what gives it its
+Control Flow Graph (CFG). The usual step in converting an algorithm in
+software to an algorithm in hardware is to extract the DFG
+\cite{Schaumont}.
 
 %%% Local Variables: 
 %%% TeX-PDF-mode: t

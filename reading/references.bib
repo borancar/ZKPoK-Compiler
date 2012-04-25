@@ -1,11 +1,18 @@
-@misc{CACE,
-  title={{A Certifying Compiler for Zero-Knowledge Proofs of Knowledge Based on $\Sigma$-Protocols}},
-  booktitle={IACR Eprint archive},
-  keywords={implementation / Zero-Knowledge, Protocol Compiler, Formal Verification},
-  url={http://eprint.iacr.org/2010/339},
-  note={An extended abstract of this work will be presented at ESORICS 2010 stephan.krenn@bfh.ch; thomas.schneider@trust.rub.de 14825 received 10 Jun 2010, last revised 4 Aug 2010},
-  authors={Jose Bacelar Almeida and Endre Bangerter and Manuel Barbosa and Stephan Krenn and Ahmad-Reza Sadeghi and Thomas Schneider},
-  year=2010
+@inproceedings{CACE,
+ author = {Almeida, Jos{\'e} Bacelar and Bangerter, Endre and Barbosa, Manuel and Krenn, Stephan and Sadeghi, Ahmad-Reza and Schneider, Thomas},
+ title = {A certifying compiler for zero-knowledge proofs of knowledge based on $\Sigma$-protocols},
+ booktitle = {Proceedings of the 15th European conference on Research in computer security},
+ series = {ESORICS'10},
+ year = {2010},
+ isbn = {3-642-15496-4, 978-3-642-15496-6},
+ location = {Athens, Greece},
+ pages = {151--167},
+ numpages = {17},
+ url = {http://dl.acm.org/citation.cfm?id=1888881.1888894},
+ acmid = {1888894},
+ publisher = {Springer-Verlag},
+ address = {Berlin, Heidelberg},
+ keywords = {formal verification, protocol compiler, zero-knowledge},
 } 
 
 @INPROCEEDINGS{Bellare98ondefining,
@@ -257,6 +264,16 @@ year = {1995},
 abstract = {Despite the parsing power of LR/LALR algorithms, e.g. YACC, programmers often choose to write recursive-descent parsers by hand to obtain increased flexibility, better error handling, and ease of debugging. We introduce ANTLR, a public-domain parser generator that combines the flexibility of hand-coded parsing with the convenience of a parser generator, which is a component of PCCTS. ANTLR has many features that make it easier to use than other language tools. Most important, ANTLR provides predicates which let the programmer systematically direct the parse via arbitrary expressions using semantic and syntactic context; in practice, the use of predicates eliminates the need to hand-tweak the ANTLR output, even for difficult parsing problems. ANTLR also integrates the description of lexical and syntactic analysis, accepts LL(k) grammars for k > 1 with extended BNF notation, and can automatically generate abstract syntax trees.ANTLR is widely used, with over 1000 registered industrial and academic users in 37 countries. It has been ported to many popular systems such as the PC, Macintosh, and a variety of UNIX platforms; a commercial C++ front-end has been developed as a result of one of our industrial collaborations.},
 }
 
+@book{HAC,
+ author = {Menezes, Alfred J. and Vanstone, Scott A. and Oorschot, Paul C. Van},
+ title = {Handbook of Applied Cryptography},
+ year = 1996,
+ isbn = 0849385237,
+ edition = {1st},
+ publisher = {CRC Press, Inc.},
+ address = {Boca Raton, FL, USA},
+}
+
 @MISC{yaczk,
     author = {Endre Bangerter and Stephan Krenn and Ahmad-reza Sadeghi and Thomas Schneider},
     title = {YACZK: Yet Another Compiler for Zero-Knowledge ⋆ (Poster Abstract)},
@@ -316,6 +333,13 @@ url = {http://llvm.org/docs/ExtendingLLVM.html}
     note    = {{\em See {\texttt{http://llvm.cs.uiuc.edu}}.}}
   }
 
+@MastersThesis{simplified_daa,
+author = {Antonio Diaz Castano},
+title = {Anonymous ePetitions with secure hardware for smart phones},
+school = {Universida de Vigo},
+year = {2011}
+}
+
 @techreport{c++_multi_methods,
   author = {Peter Pirkelbauer and Yuriy Solodkyy and Bjarne Stroustrup},
   title = {Report on language support for Multi-Methods and Open-Methods for C++.},
@@ -334,3 +358,69 @@ url = {http://llvm.org/docs/ExtendingLLVM.html}
  publisher = {Prentice-Hall, Inc.},
  address = {Upper Saddle River, NJ, USA},
 } 
+
+@phdthesis{Cameni98,
+    author     = {Jan Camenisch},
+    title      = {Group Signature Schemes and Payment Systems Based on the Discrete Logarithm Problem},
+    year       = 1998,
+    note       = {Reprint as vol.~2 of {\em ETH Series in Information Security and Cryptography}, {ISBN} 3-89649-286-1, {H}artung-{G}orre {V}erlag, {K}onstanz, 1998},
+    school     = {{ETH Zurich}}
+}
+
+@book{cryptography_introduction,
+    abstract = {{Nigel Smart's "Cryptography" provides the rigorous detail required for
+advanced cryptographic studies, yet approaches the subject matter in an
+accessible style in order to gently guide new students through difficult
+mathematical topics.}},
+    author = {Smart, Nigel},
+    citeulike-article-id = {5008496},
+    day = {30},
+    howpublished = {Paperback},
+    isbn = {0077099877},
+    keywords = {cryptography},
+    month = dec,
+    posted-at = {2009-06-29 09:59:04},
+    priority = {2},
+    publisher = {Mcgraw-Hill College},
+    title = {{Cryptography: An Introduction}},
+    url = {http://www.amazon.com/exec/obidos/redirect?tag=citeulike07-20\&path=ASIN/0077099877},
+    year = {2004}
+}
+
+@incollection {schnorr_protocol,
+   author = {Schnorr, C.},
+   affiliation = {Universit\"{a}t Frankfurt Frankfurt},
+   title = {Efficient Identification and Signatures for Smart Cards},
+   booktitle = {Advances in Cryptology — CRYPTO 89 Proceedings},
+   series = {Lecture Notes in Computer Science},
+   editor = {Brassard, Gilles},
+   publisher = {Springer Berlin / Heidelberg},
+   isbn = {978-0-387-97317-3},
+   keyword = {Computer Science},
+   pages = {239-252},
+   volume = 435,
+   url = {http://dx.doi.org/10.1007/0-387-34805-0\_22},
+   note = {10.1007/0-387-34805-0\_22},
+   year = 1990
+}
+
+@inproceedings{camenisch_stadler,
+ author = {Camenisch, Jan and Stadler, Markus},
+ title = {Efficient Group Signature Schemes for Large Groups (Extended Abstract)},
+ booktitle = {Proceedings of the 17th Annual International Cryptology Conference on Advances in Cryptology},
+ series = {CRYPTO '97},
+ year = {1997},
+ isbn = {3-540-63384-7},
+ pages = {410--424},
+ numpages = {15},
+ url = {http://dl.acm.org/citation.cfm?id=646762.706305},
+ acmid = {706305},
+ publisher = {Springer-Verlag},
+ address = {London, UK, UK},
+}
+
+@online{formal_languages,
+author = {Tao Jiang and Ming Li and Bala Ravikumar and Kenneth W. Regan},
+title = {Formal Grammars and Languages},
+url = {http://www.cs.ucr.edu/~jiang/cs215/tao-new.pdf}
+}

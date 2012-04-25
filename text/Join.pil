@@ -1,0 +1,1 @@
+ExecutionOrder := (Smartcard.Round0, Host.Round0, Credential.Round0, Host.Round1, Smartcard.Round1);

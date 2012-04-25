@@ -2,26 +2,73 @@
 #include <termios.h>
 #include <fcntl.h>
 
+/** 
+ * The ipterm used to communicate raw data through the terminal
+ * interface
+ */
 class ipterm : public aipblock {
-  int fd;
+  int fd;			/**< the file descriptor associated
+				   with the terminal */
 
 public:
 
+  /** 
+   * Creates a new term with the provided terminal name
+   * 
+   * @param name terminal name to use
+   */
   ipterm(char *name);
 
+  /** 
+   * Releases the used resources
+   */
   ~ipterm();
 
+  /** 
+   * Runs the current clock cyclee iteration
+   */
   void run();
 
+  /** 
+   * Checks the ports of the block
+   * 
+   * @param n order of the port
+   * @param tname name of the port
+   * @param dir direction of the port
+   * 
+   * @return true if the ports are specified correctly, false otherwise
+   */
   bool checkterminal(int n, char *tname, aipblock::iodir dir);
 
+  /** 
+   * Sets the parameter of this block
+   * 
+   * @param _name the parameter name
+   */
   void setparm(char *_name);
 
+  /** 
+   * Returns if the block cannot be put to sleep
+   * 
+   * @return true if the block cannot be put to sleep, false otherwise
+   */
   bool cannotSleepTest() { return false; }
 
+  /** 
+   * Returns if the block needs wakeup test after sleep
+   *
+   * @return true if the block needs wakeup test, false otherwise
+   */
   bool needsWakeupTest() { return false; }
 };
 
+/** 
+ * Provides the entry point for instantiating the block
+ * 
+ * @param instname name of the block
+ * 
+ * @return the instantiated block
+ */
 extern "C" aipblock *create_term(char *instname) {
   return new ipterm(instname);
 }

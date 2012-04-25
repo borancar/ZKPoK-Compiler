@@ -1,0 +1,20 @@
+
+The need for cryptographically aware compilers is extensively motivated by Bangerter et al.~\cite{citeulike:7079130}. A number of compiler based tools have been proposed recently. Some target a wide variety of cryptographic primitives and protocols~\cite{DBLP:conf/weworc/LucksST05,DBLP:conf/issa/BangerterKSU11}, while others focus on specific areas, such as multiparty computation~\cite{DBLP:conf/uss/MalkhiNPS04,DBLP:conf/pkc/DamgardGKN09,DBLP:conf/ccs/HeneckaKSSW10} and ZKPK.
+
+A first example of ZKPK compiler was proposed in~\cite{TUD-CS-2005-0034} and extended in \cite{DBLP:conf/europki/BangerterBHKSS09}. Subsequently, Almeida et al. proposed the CACE ZKPK compiler~\cite{CACE}, which allows the implementation of most relevant $\Sigma$-protocols. The CACE ZKPK compiler avoids security vulnerabilities by choosing certain security parameters automatically and by validating the implementations via a formal theorem prover. A more detailed description is given in Section~\ref{sec:tools}.
+
+Another ZKPK compiler (ZKPDL) was proposed by Meiklejohn et al.~\cite{Meiklejohn:2010:ZLS:1929820.1929838}. When compared to CACE, ZKPDL improves efficiency by using precomputation, but allows the implementation of a narrower class of protocols and does not provide formal verification. A detailed comparison between CACE and ZKPDL is given in \cite{Bangerter_yaczk:yet}.
+
+To the best of our knowledge, currently there is no compiler that targets HW specification languages or that allows for HW-SW co-design.
+
+ 
+
+
+
+%-	ZKPDL
+%-	Other related work (take from the paper “A Certifying Compiler for Zero-Knowledge Proofs of Knowledge Based on Sigma-Protocols”
+
+%%% Local Variables:
+%%% TeX-PDF-mode: t
+%%% TeX-master: "main"
+%%% End:

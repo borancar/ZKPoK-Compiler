@@ -116,30 +116,40 @@ int request_term(struct input_request request[], int count, int force_comm) {
 
       buffer = malloc(inputsize);
 
-      buffer[0] = 0;
+      int pos = 0;
 
-      while(!isalnum(buffer[0])) {
-	read(fd, buffer, 1);
+      while(!isalnum(buffer[pos])) {
+	read(fd, buffer+pos, 1);
       }
 
-      for(pos = 1; pos + 1 < inputsize; pos++) {
-	read(fd, buffer+pos, 1);
+      pos++;
+
+      while(pos + 1 < inputsize) {
+	int chars = read(fd, buffer+pos, 1);
+
+	if(chars == 0) continue;
+
 	if(buffer[pos] == '\n' || buffer[pos] == '\r') {
-	  break;
+	  buffer[pos] = 0;
+      
+	  cace_int_assign(request[i].result, buffer, 1);
+	  
+	  free(buffer);
+	  return 0;
 	}
+	
+	if(!isalnum(buffer[pos])) continue;
+
+	pos += chars;
       }
 
       if(pos + 1 == inputsize) {
 	MSG_ERROR(fprintf(stderr, "comm: input too long\n"););
       }
-
-      buffer[pos] = 0;
-
-      cace_int_assign(request[i].result, buffer, 1);
-
-      free(buffer);
     }
   }
+
+  free(buffer);
 
   return 0;
 }

@@ -1,0 +1,62 @@
+\subsection{CACE ZKPK Compiler}
+\label{cace}
+
+%- Explain as in Section 3.1 of “A Certifying Compiler for Zero-Knowledge Proofs of Knowledge Based on Sigma-Protocols”.
+
+The CACE ZKPK compiler allows the implementation of $\Sigma$-protocols, including protocols for proving knowledge in arbitrary groups, $\mathsf{AND}$ and $\mathsf{OR}$ compositions and linear relations among secret pre-images. Figure~\ref{fig:cace_workflow} depicts the typical flow of the CACE ZKPK compiler:
+\begin{enumerate}
+\item The ZKPK to be implemented is specified in Protocol Specification Language (PSL). PSL is based on
+Camenisch-Stadler notation and allows the specification of complex $\Sigma$ protocols in an easy way.
+\item The Protocol Compiler transforms the specification in PSL into an implementation in Protocol Implementation Language (PIL). PIL is a Turing-complete language on its own supporting the following features: global (shared) constants, global variables, conditionals, loops, functions, predicates and type alias. It allows for automated verification.
+\item The framework transforms PIL code into an implementation in C or Java that can be compiled and executed on a target architecture.
+\item The PIL code is verified using the Protocol Verification Toolbox (PVT). On input the specification in PSL and the implementation in PIL, PVT employs the theorem prover Isabelle/HOL~\cite{DBLP:books/sp/NipkowPW02} to create a proof of the soundness guarantees of the generated ZKPK implementation.
+\item Human readable documentation in LaTeX is also generated from PIL code.
+\end{enumerate}
+Additional tools of CACE include a plugin to produce non-interactive ZKPK via the Fiat-Shamir heuristic~\cite{DBLP:conf/crypto/FiatS86} ($\Sigma$2NIZK) and another plugin to calculate the computation and communication complexity of the protocol.
+
+\begin{figure}[hb!]
+  \centering
+  \begin{tikzpicture}[>=stealth,level distance=0.85cm,font=\tiny]
+    \tikzstyle{edge from parent}=[draw,->]
+
+    \Tree [.\node[language](psl){Protocol Specification \\ Language (PSL)};
+      [.\node[compiler](pc){Protocol Compiler};
+        [.\node[language](pil){Protocol Implementation \\ Language (PIL)};
+          [.\node[compiler](c){C}; \node[language](code){Code};]
+          [.\node[compiler](latex){\LaTeX}; \node[language](doc){Documentation};]
+        ]
+      ]
+    ]
+
+    \node[compiler] (pvt)         [right=of pc,anchor=west]          {Protocol Verification \\ Toolbox (PVT)}
+    child {node[language] {Proof of \\ Soundness}};
+
+    \node[compiler] (sigma) [left=of pil.north west,anchor=center] {$\Sigma 2 N I Z K$};
+    \node[compiler] (cost) [left=of pil.south west,anchor=center] {Costs};
+
+    \draw[<->] (sigma) -- (pil);
+    \draw[<->] (cost) -- (pil);
+
+    \draw[->] (psl) -- (pvt);
+    \draw[->] (pil) -- (pvt);
+  \end{tikzpicture}
+  \caption{CACE Project Zero Knowledge Compiler typical workflow}
+  \label{fig:cace_workflow}
+\end{figure}
+
+Both PSL and PIL are suited for specifying and implementing cryptographic protocols. Particularly, they allow the declaration of variables of type prime and of type additive and multiplicative group. For example, the following declaration in PSL:
+\begin{lstlisting}[language=PSL]
+Declarations {
+  Prime(1024) p;
+  Prime(160) q;
+  Zmod+(q) x;
+  Zmod*(p) g;
+}
+\end{lstlisting}
+shows how to declare prime numbers $p$ and $q$ of different lengths as well as an element $x$ of the additive group $Z_q^+$ and an element $g$ of the multiplicative group $Z_p^*$. Modular arithmetic support for those types is also provided. PSL also permits a concise declaration of the statements to be proven by a $\Sigma$-protocol and of the security parameters to be used.
+
+
+%%% Local Variables:
+%%% TeX-PDF-mode: t
+%%% TeX-master: "main"
+%%% End:
