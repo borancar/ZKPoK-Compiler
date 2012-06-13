@@ -1,83 +1,83 @@
 \chapter{Introduction}
 
 \section{Motivation}
+\label{sec:thesis_motivation}
 
-Cryptography involves complex building blocks. Yet, it is so
+Cryptography involves complex building blocks, yet, it is so
 widespread today that the user cannot even browse the web without
 it. Whenever the user browses a secure web-site, a plethora of
-cryptographic exchanges that happen underneath is abstracted away. The
+cryptographic exchanges is abstracted away. All these exchanges
+involve even more exchanges and sub-protocols at a lower level. The
 protocol referred to is the Transport Layer Security (TLS) and its
-predecessor, Secure Sockets Layer (SSL). All these exchanges involve
-even more exchanges and sub-protocols at a lower level.
+predecessor, Secure Sockets Layer (SSL).
 
-TLS allows to establish a secure channel and communicate securely with
-another party. This is the base then for log-in procedures where the
-user enters his credentials and the system performs checks for each of
-the operations the user wants to execute. Such checks involve at their
-heart knowing which user is requesting. The modern society is based
-around anonymity, however. The users do not want to be tracked when
+TLS allows establishing a secure channel and communicating securely
+with another party. This is the base then for log-in procedures where
+the user enters his credentials and the system performs checks for
+each of the operations the user wants to execute. Such checks involve,
+at their heart, revealing the user's identity while the modern society
+is based around anonymity. The users do not want to be tracked when
 performing everyday tasks like parking a car at a parking lot, buying
 a public transportation ticket or proving that they are of age. Such
-things need to be secure while at the same time anonymous. The
-traditional approach was to use paper and this is still used for
-voting. The advantages of computer processing and the need to be fast
-and profitable is in direct contrast with traditional approaches and
-providers are slowly introducing electronic systems. Anonymous
-credentials are needed to ensure both the processing efficiency for
-the providers and the anonymity for users.. Zero Knowledge Proofs of
-Knowledge allow one to prove knowledge of a secret without actually
-revealing it. As such, they are a basic building block for such
-anonymous credential proving and the field is seeing more and more
-advancements. New crypto protocols are being proposed such as
-e-voting, e-petitions, e-cash, group signatures and others.
+things need to be secure while at the same time anonymous. Traditional
+approaches solved this using paper but advantages of computer
+processing and the need to be fast and profitable are in direct
+contrast with this and providers are slowly introducing electronic
+systems. Anonymous credentials are needed to ensure both the
+processing efficiency for the providers and the anonymity for
+users. Zero Knowledge Proofs of Knowledge are the basic building block
+for such anonymous credentials as they allow one to prove knowledge of
+a secret without actually revealing it. This field is gaining momentum
+as of recent and new protocols are being proposed such as e-voting,
+e-petitions, e-cash, group signatures and others.
 
 The notion of the user need not be specifically linked to a human
-user. Direct Anonymous Attestation (DAA) specifically targets Trusted
-Platform Computing (TPM) devices that can be found in, but not limited
-to general purpose computers. The user can also be a smart sensor
-network or a smart accessory (both of which are common today). A
-recent advancement is the introduction of self-driving cars. Such
-embedded devices were a niche when SSL was first designed (not to
-mention DES and RSA). Today these devices are mainstream (smart cards,
-tablets, smart-phones\ldots), taking more and more of the field from
-general purpose computers. The advantages are mostly small-size and
-low-power but other trade-offs can be made when designing such small
-devices. These trade-offs give rise to a plethora of unique system
-and/or processor architectures. It is up to the designer of such
-embedded devices to implement the industry standard protocols to allow
-intercommunication with other existing devices. Most programmers are
-not cryptographers and are prone to many errors if implementing
-cryptography protocols in a general purpose programming language.
-Even cryptographers themselves are prone to errors which is easily
-observable by the amount of iterations of
+user. For example, Direct Anonymous Attestation (DAA) specifically
+targets Trusted Platform Computing (TPM) devices that can be found in,
+but not limited to general purpose computers. The user can also be a
+smart sensor network or a smart accessory (both of which are common
+today). Another example is the recent advancement of introducing
+self-driving cars. Such embedded devices were a niche when SSL was
+first designed (not to mention DES and RSA) while today these devices
+are mainstream (smart cards, tablets, smart-phones\ldots), taking more
+and more of the field from general purpose computers. The advantages
+are mostly small-size and low-power but other trade-offs can be made
+while designing such small devices. These trade-offs give rise to a
+plethora of unique system and/or processor architectures and it is up
+to the designer of such embedded devices to implement the industry
+standard protocols allowing intercommunication with other existing
+devices. Most programmers are not cryptographers and are prone to many
+errors if implementing cryptography protocols in a general purpose
+programming language.  Even cryptographers themselves are prone to
+errors which is easily observable by the amount of iterations of
 OpenSSL\footnote{http://www.openssl.org} and
-GnuTLS\footnote{http://www.gnu.org/software/gnutls/} that are released per year. The
-protocols that currently dominate the web (protocols up to TLS 1.2)
-were specified a long time ago, yet the errors introduced by
+GnuTLS\footnote{http://www.gnu.org/software/gnutls/} released every
+year. The protocols that currently dominate the web (protocols up to
+TLS 1.2) were specified a long time ago, yet the errors introduced by
 implementing them in a general purpose language could still not be
 avoided. Worse for that matter is that the need for secure embedded
-devices rises well beyond the available cryptographers. Automated
-tools are thus needed for implementing cryptography protocols.
+devices rises well beyond the available cryptographers and automated
+tools are definitely needed for implementing cryptography protocols.
 
 When it comes to embedded devices, the barrier between the hardware
 and the software is getting thinner and is no longer uncommon for
-implementations crossing from one side to the other even at later
-stages of the design work-flow. This has been dubbed ``The Softening
-of Hardware'' \cite{softeninghw}. This allows for more granular
-trade-offs and can lead to more efficient designs. The automated
-framework should also allow this exploration.
+implementations crossing boundaries even at later stages of the design
+work-flow, dubbed ``The Softening of Hardware''
+\cite{softeninghw}. This allows for more granular trade-offs which can
+lead to more efficient designs and the automated framework should also
+allow this exploration.
 
-Cryptographers themselves could also benefit from such automated
-tools.  Current general purpose languages and tools for the
-cryptography field involve a lot of common, shared code that has to be
-rewritten over and over. A domain specific language that
-cryptographers can easily understand and read fluently without
-ambiguities can only lead to better tested and proven protocols. The
-ideal split of this word would be for cryptographers to test, specify
-and write protocols in such a language and the users to use that
-language for their applications. Lastly, to quote: ``Computers are
-incredibly fast, accurate, and stupid. Human beings are incredibly
-slow, inaccurate, and brilliant. Together they are powerful beyond
+Cryptographers themselves could also benefit from such automated tools
+as current general purpose languages and tools for the cryptography
+field involve a lot of common, shared code that has to be rewritten
+over and over. A domain specific language that cryptographers can
+easily understand and read fluently without ambiguities can only lead
+to better tested and proven protocols. The ideal split of this word
+would be for cryptographers to test, specify and write protocols in
+such a language and the users to use that language for their
+applications. Lastly, to quote: ``Computers are incredibly fast,
+accurate, and stupid. Human beings are incredibly slow, inaccurate,
+and brilliant. Together they are powerful beyond
 imagination.''\footnote{Unknown author, falsely attributed to Albert
   Einstein}
 
@@ -86,80 +86,97 @@ imagination.''\footnote{Unknown author, falsely attributed to Albert
 The need for automated tools for Zero Knowledge Proofs of Knowledge
 has led to the creation of the
 CACE\footnote{http://www.cace-project.eu} Project Framework, the ZKPDL
-Library and IBM's Idemix\footnote{http://www.zurich.ibm.com/idemix/}
-project. These tools were built for general purpose computers. They
-use higher level tools (such as GMP\footnote{http://gmplib.org/}, a
-multi-precision library) and are not very well suited for small,
-embedded devices. While these tools could in theory be ported to
-embedded devices, this is usually not practical as the generality
-sacrifices some efficiency. Even in the best case, these tools do not
-allow exploring the hardware-software (HW-SW) codesign.
+Library and ZKCrypt. These tools were built for general purpose
+computers, using higher level tools (such as
+GMP\footnote{http://gmplib.org/}, a multi-precision library), and are
+not very well suited for small, embedded devices. While these tools
+could in theory be ported to embedded devices, this is usually not
+practical as the generality sacrifices some efficiency. Even in the
+best case, these tools do not allow exploring the hardware-software
+(HW-SW) co-design spectrum.
 
 \section{Original Contribution}
 
 A custom framework is needed to address the specific needs of HW-SW
-codesign. The approach taken is to extend the CACE Project Zero
-Knowledge Compiler as designing a complete framework from scratch is
-deemed impractical. The CACE Project Zero Knowledge Compiler already
-provides a sufficiently good Zero Knowledge Proof of Knowledge
+codesign and our approach is to extend the CACE Project Zero Knowledge
+Compiler (CACE ZKC). Designing a complete framework from scratch is
+deemed impractical and the CACE ZKC is already a sufficiently good
 compiler for $\Sigma$ protocols (a zero knowledge proof of knowledge
-protocol involving 3 rounds: commitment, challenge and response). This
-compiler compiles a higher level language (PSL) into a lower level
-language (PIL). This lower level language was extended so that another
-work-flow can be taken for non-supported features in the CACE Project
-Zero Knowledge compiler. Such features are multi-party protocols and
-constant expressions. These both allow for specifying other protocols
-that are not $\Sigma$ transformable. Such an example is the Direct
-Anonymous Attestation Join protocol.
+protocol involving 3 rounds: commitment, challenge and response). A
+higher level language (PSL) is compiled into a lower level language
+(PIL) and we have extended PIL so that another work-flow can be taken
+for features not supported by CACE ZKC. Such features are multi-party
+protocols, constant expressions and type inference (see Sub-section
+\ref{subsec:pil_extensions}).
 
-The LLVM (a compiler infrastructure framework targeting tailored for
-aggressive optimizations) is used to transform this low level language
-into a even more lower level representation (LLVM IR) that can be
-compiled on most of the general purpose processors LLVM supports (x86,
-ARM, PowerPC, MIPS). The LLVM IR does not allow for modular arithmetic
-so the framework is extended with type tracking and inference. The
-tracked types have a defined mapping to the LLVM IR types that back
-them in the lower level. This choice presented itself easier than
-extending the LLVM IR, which is a very cumbersome process. A GEZEL (a
-cycle-accurate co-simulation environment) back-end was written for
-LLVM such that it is possible to synthesize the protocol directly onto
-hardware. This also allows to explore HW-SW co-design by means of Data
-Flow Graph - Control Flow Graph (DFG-CFG) balancing. GEZEL and CACE
-were also extended to allow terminal communication with the
-``outside'' world (outside referring here to the other side of the
-communication terminal).
+We have designed a parser that reads this PIL input (see Section
+\ref{sec:pil_frontend}) and by using LLVM (a compiler infrastructure
+framework) we transform this low level language into an even lower
+level representation (LLVM IR) which is of the Static Single
+Assignment (SSA) form (see Sub-section \ref{subsec:llvm}). We find
+this SSA form expressive and suitable for easy Data Flow Graph (DFG)
+extraction on which we base out HW-SW co-design spectrum
+exploration. As LLVM IR does not support modular arithmetic, we have
+added type tracking and type inference to our framework (see Section
+\ref{sec:pil_frontend}). The tracked types have a defined mapping to
+existing LLVM IR types that back them in the lower level. This choice
+presented itself easier than extending the LLVM IR, which is a very
+cumbersome process.
+
+We chose to provide two back-ends (see Section \ref{sec:back_ends})
+targeting the two edges of the HW-SW co-design spectrum.  A GEZEL
+back-end targets a combinatorial hardware implementation (see
+Sub-section \ref{subsec:gezel_back_end}) while the C+GMP back-end
+targets a software implementation (see Sub-section
+\ref{subsec:c_back_end}). GEZEL and CACE were also extended (see
+Sections \ref{sec:cace_extensions} and \ref{sec:gezel_extensions},
+respectively) to allow terminal communication with the ``outside''
+world (outside referring here to the other side of the communication
+terminal).
+
+As a use case for our framework, we chose to implement Schnorr's
+Identification Protocol (see Sub-subsection
+\ref{subsubsec:schnorr_protocol}) on a custom system developed within
+a course here at KU Leuven (see Appendix \ref{cha:codesign_project}).
+We needed to add special optimization passes that translate modular
+operations into Montgomery operations (see Section
+\ref{sec:usecase_flow}). With these passes added, we were able to
+generate the target implementation using our framework in an automated
+way and achieve satisfiable results (see Section
+\ref{sec:usecase_results}).
 
 \section{Thesis Structure}
 
 Chapter 2 covers the needed preliminaries for understanding the
 background behind this thesis. Formal languages, grammars and parsers
 are covered as the custom framework will include a textual front-end.
-Next we explain the mathematical background in group theory and modular
-arithmetic, followed by a definition for Zero Knowledge Proofs of
-Knowledge. The chapter ends with discussing Data Flow Graphs and
-Control Flow Graphs, basic tool in HW-SW codesign.
+Next we explain the mathematical background in group theory and
+modular arithmetic, followed by a formal definition for Zero Knowledge
+Proofs of Knowledge (ZKPK). The chapter ends with discussing Data Flow
+Graphs and Control Flow Graphs, basic constructs in HW-SW codesign.
 
 Chapter 3 gives a basic overview of the CACE Project Zero Knowledge
-Compiler. The compiler defines a higher-level and a lower level
-language and both will be covered in some detail. Next are the tools
-which were to create the custom framework.
-ANTLR\footnote{http://www.antlr.org} is a parser generator tool that
-was used to create the parser. The code generated from the parsed
-input is fed to LLVM\footnote{http://llvm.org}, a compiler
-infrastructure framework. GEZEL, a co-simulation environment, is the
-end-target in which the designs can be verified and validated.
+Compiler (CACE ZKC) which will be the base of our framework. CACE ZKC
+defines a higher-level and a lower-level language and both will be
+covered in some detail. This is followed by a comparison of related
+frameworks with CACE ZKC itself. Next are the tools which were used to
+create the custom framework (ANTLR, LLVM, GMP and GEZEL).
 
-Chapter 4 gives details of the custom framework. It shows how the
-custom framework was extended from the CACE Project Zero Knowledge
-Compiler. Next it details the needed extensions to allow more protocols
-to be implemented.
+Chapter 4 presents our custom framework. It starts by presenting the
+motivation for a custom framework from two separate sides: the need
+for such frameworks in general and the need for embedded realization
+of ZKPK protocols. Next we present our extensions to CACE ZKC and
+GEZEL and we conclude the chapter by detailing the realization of each
+step within our work-flow.
 
-Chapter 5 gives a use case of the custom framework. It shows how to
-specify and compile a protocol (the DAA protocol in this case).
+Chapter 5 gives a use case of our framework, Schnorr's Identification
+Protocol implemented on an existing system. We give a general overview
+of the system and detail the small modifications made to our framework
+to allow an automated implementation.
 
-Chapter 6 concludes and gives future work ideas that were not done
-during the course of this thesis, but the custom framework
-nevertheless allows for such implementations.
+Chapter 6 gives the conclusions and future work ideas that were not
+done during the course of this thesis, but our framework nevertheless
+allows those ideas to be explored.
 
 %%% Local Variables: 
 %%% TeX-PDF-mode: t

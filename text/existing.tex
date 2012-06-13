@@ -1,19 +1,39 @@
 \chapter{Existing Frameworks and Tools}
 
-This chapter starts with an overview of existing frameworks for
-implementing Zero Knowledge Proofs of Knowledge. Current examples
-include CACE Project Zero Knowledge Compiler, ZKPDL and IBM
-Idemix. CACE project will be covered in more detail while ZKPDL will
-be briefly mentioned. The chapter then continues on describing other
-tools that will be used for this thesis: ANTLR, a parser generator
-tool producing LL(*) parsers and LLVM, a compiler infrastructure
-framework that has seen wide use recently in many fields relating to
-compilers and computers in general. ANTLR and LLVM will be used to
-make a custom compiler so some knowledge about them is necessary. Next
-is GEZEL, a cycle-true cosimulation environment which can also
-generate VHDL or Verilog.
+The goal of this chapter is to review existing frameworks for
+implementing Zero Knowledge Proofs of Knowledge as well as tools that
+will be used to design our custom framework.
 
-\section{CACE Project}
+The chapter starts by analyzing CACE Project Zero Knowledge Compiler,
+which will be the basis of our custom framework. A brief overview of
+the framework is given followed by the Protocol Specification Language
+(PSL) and the Protocol Implementation Language (PIL) overview. More
+attention is given to PIL since it will be the language of choice of
+our custom framework.
+
+A brief description of related frameworks follows, namely ZKPDL and
+ZKCrypt. Only a short overview is given and a high-level comparison
+with our custom framework. The chapter then continues on describing
+tools that will be used to build our custom framework:
+\begin{itemize}
+\item ANTLR is a parser generator tool producing LL(*) parsers, we
+  will use it to construct a PIL parser which will be the front-end of
+  our framework.
+\item LLVM is a compiler infrastructure framework that has recently
+  seen wide use in many fields relating to computer science. We will
+  use it as a middle layer along with its intermediate language LLVM
+  IR.
+\item GMP is a popular multi-precision library used within the CACE
+  ZKC. The changes that will be introduced to PIL later on will make
+  it incompatible with the CACE ZKC, therefore we need to provide this
+  implementation as well.
+\item GEZEL is a cycle-true cosimulation environment and a hardware
+  description language. We will target GEZEL language in our
+  framework, allowing us to perform HW-SW co-design.
+\end{itemize}
+
+\section{CACE Project Zero Knowledge Compiler}
+\label{sec:cace}
 
 \subsection{Framework Overview}
 
@@ -21,7 +41,7 @@ The CACE (Computer Aided Cryptography Engineering)
 Project\footnote{http://www.cace-project.eu} was an European project
 aiming at developing a toolbox for security software. It attempted to
 ease the creation of cryptographic software for those outside the
-domain. The goals were:
+domain by setting the following goals:
 \begin{itemize}
 \item Automatic translation from natural specification - the
   term natural is taken from the user's perspective, meaning something
@@ -38,8 +58,8 @@ domain. The goals were:
 
 Apart from these goals that deal with the end-user, the project had
 strategic goals of opening a new field of research and promoting
-automatic tools when it comes to crypto software. The project itself
-was split into multiple working groups:
+automatic tools when it came to cryptography software. The project
+itself was split into multiple working groups:
 \begin{itemize}
 \item WP1 Automating Cryptographic Implementation - dealing with the
   low level crypto operations, searching and identifying side channel
@@ -57,22 +77,33 @@ was split into multiple working groups:
 The WP3 working group is of the importance for this thesis as it deals
 directly with proofs of knowledge. The end result of the working group
 was a compiler along with a specification language (PSL) and an
-intermediate language (PIL). The compiler has the following typical
-flow (as depicted in Figure \ref{fig:cace_workflow}):
+intermediate language (PIL). Figure \ref{fig:cace_workflow} depicts the
+typical flow of the CACE ZKPK Compiler:
 \begin{enumerate}
-\item Write PSL (Protocol Specification Language) - the user specifies the
-  protocol using Camenisch-Stadler notation (see Sub-subsection
-  \ref{subsubsec:camenisch_stadler})
-\item Generate PIL (Protocol Interface Language) from PSL - the
-  framework transform it into a lower-level language for specifying
-  operations
-\item Generate C or Java code from PIL - the framework generates a
-  code that is possible to compile and execute on a target
-  architecture
-\item (Optional) Verify PIL code using PVT - the framework applies the
-  formal verification to the PIL code
-\item (Optional) Generate LaTeX from PIL - the framework generates
-  \LaTeX code with the protocol flow
+\item The ZKPK to be implemented is specified in Protocol
+  Specification Language (PSL). PSL is based on Camenisch-Stadler
+  notation (see Sub-subsection \ref{subsubsec:camenisch_stadler}) and
+  allows the specification of complex $\Sigma$ protocols in an easy way.
+
+\item The Protocol Compiler transforms the specification in PSL into
+  an implementation in Protocol Implementation Language (PIL). PIL is
+  a Turing-complete language on its own and it also allows for
+  automated verification.
+
+\item The framework transforms PIL code into an implementation in C or
+  Java that can be compiled and executed on a target architecture. Two
+  modules are generated along with an additional support library
+  providing math and communication. The two modules are a prover and a
+  verifier, using network sockets for communication.
+
+\item The PIL code is verified using the Protocol Verification Toolbox
+  (PVT). On input the specification in PSL and the implementation in
+  PIL, PVT employs the theorem prover Isabelle/HOL \cite{isabelle_hol}
+  to create a proof of the soundness guarantees of the generated ZKPK
+  implementation.
+
+\item  Human readable documentation in \LaTeX{} is also generated from PIL code.
+
 \end{enumerate}
 
 \begin{figure}[hb!]
@@ -110,15 +141,14 @@ flow (as depicted in Figure \ref{fig:cace_workflow}):
 
 The Protocol Specification Language (PSL) is a high level language of
 CACE Project WP3 for specifying Proofs of Knowledge based on
-Camenisch-Stadler notation. It allows specification of complex
-$\Sigma$ protocols \cite{CACE, yaczk}. The explanation is best given
-following an example of a simple protocol, Schnorr's Identification
-Protocol (see Sub-subsection \ref{subsubsec:schnorr_protocol}). The
-Camenisch-Stadler notation is:
+Camenisch-Stadler notation, allowing specification of complex $\Sigma$
+protocols \cite{CACE, yaczk}. PSL is best explained following an
+example of a simple protocol, Schnorr's Identification Protocol (see
+Sub-subsection \ref{subsubsec:schnorr_protocol}). We start from the
+Camenisch-Stadler notation for Schnorr's Identification Protocol:
 \[
   \textrm{ZPK}\left[ (x): y = g^x \right]
 \]
-
 The PSL language is structured into blocks, and for the Schnorr
 example the blocks are as follows:
 \begin{itemize}
@@ -158,7 +188,7 @@ Properties {
   This example shows how to specify the knowledge error, which is
   $2^{-80}$ in this case. The tightness is specified at $2^{-80}$ as
   well. The protocol composition allows to specify multiple protocols
-  via AND, OR, XOR. Since this is a simple case, only one protocol is
+  via AND, OR and XOR. Since this is a simple case, only one protocol is
   used.
 
 \item Specifying the protocols itself (the homomorphism to
@@ -187,14 +217,13 @@ Schnorr's Identification Protocol:
 \subsection{PIL}
 \label{subsec:pil}
 
-The low level/intermediate language of the CACE Project WP3 is PIL
-(Protocol Implementation Language). The language itself gives all the
-details of a protocol and is meant to be easy to understand and
-learn. This can aid in verifying the correctness from a user's point of
-view. The constructs of the language are completely specified and
-allow an automated verification.
-
-As a language on its own, PIL has support for the following features:
+The Protocol Implementation Language (PIL) is the low
+level/intermediate language of CACE ZKPK Compiler. The language itself
+gives all the rounds and computations of a protocol and is meant to be
+easy to understand and learn, aiding verification of correctness from
+a user's point of view. PIL is also Turing-complete with completely
+specified semantics allowing automatic verification. The following
+features are supported in PIL:
 \begin{itemize}
 \item global shared constants (parameters)
 \begin{lstlisting}[language=PIL]
@@ -266,17 +295,17 @@ _C = Int(80) _c;
 \end{itemize}
 
 Proof entities are specified as blocks and there is always a Common
-block with all declarations and definitions visible to all other
-blocks. Each block can define multiple functions that have inputs and outputs
-defined. A function consists of assignments or loops or conditional
+block with declarations and definitions visible to all other
+blocks. Each block can define multiple functions, each having inputs
+and outputs and consisting of assignments, loops or conditional
 flow. The execution order is specified via block function pairs:
 \begin{lstlisting}[language=PIL]
 ExecutionOrder := (Prover.Round0, Verifier.Round0, Prover.Round1, Verifier.Round1, Prover.Round2, Verifier.Round2);
 \end{lstlisting}
-The communication itself is specified via these functions. The inputs
-of the current function must match the output of the previous
-function. For example, the outputs of Round0 from Prover must match
-the inputs of Round0 from Verifier.
+The communication itself is specified via these functions with inputs
+of the current function matching the output of the previous
+function. For example, the outputs of Round0 from Prover match the
+inputs of Round0 from Verifier.
 
 Again, the Schnorr protocol is used as an example, automatically
 generated from the PSL that was given in Sub-section \ref{subsec:psl}.
@@ -284,22 +313,35 @@ generated from the PSL that was given in Sub-section \ref{subsec:psl}.
 
 \section{Related Frameworks}
 
+Although the CACE Project Zero Knowledge Compiler (CACE ZKC) will be
+the framework of choice for extension in this thesis, ZKPDL and
+ZKCrypt will be presented as well for the sake of completeness. It is
+mostly a brief overview along with a brief comparison with CACE ZKC.
+
 \subsection{ZKPDL/Cashlib}
 
-ZKPDL is a description language for describing Zero Knowledge Proofs
-of Knowledge. It is used by the framework Cashlib to implement
-e-cash. The framework uses an interpreter based approach and applies
-result caching to speed up computations. Unlike PIL, ZKDPL is not
-Turing complete as it does not allow branching or conditionals. Also,
-ZKPDL only supports non-interactive proofs of knowledge
-\cite{zkpdl}. ZKPDL does allow generation of parameters which PIL
-lacks \cite{yaczk} but this can be mitigated by defining and using
-constant expressions.
+ZKPDL is a ZKPK description language used by the Cashlib framework to
+implement e-cash. The framework uses an interpreter based approach and
+applies result caching to speed up computations. Unlike PIL, ZKDPL is
+not Turing-complete and only supports non-interactive proofs of
+knowledge \cite{zkpdl}. ZKPDL does allow generation of parameters
+which PIL lacks \cite{yaczk} but this can be mitigated by defining and
+using constant expressions.
 
-Because of its generality, a standard notation of specifying proofs of
-knowledge as well as the ability to formally verify code and generate
-documentation, the CACE Project Zero Knowledge Compiler will be the
-framework of choice for extension in this thesis.
+\subsection{ZKCrypt}
+\label{subsec:zkcrypt}
+
+ZKCrypt is a framework built atop the CACE ZKC framework
+\cite{zkcrypt}. It leverages
+CertiCrypt\footnote{http://www.msr-inria.inria.fr/projects/sec/certicrypt/index.html}
+to produce a formal assurance of the correctness. Where CACE only
+allows proof of soundness using Isabelle/HOL, ZKCrypt allows formal
+assurance of the implementation satisfying completeness, proof of
+knowledge and zero knowledge properties.
+
+ZKCrypt generates formal evidence of each of the CACE ZKC compilation
+steps except code generation and, as such, is complementary to the
+framework developed within the course of this thesis.
 
 \section{Other Tools}
 
@@ -367,6 +409,7 @@ output. The generation of such a walker is illustrated in Figure
 \end{figure}
 
 \subsection{LLVM}
+\label{subsec:llvm}
 
 LLVM\footnote{http://llvm.org} is a compiler framework designed to
 support transparent, life-long program analysis and transformation for
@@ -440,21 +483,22 @@ of independent fields:
 
 The LLVM IR is the intermediate representation language of the LLVM
 project. On its own it is a first-class language with well defined
-semantics \cite{llvm_general, llvm_master_thesis}. Variables are in the SSA (Static Single
-Assignment) form meaning that they can be only assigned once and they
-keep that value for their entire lifetime. All the values residing in
-memory need to be loaded to a variable first and stored back to memory
-if they wish to be saved. Instructions operate solely upon
-variables. In this respect, the LLVM IR resembles the assembly
-language of an infinitely many registers Load-Store based RISC
-processor.
+semantics \cite{llvm_general, llvm_master_thesis}. Variables are in
+the SSA (Static Single Assignment) form meaning that they can be only
+assigned once and they keep that value for their entire lifetime. All
+the values residing in memory need to be loaded to a variable first
+and stored back to memory if they wish to be saved. Instructions
+operate solely upon variables. In this respect, the LLVM IR resembles
+the assembly language of an infinitely many registers Load-Store based
+RISC processor. The following snippet, taken from \cite{llvm_general},
+demonstrates how two different functions implemented in C (one without
+recursion and one with recursion) are compiled to LLVM IR:
 
 \begin{lstlisting}[language=C]
 unsigned add1(unsigned a, unsigned b) {
   return a+b;
 }
 
-// Perhaps not the most efficient way to add two numbers.
 unsigned add2(unsigned a, unsigned b) {
   if (a == 0) return b;
   return add2(a-1, b+1);
@@ -484,11 +528,26 @@ done:
 }
 \end{lstlisting}
 
-The central concept in constructing LLVM IR is the Module. Each module
-consists of functions, global variables and symbol table entries.
-Modules can be combined using the LLVM linker \cite{llvm_ir}.
+A central concept while constructing LLVM IR is the
+\emph{Module}~\cite{llvm_ir}, corresponding loosely to a source
+file. A \emph{Module} consists of functions, global variables and
+symbol table entries.
+
+\subsection{GMP}
+\label{subsec:gmp}
+
+GMP\footnote{http://gmplib.org/} is a multi-precision library
+supporting signed integers, rational numbers and floating-point
+numbers with precision limited only the available memory. The library
+provides a consistent calling interface across the different
+supporting types. Main target applications of the library are
+cryptography and computer algebra systems. The library itself aims to
+be highly efficient by using different algorithms for different
+operand sizes as well as extensive use of inline assembly and
+additional processor instruction sets.
 
 \subsection{GEZEL}
+\label{subsec:gezel}
 
 GEZEL is a cycle-accurate hardware description language (HDL) using the
 Finite-State-Machine + Datapath (FSMD) model \cite{gezel}.

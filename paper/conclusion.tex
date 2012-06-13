@@ -1,0 +1,49 @@
+We have proposed a ZKPK compiler that takes an implementation in PIL
+as output by the CACE ZKPK Compiler and produces implementations in
+GEZEL and GMP, thus covering both ends of the hardware-software
+co-design spectrum. We consider that this is a good starting point for
+a fine-grained automated approach to hardware-software co-design.
+
+We support all the protocols the CACE ZKPK compiler
+supports. Additionally, we have extended the PIL language to allow for
+multiparty protocols and we have also restricted the language
+specification by allowing only the currently running round to modify
+global variables. The latter has shown that the PIL language is
+expressive enough, yet still suitable for easy DFG extraction.
+
+\subsection{Future work}
+
+\paragraph{Extending LLVM IR with Group Types.}
+The current implementation has to back all the group types with a
+simplified type that loses information. We consider that implementing
+group types in LLVM IR should enhance the usability and security of
+the IR by allowing the back-end access to the full information of
+a group type.
+
+\paragraph{HW-SW Co-design.}
+Another step that should be taken is the automated HW-SW co-design via
+a general purpose processor connected with a custom designed
+co-processor. The tool should allow the user to separate the features
+he wants on the processor and the features he wants on the
+co-processor side.
+
+\paragraph{Automatic Generation of Group Type Variables.}
+CACE ZKPK compiler does not allow for automatic generation of primes
+or group generators, but takes them from a configuration file. We have
+extended PIL with constant expressions so that they can be used for
+this type of automatic generation. Specialized generator functions
+need to be implemented.
+
+%\paragraph{A Common Lower-level Language for the Entire CACE Project.}
+%Out of all the ZPKP compiler frameworks, the CACE Project was deemed
+%the most versatile to base our work on. We have noted that each of the
+%CACE Project workpackages designed their own lower end language and
+%have limited themselves with the architectures they support. It is our
+%belief that an extended LLVM IR can be of good use here, providing a
+%unified lower level language and allowing the generated code of the
+%different tools to be intermixed.
+
+%%% Local Variables:
+%%% TeX-PDF-mode: t
+%%% TeX-master: "paper"
+%%% End:

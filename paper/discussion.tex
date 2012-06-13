@@ -1,0 +1,77 @@
+
+\subsection{Optimizations}
+
+LLVM provides a constant folder which allows constant expressions to
+be evaluated at compile time. This eliminates all the redundant calls
+that would otherwise be needed at run-time, which can reduce the number
+of complex, costly arbitrary-precision operations.
+
+LLVM IR is of the static single assignment form, which allows
+aggressive optimizations such as dead-code elimination. Another
+advantage of LLVM is the possibility of separating the optimizations
+to higher level (common back-end) and lower level (specific back-end).
+
+Since accessing the global variables is slower, writing to the global
+variable can be left for the end of the current round or deferred to a
+later time, when needed. This allows optimizations in a
+hardware-software co-design world where it can be expensive to move
+data around.  The optimization is achieved by traversing all the load
+instructions that follow a store instruction.  If any of those load
+instructions loads from the same location which a store location wrote
+to, all the nodes that are dominated by the loaded value are replaced
+with the value that was stored. In our model of computation this is
+perfectly sane since only the current round can modify a global
+variable.
+
+Another optimization example we can think of is exponentiation via
+Montgomery multiplications. If we were to translate all the operations
+of the algorithm step-by-step, we would have a transfer to the
+Montgomery domain, multiplication in the Montgomery domain and return
+from the Montgomery domain. The high-level optimizer can eliminate the
+unnecessary transfers and returns since they are inverse operations
+performed consecutively.
+
+\subsection{Security Analysis}
+
+CACE ZKPK Compiler already offers a formal proof of correctness
+covering the transformation from PSL to PIL. We need to analyze the
+security of the transformation from PIL to LLVM IR and LLVM IR to the
+back-ends whenever possible.
+
+LLVM IR allows us to verify the correctness of the types since LLVM IR
+uses code of the static single assignment form, where every variable
+is assigned a value exactly once. This allows security assertions to
+be taken to a lower level than the one allowed by CACE. 
+
+To assure the correctness of types, first it is necessary to lay out
+the DFG of the protocol round. For each node of the DFG preconditions
+and postconditions cab be established, such as the ones in Table
+\ref{tab:basic_nodes}. Hoare logic~\cite{hoare_logic} can then be
+used to prove the correctness of the transformation from PIL to the
+LLVM IR.
+
+As for the transformation of LLVM IR into target implementations, it
+might not always be possible to prove correctness, especially if the
+target implementation is hardware. Since it is impossible to make this
+assurance it was deemed unnecessary to go this low and the blocks are
+assumed to be correct (if the preconditions are satisfied, the
+postconditions will be assured by the block). For the software case,
+such properties are assured by the library used.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{l | c | c}
+    Basic block        & Preconditions             & Postconditions \\
+    \hline
+    Modular adder      & $x \in Z_q^+, y \in Z_q^+$ & $z \in Z_q^+$ \\ 
+    Modular multiplier & $x \in Z_p^*, y \in Z_p^*$ & $z \in Z_p^*$ \\
+    Zero extender      & $x \in Z_p$               & $z \in Z_p$
+  \end{tabular}
+  \caption{Basic Nodes}
+  \label{tab:basic_nodes}
+\end{table}
+
+%%% Local Variables: 
+%%% TeX-PDF-mode: t
+%%% TeX-master: "main"
+%%% End: 

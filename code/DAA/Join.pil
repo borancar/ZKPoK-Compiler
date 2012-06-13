@@ -54,7 +54,7 @@ Host (
   }
 
   Def (Zmod*(Gamma) S_I): Round2(Void) {
-    S_I := SHA256(1||bsn)^((Gamma-1)/p);
+    //S_I := SHA256(1||bsn)^((Gamma-1)/p);
   }
   
   Def (Int(l_v-1) v_2_o): Round1(A; e; Int(l_v-1) v_2_i) {

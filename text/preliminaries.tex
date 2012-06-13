@@ -3,19 +3,26 @@
 This chapter has the goal of introducing the math and theory behind
 formal languages, parsers, algebra, (zero knowledge) proofs of
 knowledge, control and data flow in a program. Knowledge behind formal
-languages is needed to design a parser. A parser will later be used to
-create a custom compiler. Since the thesis deals with cryptography
-applications, knowledge of group theory and modular arithmetic is
-needed as well. The definition of (zero knowledge) proofs of knowledge
-follows. They are a basic building block for this thesis. Last is the
-definition of control and data flow in a program. This will be used to
-analyze and transform the protocols into hardware.
+languages is needed to design a parser which will later on be used to
+create a custom compiler framework.
+
+Zero knowledge proofs of knowledge are the basis of this thesis so
+they need to be introduced here. First we start with group theory and
+modular arithmetic, then we proceed with defining zero knowledge proofs
+of knowledge and give a basic example of a protocol.
+
+We conclude the chapter with introducing control flow graphs and data
+flow (data dependency) graphs which are needed to reason about the
+intermediate form the compiler generates.
 
 \section{Formal Languages}
 
-The theory outlined here attempts to give a short overview of
-formal languages and is based on \cite{formal_languages}. A more
-detailed approach can be found in \cite{Hopcroft}.
+The theory of formal languages is needed to introduce a parser which
+is the basic building block of a compiler. Here we give a short
+overview of formal languages based on \cite{formal_languages} and for
+a more detailed approach refer the reader to \cite{Hopcroft}.
+
+We start with basic definitions of a formal language:
 
 \begin{defn}[Alphabet]
   An alphabet $\Sigma$ is a set of symbols.
@@ -63,7 +70,15 @@ detailed approach can be found in \cite{Hopcroft}.
   $$ L^+ = L L^* $$
 \end{defn}
 
+We now have a formal basis to define a more powerful tool called
+regular expressions. These regular expressions will allow us to
+formally, yet compactly, specify the words of a language.
+
 \subsection{Regular Expression}
+
+When writing lexer rules for our compiler, we will need a language
+that defines words of the language of our interest. Such a language is
+called regular expressions and we briefly define it here:
 
 \begin{defn}[Regular expression]
   A regular expression over $\Sigma$ is defined inductively as follows:
@@ -91,7 +106,16 @@ detailed approach can be found in \cite{Hopcroft}.
   $r r^*$ represents the language $R R^*$ which is $R^+$
 \end{proof}
 
+Now that we have the tool to specify the words of our language, we
+need to specify the interactions between these words (e.g. which words
+can follow a certain word, what the word ordering is). Such rules are
+specified by grammars.
+
 \subsection{Grammars}
+
+When writing parser rules, we will need a language to specify the
+interactions between the words of our language. Such a language
+is called a grammar and we briefly define it here:
 
 \begin{defn}[Grammar]
   A grammar is a 4-tuple $G = \left< \Sigma, V, S, P \right>$:
@@ -111,6 +135,12 @@ detailed approach can be found in \cite{Hopcroft}.
 \begin{defn}[Context-free grammar]
   The grammar $G$ is a context free grammar iff $|\alpha|$ = 1 ($\alpha = V$).
 \end{defn}
+
+We now have all the tools to specify the input language of our
+compiler. The parser of our compiler will transform an input file,
+according to these rules, to a form suitable for further
+processing. The forms we deal at this step are concrete syntax trees
+and abstract syntax trees.
 
 \subsection{Concrete Syntax Tree}
 
@@ -184,12 +214,16 @@ arbitrary.
   \label{fig:simple_ast}
 \end{figure}
 
+After all the definitions of the input and the output have been made,
+it remains to define the actual tool transforming from the input to
+the output. This tool is referred to as the parser.
+
 \subsection{Parser}
 
 Given a string $L$, satisfying grammar $G$, a parser tries to find the
 derivation of $L$ from $S$. This derivation is the Concrete Syntax
 Tree (Parse Tree). This derivation may further be abstracted into an
-Abstract Syntax Tree that is easier for manipulation later. Figure
+Abstract Syntax Tree that is easier for later manipulation. Figure
 \ref{fig:parser_flow} shows the typical parser flow.
 
 \begin{figure}[hbt!]
@@ -230,8 +264,11 @@ with arbitrary look-ahead.
 
 \section{Group Theory and Modular Arithmetic}
 
-The theory here is based on \cite{HAC}. The approach is to start with
-the general and build the specific from it.
+Before we go into defining proofs of knowledge we need to define the
+space we are operating on. We base our definitions on \cite{HAC}, but
+the approach we take is a bit different. We choose to start with the
+general and deduce the specific from it rather than taking an
+inductive approach.
 
 \begin{defn}[Group]
   A group $(G, \circ)$ is a set G with a binary operation $\circ$ defined on it
@@ -355,10 +392,16 @@ the general and build the specific from it.
   then.
 \end{corr}
 
+After defining the space we are operating on, it remains to define the
+basis of this thesis, zero knowledge proofs of knowledge.
+
 \section{Zero Knowledge Proofs of Knowledge}
 
-The definitions are taken from \cite{Cameni98} and presented as a
-brief overview. Some minor additions were made for clarity.
+Zero knowledge proofs of knowledge give us a powerful tool that allows
+us to prove knowledge of a secret without actually revealing the
+secret.  Here we need a more formal definition which we take from
+\cite{Cameni98} and present as a brief overview. Some minor additions
+were added for clarity.
 
 \begin{defn}[Interactive Proof of Knowledge]
   Let $R \subseteq \{0,1\}^* \times \{0,1\}^*$ be a polinomially
@@ -435,6 +478,9 @@ repeating the protocol many times, it can be made arbitrarily small
   are perfectly/statistically/computationally indistinguishable.
 \end{defn}
 
+To make a more practical definition we restrict to a subset of zero
+knowledge proofs of knowledge called $\Sigma$-protocols.
+
 \subsection{$\Sigma$-protocols}
 
 A $\Sigma$-protocol is a three round honest verifier zero-knowledge
@@ -449,11 +495,11 @@ shown in Figure \ref{fig:sigma_flow}. The rounds of the protocol are:
 \item Response ($s$) - the prover responds with a new computed value
 \end{enumerate}
 
-\begin{figure}[hb!]
+\begin{figure}[h]
   \centering
   \begin{tikzpicture}[>=stealth]
     \node[matrix,column sep=2cm] {
-      \node{Prover};                  &                           & &                             & \node{Verifier}; \\
+      \node{\boxed{Prover}};                  &                           & &                             & \node{\boxed{Verifier}}; \\
       \node{Commitment};          & \node(commitment_s){}; & & \node(commitment_r){}; & \\
                                       & \node(challenge_r){}; & & \node(challenge_s){}; & \node{Challenge}; \\
       \node{Response}; & \node(response_s){}; & & \node(response_r){}; & \\
@@ -473,14 +519,16 @@ A simple example of a $\Sigma$ protocol is Schnorr's Identification
 Protocol \cite{schnorr_protocol, cryptography_introduction}. The
 secret is a discrete logarithm $x$ of $y$ with respect to $g$ in some
 finite group $G = \left< g \right>$ with prime order $q$, subgroup of
-$Z_p^*$. The prover must prove knowledge of this secret to a verifier under
-the homomorphism $f(a) : Z_q^+ \rightarrow G \subset Z_p^* := g^a$.
+$Z_p^*$. The prover must prove knowledge of this secret to a verifier
+under the homomorphism $f(a) : Z_q^+ \rightarrow G \subset Z_p^* :=
+g^a$. Figure \ref{fig:schnorr_steps} gives an overview of the protocol
+execution.
 
-\begin{figure}[hbt!]
+\begin{figure}[h]
   \centering
   \begin{tikzpicture}[>=stealth]
     \node[matrix,column sep=2cm] {
-      \node{Prover};                  &                           & &                             & \node{Verifier}; \\
+      \node{\boxed{Prover}};                  &                           & &                             & \node{\boxed{Verifier}}; \\
       \node{$r_1 \in Z_q^+$};                   &                           & &                             &                   \\
       \node{$t_1 = g^{r_1}$};          & \node(prover_round1_s){}; & & \node(verifier_round1_r){}; & \\
                                       & \node(prover_round2_r){}; & & \node(verifier_round1_s){}; & \node{$c \in \{0,1\}^*$}; \\
@@ -500,7 +548,7 @@ the homomorphism $f(a) : Z_q^+ \rightarrow G \subset Z_p^* := g^a$.
 \label{subsubsec:camenisch_stadler}
 
 A simple and popular notation for specifying Sigma protocols is the
-Camenisch-Stadler notation \cite{CACE, camenisch_stadler}. The Schnorr
+Camenisch-Stadler notation \cite{camenisch_stadler}. The Schnorr
 Identification Protocol can be represented by the following:
 \[
   \textrm{ZPK}\left[ (x): y = g^x \right]
@@ -508,19 +556,34 @@ Identification Protocol can be represented by the following:
 meaning prove knowledge of $x$, using a zero knowledge proof of
 knowledge, such that $y=g^x$.
 
+\filbreak
+
 \section{Data Flow Graph and Control Flow Graph}
 
+Our compiler will generate an intermediate form used for detailed
+processing. This form is supposed to represent all the operations of
+the protocol and can be represented as a directed graph detailing the
+flow of the program.
+
+The protocol is input via a text-file and is inherently
+sequential. This means that the operations are laid out one after the
+other. This inherently imposed ordering need not be the only one and
+to make a better ordering w.r.t. to some goal we need constructs that
+will allow us to extract all the constraints on the ordering. We keep
+the nodes representing the operations while we classify each of the
+edges as either a Data Edge or a Control Edge:
 \begin{defn}[Data Edge]
   A data edge is an ordered relation between two operations such that
-  the output/result of one operation is the input to the other
-  operation.
+  the output/result of one operation is the input to the other.
 \end{defn}
-
 \begin{defn}[Control Edge]
   A control edge is an ordered relation between two operations such
   that the second operation has to be executed after the first finishes
   executing.
 \end{defn}
+
+The resulting graph can be separated into two independent graphs called
+a Data Flow Graph and a Control Flow Graph.
 
 \begin{defn}[Data Flow Graph]
   A data flow graph is a graph of the nodes representing the
@@ -532,11 +595,11 @@ knowledge, such that $y=g^x$.
   operations connected by control edges.
 \end{defn}
 
-An algorithm is completely and uniquely defined by its Data Flow Graph
-(DFG), whereas the implementation of an algorithm is what gives it its
-Control Flow Graph (CFG). The usual step in converting an algorithm in
-software to an algorithm in hardware is to extract the DFG
-\cite{Schaumont}.
+A Data Flow Graph (DFG) completely and uniquely specifies the
+algorithm, whereas the Control Flow Graph (CFG) gives the actual
+implementation of the algorithm. After extracting the DFG, a different
+CFG can be constructed satisfying the constraints of the
+DFG~\cite{Schaumont}.
 
 %%% Local Variables: 
 %%% TeX-PDF-mode: t

@@ -60,35 +60,31 @@ LLVM was chosen as the compiler framework to transform ZKPK
 implementations in PIL into implementations in the desired
 languages. The worfklow is depicted in Figure
 \ref{fig:custom_llvm_workflow}. The starting point is a ZKPK
-implementation in PIL. This implementation is processed by a PIL
-Front-end, described in Section~\ref{pilfrontend}, which generates
-LLVM IR code. The implementation in LLVM IR can then be used as a
-starting point for multiple targets. The LLVM framework provides
-back-ends for architectures such as x86, PowerPC and
-ARM\footnote{Unfortunately, we cannot use these targets as they do not
-  support arbitrary precision arithmetic}. Section~\ref{gezelbackend}
-describes the C+GMP and GEZEL back-ends, along with some extensions to GEZEL. Extensions to PIL are 
-described in Section~\ref{extensionsPIL}.
+implementation in PIL which is compiled to LLVM IR code. The
+implementation in LLVM IR can then be used as a starting point for
+multiple targets. Section~\ref{targetbackends} describes the C+GMP and
+GEZEL back-ends, along with some extensions to GEZEL. Extensions to
+PIL are described in Section~\ref{extensionsPIL}.
 \begin{figure}[hb!]
   \centering
   \begin{tikzpicture}[>=stealth]
     \tikzstyle{lang}=[rectangle,draw=black,thin,font=\tiny,inner
-    sep=0pt, align=center,minimum width=2cm,minimum height=2.2em]
+    sep=0pt, align=center,minimum width=1.5cm,minimum height=2.2em]
 
     \tikzstyle{txt}=[font=\tiny]
 
     \node[lang](llvm_opt){LLVM \\ Optimizer};
 
-    \node[lang,added](gmp_back)[right=1 cm of llvm_opt]{Custom \\ GMP Backend};
-    \node[txt](gmp)[right=of gmp_back]{C+GMP code};
+    \node[lang,added](gmp_back)[right=0.5 cm of llvm_opt]{Custom \\ GMP Backend};
+    \node[txt](gmp)[right=0.5 cm of gmp_back]{C+GMP code};
 
     \node[lang,added](gezel_back)[below=of gmp_back]{Custom \\ GEZEL Backend};
-    \node[txt](gezel)[right=of gezel_back]{GEZEL};
+    \node[txt](gezel)[right=0.5 cm of gezel_back]{GEZEL};
 
     \node[lang,added](llvm_pass)[below=1 cm of llvm_opt]{Optimization \\ Pass};
 
-    \node[lang,added](pil_front)[left=1 cm of llvm_opt]{PIL \\ Frontend};
-    \node[txt](pil)[left=of pil_front]{PIL};
+    \node[lang,added](pil_front)[left=0.5 cm of llvm_opt]{PIL \\ Frontend};
+    \node[txt](pil)[left=0.5 cm of pil_front]{PIL};
 
     \draw[->] (pil_front.east) -- (llvm_opt.west);
 
@@ -181,115 +177,8 @@ applying the multiplication operation many times, the type is Zmod*(p). A simila
 of the additive modular residue group with an integer. Consequently,
 type inference is well defined for any acceptable operation in PIL.
 
-\subsection{PIL Front-end}
-\label{pilfrontend}
-
-The purpose of the PIL Front-end is to transform PIL code into LLVM IR code. The PIL Front-end flow is depicted in Figure~\ref{fig:pil_frontend_flow}. First, the protocol implementation in PIL is read by the Lexer, which produces input for the Parser. Next, the Parser reads this input and generates an abstract syntax tree (AST). Finally, the AST is given as input to the Codegen tree-walker, which outputs the protocol implementation in LLVM IR.
-
-\begin{figure}[hb!]
-  \begin{tikzpicture}[>=stealth]
-    \node[language] (pil) {PIL};
-    \node[compiler] (lexer) [right=of pil] {Lexer};
-    \node[compiler] (parser) [right=of lexer] {Parser};
-    \node[language] (ast) [right=of parser] {AST};
-    \node[compiler] (codegen) [right=of ast] {Codegen};
-    \node[language] (llvm_ir) [right=of codegen] {LLVM IR};
-
-    \draw[->] (pil) -- (lexer);
-    \draw[->] (lexer) -- (parser);
-    \draw[->] (parser) -- (ast);
-    \draw[->] (ast) -- (codegen);
-    \draw[->] (codegen) -- (llvm_ir);
-  \end{tikzpicture}
-  \caption{PIL frontend flow}
-  \label{fig:pil_frontend_flow}
-\end{figure}
-
-% Both the lexer grammar and the parser grammar are specified in the file pil.g, while the tree-walker and the code generator are
-% specified in the file codegen.g. As shown in Figure~\ref{fig:pil_parser_codegen}, ANTLR is used to generate the lexer, the parser and the Codegen tree-walker.
-% \begin{figure}[hb!]
-%   \centering
-%   \subfloat{
-%   \begin{tikzpicture}[>=stealth]
-%     \tikzstyle{edge from parent}=[draw,->]
-
-%     \Tree[.\node[language](parser_g){pil.g};
-%       [.\node[compiler](antlr){ANTLR};
-%         [.\node[compiler](lexer){Lexer};]
-%         [.\node[compiler](parser){Parser};]
-%       ]
-%     ]
-%   \end{tikzpicture}
-%   } \qquad
-%   \subfloat{
-%   \begin{tikzpicture}[>=stealth]
-%     \tikzstyle{edge from parent}=[draw,->]
-
-%     \Tree[.\node[language](tree_g){codegen.g};
-%       [.\node[compiler](antlr2){ANTLR};
-%         [.\node[compiler](walker){Codegen};]
-%       ]
-%     ]
-%   \end{tikzpicture}
-%   }
-%   \caption{Lexer, parser and tree walker generation}
-%   \label{fig:pil_parser_codegen}
-% \end{figure}
-
-The code generation process generates one LLVM module per PIL block.
-Every other block except the Common block gets a Common block linked
-in. This process is depicted in Figure \ref{fig:linker}.
-\begin{figure}[hb!]
-  \centering
-  \begin{tikzpicture}[>=stealth]
-    \node[language] (block) {Block};
-    \node[compiler] (linker) [right=of block] {Linker};
-    \node[language] (common) [above=of linker] {Common};
-    \node[language] (module) [right=of linker] {Module};
-
-    \draw[->] (block) -- (linker);
-    \draw[->] (common) -- (linker);
-    \draw[->] (linker) -- (module);
-  \end{tikzpicture}
-  \caption{Linker}
-  \label{fig:linker}
-\end{figure}
-
-As result of the transformation, PIL private parameters and global
-variables are transformed into LLVM IR global variables, the private
-parameters being constant in this case. Each PIL function of a block
-is transformed into an LLVM IR function whose input and output
-arguments are transformed as such. LLVM's constant folder is used to
-evaluate constant time expressions in order to simplify them into a
-constant value.
-
-There are two methods to equip LLVM IR with the group types and
-arithmetic provided by PIL: either include group types in the core
-LLVM files or use the existing IntegerType of LLVM IR and make the
-compiler do the extra work. The former allows to preserve the
-information about the modular residue groups to the lowest level,
-which maintains the security and verifiability of the implementation
-to the lowest possible level. However, it requires changes at the core
-of the complex LLVM framework, which is error-prone, and it hinders
-tracking new LLVM versions if those changes are not integrated into
-the main LLVM project.
-
-Therefore, the latter approach was chosen. The group types are backed
-by an IntegerType of the appropriate length in the LLVM IR, while type
-inference is used to deduce the resulting type of an
-operation. Modular operations are transformed into appropriate 3
-argument operations with the first 2 arguments being the integer
-operands and the third being the modulus.
-
-As result, compatibility with existing LLVM applications is
-maintained. The resulting compiler is more complex because it needs to
-track types and apply the appropriate operations in the case of group
-types. Additionally, if an architecture supports group types (e.g., an
-automatic verifier), the workload of its corresponding back-end
-increases since now it has to regenerate the lost information
-regarding group types.
-
 \subsection{Target Back-ends}
+\label{targetbackends}
 \paragraph{Extensions to GEZEL.}
 \label{extensionsGEZEL}
 
@@ -325,5 +214,5 @@ we take after the CACE ZKPK Compiler.
 
 %%% Local Variables:
 %%% TeX-PDF-mode: t
-%%% TeX-master: "main"
+%%% TeX-master: "paper"
 %%% End:

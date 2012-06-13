@@ -1,0 +1,319 @@
+
+
+\subsection{ZKPK $\Sigma$-protocols}
+
+A $\Sigma$-protocol~\cite{DamgardSigma2004} is a three round honest-verifier ZKPK where a prover P proves to a verifier V that a secret $x$ satisfies a statement with respect to a public $y$.  The rounds of the protocol are as follows. First, on input $(x,y)$, P computes a commitment $t$ and auxiliary information $r$, and sends $t$ to V. Second, V sends a random challenge $c$ to P. Third, on input $(x,y,c,r)$, P computes a response $s$ and sends $s$ to V. Finally, on input $(x,y,c,s)$, V checks whether the proof is correct. 
+
+A simple example of a $\Sigma$ protocol is Schnorr's Identification
+Protocol~\cite{schnorr_protocol} depicted in Figure~\ref{fig:schnorr_steps}. The
+secret is the discrete logarithm $x$ of $y$ with respect to $g$ in some
+finite group $G = \left< g \right>$ with prime order $q$, subgroup of
+$Z_p^*$. The prover must prove knowledge of this secret to a verifier under
+the homomorphism $f(a) : Z_q^+ \rightarrow G \subset Z_p^* := g^a$.
+\begin{figure}[hbt!]
+  \centering
+  \begin{tikzpicture}[>=stealth]
+    \node[matrix,column sep=1cm] {
+      \node{\boxed{Prover}};                  &                           & &                             & \node{\boxed{Verifier}}; \\
+      \node{$r \in Z_q^+$};                   &                           & &                             &                   \\
+      \node{$t = g^{r}$};          & \node(prover_round1_s){}; & & \node(verifier_round1_r){}; & \\
+                                      & \node(prover_round2_r){}; & & \node(verifier_round1_s){}; & \node{$c \in \{0,1\}^*$}; \\
+      \node{$s = r + x \cdot c$}; & \node(prover_round2_s){}; & & \node(verifier_round2_r){}; & \node{$s \stackrel{?}{\in} Z_q^+$}; \\
+                                      &                           & &                             & \node{$t \cdot y^c \stackrel{?}{=} g^{s}$}; \\
+    };
+    \draw[->] (prover_round1_s) -- (verifier_round1_r) node[midway, anchor=south]{$t$};
+    \draw[<-] (prover_round2_r) -- (verifier_round1_s) node[midway, anchor=south]{$c$};
+    \draw[->] (prover_round2_s) -- (verifier_round2_r) node[midway, anchor=south]{$s$};
+  \end{tikzpicture}
+  \caption{Schnorr's Identification Protocol}
+  \label{fig:schnorr_steps}
+\end{figure}
+
+
+A simple and popular notation for specifying $\Sigma$-protocols is the
+Camenisch-Stadler notation~\cite{camenisch_stadler}. The Schnorr
+Identification Protocol can be represented by the following:
+\[
+  \textrm{ZKPK}\left[ (x): y = g^x \right]
+\]
+meaning prove knowledge of $x$, using a zero knowledge proof of
+knowledge, such that $y=g^x$.
+
+Protocols similar to~\cite{schnorr_protocol} that employ groups of hidden-order have been proposed in~\cite{DBLP:conf/crypto/FujisakiO97,DBLP:journals/iacr/BangerterCKS008}. In addition, $\Sigma$-protocols can be composed to obtain more complex protocols. The AND-composition allows to prove, e.g., statements of the form $y_1 = g_1^{x_1} \land \ldots \land y_n = g_n^{x_n}$. OR-composition and threshold composition are also available. Additionally, it is possible to prove equality and linear relations between the secrets $(x_1,\ldots,x_n)$.
+
+A $\Sigma$-protocol should fulfill the special soundness and special honest-verifier zero-knowledge properties~\cite{DamgardSigma2004}. The Fiat-Shamir heuristic~\cite{DBLP:conf/crypto/FiatS86} shows how to turn a $\Sigma$-protocol into a non-interactive ZKPK in the random oracle model.
+
+\subsection{Data Flow Graph and Control Flow Graph}
+
+\begin{defn}[Data Edge]
+  A data edge is an ordered relation between two operations such that
+  the output/result of one operation is the input to the other
+  operation.
+\end{defn}
+
+\begin{defn}[Control Edge]
+  A control edge is an ordered relation between two operations such
+  that the second operation has to be executed after the first finishes
+  executing.
+\end{defn}
+
+\begin{defn}[Data Flow Graph]
+  A data flow graph is a graph of the nodes representing the
+  operations connected by data edges.
+\end{defn}
+
+\begin{defn}
+  A control flow graph is a graph of the nodes representing the
+  operations connected by control edges.
+\end{defn}
+
+An algorithm is completely and uniquely defined by its Data Flow Graph
+(DFG), whereas the implementation of an algorithm is what gives it its
+Control Flow Graph (CFG). The usual step in converting an algorithm in
+software to an algorithm in hardware is to extract the DFG
+\cite{Schaumont}.
+
+%\subsection{$\Sigma$-protocols}
+%
+%A $\Sigma$-protocol~\cite{DamgardSigma2004} is a three round honest verifier ZKPK. The name comes
+%from the protocol's flow resemblance to the Greek letter $\Sigma$ as
+%shown in Figure \ref{fig:sigma_flow}. The rounds of the protocol are:
+%\begin{enumerate}
+%\item Commitment ($t$) - the prover commits to a value and sends that
+%  value to the verifier
+%\item Challenge ($c$) - the verifier computes a random challenge and asks
+%  the prover to output a value for that challenge
+%\item Response ($s$) - the prover responds with a new computed value
+%\end{enumerate}
+%
+%\begin{figure}[hb!]
+%  \centering
+%  \begin{tikzpicture}[>=stealth]
+%    \node[matrix,column sep=1cm] {
+%      \node{\boxed{Prover}};                  &                           & &                             & \node{\boxed{Verifier}}; \\
+%      \node{Commitment};          & \node(commitment_s){}; & & \node(commitment_r){}; & \\
+%                                      & \node(challenge_r){}; & & \node(challenge_s){}; & \node{Challenge}; \\
+%      \node{Response}; & \node(response_s){}; & & \node(response_r){}; & \\
+%    };
+%    \draw[->] (commitment_s) -- (commitment_r) node[midway, anchor=south]{$t$};
+%    \draw[<-] (challenge_r) -- (challenge_s) node[midway, anchor=south]{$c$};
+%    \draw[->] (response_s) -- (response_r) node[midway, anchor=south]{$s$};
+%  \end{tikzpicture}
+%  \caption{Sigma protocol flow}
+%  \label{fig:sigma_flow}
+%\end{figure}
+%
+%\subsubsection{Schnorr's Identification Protocol}
+%\label{subsubsec:schnorr_protocol}
+%
+%A simple example of a $\Sigma$ protocol is Schnorr's Identification
+%Protocol \cite{schnorr_protocol,cryptography_introduction}. The
+%secret is a discrete logarithm $x$ of $y$ with respect to $g$ in some
+%finite group $G = \left< g \right>$ with prime order $q$, subgroup of
+%$Z_p^*$. The prover must prove knowledge of this secret to a verifier under
+%the homomorphism $f(a) : Z_q^+ \rightarrow G \subset Z_p^* := g^a$.
+%
+%\begin{figure}[hbt!]
+%  \centering
+%  \begin{tikzpicture}[>=stealth]
+%    \node[matrix,column sep=2cm] {
+%      \node{Prover};                  &                           & &                             & \node{Verifier}; \\
+%      \node{$r_1 \in Z_q^+$};                   &                           & &                             &                   \\
+%      \node{$t_1 = g^{r_1}$};          & \node(prover_round1_s){}; & & \node(verifier_round1_r){}; & \\
+%                                      & \node(prover_round2_r){}; & & \node(verifier_round1_s){}; & \node{$c \in \{0,1\}^*$}; \\
+%      \node{$s_1 = r_1 + x \cdot c$}; & \node(prover_round2_s){}; & & \node(verifier_round2_r){}; & \\
+%                                      &                           & &                             & \node{$s_1 \stackrel{?}{\in} Z_q^+$}; \\
+%                                      &                           & &                             & \node{$t_1 y^c \stackrel{?}{=} g^{s_1}$}; \\
+%    };
+%    \draw[->] (prover_round1_s) -- (verifier_round1_r) node[midway, anchor=south]{$t_1$};
+%    \draw[<-] (prover_round2_r) -- (verifier_round1_s) node[midway, anchor=south]{$c$};
+%    \draw[->] (prover_round2_s) -- (verifier_round2_r) node[midway, anchor=south]{$s_1$};
+%  \end{tikzpicture}
+%  \caption{Schnorr's Identification Protocol}
+%  \label{fig:schnorr_steps}
+%\end{figure}
+%
+%\subsubsection{Camenisch-Stadler Notation}
+%\label{subsubsec:camenisch_stadler}
+%
+%A simple and popular notation for specifying Sigma protocols is the
+%Camenisch-Stadler notation \cite{CACE,camenisch_stadler}. The Schnorr
+%Identification Protocol can be represented by the following:
+%\[
+%  \textrm{ZPK}\left[ (x): y = g^x \right]
+%\]
+%meaning prove knowledge of $x$, using a zero knowledge proof of
+%knowledge, such that $y=g^x$.
+%
+%\subsection{Syntax Trees and Parsers}
+%
+%\begin{defn}[Grammar]
+%  A grammar is a 4-tuple $G = \left< \Sigma, V, S, P \right>$:
+%  \begin{enumerate}
+%  \item $\Sigma$ is a finite non-empty set called the \emph{terminal
+%    alphabet}. The elements of $\Sigma$ are called \emph{terminals}.
+%  \item $V$ is a finite non-empty set disjoint from $\Sigma$. The
+%    elements of $V$ are called \emph{non-terminals} or \emph{variables}.
+%  \item $S \in V$ is a distinguished symbol called the \emph{start symbol}
+%  \item $P$ is a finite set of \emph{productions (rules)} of the form
+%    $$ \alpha \rightarrow \beta $$
+%    $$ \alpha \in (\Sigma \cup V)^* V (\Sigma \cup V)^* $$
+%    $$ \beta \in (\Sigma \cup V)^* $$
+%  \end{enumerate}
+%\end{defn}
+%
+%\begin{defn}[Context-free grammar]
+%  The grammar $G$ is a context free grammar iff $|\alpha|$ = 1 ($\alpha = V$).
+%\end{defn}
+%
+%\subsection{Concrete Syntax Tree}
+%
+%A Concrete Syntax Tree, also called a Parse Tree, is an ordered tree
+%representation of the input according to a given formal grammar.
+%
+%For example, given the following input:
+%\begin{lstlisting}
+%a := b * c + d;
+%\end{lstlisting}
+%and the following grammar:
+%\begin{align*}
+%  \textrm{statement}  & \rightarrow \textrm{ID} := \textrm{expression} ; \\
+%  \textrm{expression} & \rightarrow \textrm{term} + \textrm{term} \\
+%  \textrm{term}       & \rightarrow \textrm{ID} * \textrm{ID} \\
+%  \textrm{term}       & \rightarrow \textrm{ID}
+%\end{align*}
+%the tree depicted in Figure \ref{fig:simple_cst} is a Concrete Syntax Tree.
+%
+%\begin{figure}[hbt!]
+%  \centering
+%  \begin{tikzpicture}
+%    \Tree [.\node[language](statement){statement};
+%      [.\node[language](a){a};]
+%      [.\node[language](assign){:=};]
+%      [.\node[language](expression){expression};
+%        [.\node[language](term){term};
+%          [.\node[language](b){b};]
+%          [.\node[language](mul){*}; ]
+%          [.\node[language](c){c};]
+%        ]
+%        [.\node[language](plus){+};]
+%        [.\node[language](term2){term};
+%          [.\node[language](d){d};]
+%        ]
+%      ]
+%      [.\node[language](semi){;};]
+%    ]
+%  \end{tikzpicture}
+%  \caption{Concrete Syntax tree for a simple input and a simple grammar}
+%  \label{fig:simple_cst}
+%\end{figure}
+%
+%\subsection{Abstract Syntax Tree}
+%
+%An Abstract Syntax Tree (AST) is a tree representation of the abstract
+%syntax of the input. Given the same example
+%\begin{lstlisting}
+%a := b * c + d;
+%\end{lstlisting}
+%one possible variant of the tree is illustrated in Figure
+%\ref{fig:simple_ast}. Comparing it with the Parse Tree from Figure
+%\ref{fig:simple_cst} one can see that the choice of abstraction is
+%arbitrary.
+%
+%\begin{figure}[hbt!]
+%  \centering
+%  \begin{tikzpicture}
+%    \Tree [.\node[language](equ){=};
+%      [.\node[language](a){a};]
+%      [.\node[language](add){+};
+%        [.\node[language](mul){*};
+%          [.\node[language](b){b};]
+%          [.\node[language](c){c};]
+%        ]
+%        [.\node[language](d){d};]
+%      ]
+%    ]
+%  \end{tikzpicture}
+%  \caption{An example AST for a simple expression}
+%  \label{fig:simple_ast}
+%\end{figure}
+%
+%\subsection{Parser}
+%
+%Given a string $L$, satisfying grammar $G$, a parser tries to find the
+%derivation of $L$ from $S$. This derivation is the Concrete Syntax
+%Tree (Parse Tree). This derivation may further be abstracted into an
+%Abstract Syntax Tree that is easier for manipulation later. Figure
+%\ref{fig:parser_flow} shows the typical parser flow.
+%
+%\begin{figure}[hbt!]
+%  \centering
+%  \begin{tikzpicture}[>=stealth,level distance=1.5cm,font=\tiny]
+%    \tikzstyle{edge from parent}=[draw,->]
+%
+%    \Tree [.\node[language](input){Input};
+%      [.\node[compiler](parser){Parser};
+%        [.\node[language](ptree){Parse tree};
+%          [.\node[compiler](tgen){Tree generator};
+%            [.\node[language](ast){Abstract Syntax Tree};
+%            ]
+%          ]
+%        ]
+%      ]
+%    ]
+%  \end{tikzpicture}
+%  \caption{Parser flow}
+%  \label{fig:parser_flow}
+%\end{figure}
+%
+%There are two approaches to parsing:
+%\begin{description}
+%\item[Top-down parsing] the derivation starts from the top (the root)
+%  of the parse tree and proceeds downwards.
+%\item[Bottom-up parsing] the derivation starts from the bottom (the
+%  leaves) of the parse tree and proceeds upwards.
+%\end{description}
+%
+%The most popular top-down parser is an LL (left to right left-most
+%derivation) parser. The parser reads the input left to right and at
+%each step produces the left-most derivation of the input. Sub-types of
+%this parser include the symbol look-ahead which is the amount of next,
+%unseen symbols the parser can ``look at''. For example, an LL(1)
+%parser can only look 1 symbol ahead while an LL(*) parser is a parser
+%with arbitrary look-ahead.
+%
+%
+%\section{Data Flow Graph and Control Flow Graph}
+%
+%\begin{defn}[Data Edge]
+%  A data edge is an ordered relation between two operations such that
+%  the output/result of one operation is the input to the other
+%  operation.
+%\end{defn}
+%
+%\begin{defn}[Control Edge]
+%  A control edge is an ordered relation between two operations such
+%  that the second operation has to be executed after the first finishes
+%  executing.
+%\end{defn}
+%
+%\begin{defn}[Data Flow Graph]
+%  A data flow graph is a graph of the nodes representing the
+%  operations connected by data edges.
+%\end{defn}
+%
+%\begin{defn}
+%  A control flow graph is a graph of the nodes representing the
+%  operations connected by control edges.
+%\end{defn}
+%
+%An algorithm is completely and uniquely defined by its Data Flow Graph
+%(DFG), whereas the implementation of an algorithm is what gives it its
+%Control Flow Graph (CFG). The usual step in converting an algorithm in
+%software to an algorithm in hardware is to extract the DFG
+%\cite{Schaumont}.
+
+%%% Local Variables:
+%%% TeX-PDF-mode: t
+%%% TeX-master: "paper"
+%%% End:

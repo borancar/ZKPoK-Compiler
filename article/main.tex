@@ -21,6 +21,19 @@
 %\usepackage[T1]{fontenc}
 %\usepackage{lmodern}
 
+\newenvironment{keywords}{
+       \list{}{\advance\topsep by0.35cm\relax\small
+       \leftmargin=0cm
+       \labelwidth=0cm
+       \listparindent=0cm
+       \itemindent
+       \listparindent
+       \rightmargin\leftmargin
+       }
+  \item[\hskip\labelsep
+                                     \bfseries Keywords:]}
+     {\endlist}
+
 \input{macros}
 
 \begin{document}
@@ -72,9 +85,10 @@ of the ANTLR parser generator is given in Appendix~\ref{sec:antlr}.
 
 
 \section{Custom Framework}
-In this section we describe the main functionalities of our framework. We first give
-an overview of our proposed solution, and then we detail the concrete extensions 
-we have performed on the PIL language. The description of the PIL Front-End and the target 
+In this section we describe the main functionalities of our
+framework. We first give an overview of our proposed solution, and
+then we detail the concrete extensions we have performed on the PIL
+language. The description of the PIL Front-End and the target
 Back-Ends are also covered in this section.
 \label{customframework}
 \input{customframework}

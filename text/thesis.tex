@@ -5,7 +5,7 @@ title={Implementation and Evaluation of Zero-Knowledge Proofs of Knowledge},
 author={Boran Car},
 promotor={Prof.\,dr.\,ir. Bart Preneel \and Prof.\,dr.\,ir. Ingrid Verbauwhede},
 assessor={Prof.\,dr.\,ir. Claudia Diaz \and Prof.\,dr.\,ir. Francky Catthoor},
-assistant={Ir. Josep Balasch \and Ir. Alfredo Rial}
+assistant={Ir. Josep Balasch \and Ir. Alfredo Rial},
 }
 
 \usepackage[pdfusetitle,colorlinks,plainpages=false]{hyperref}
@@ -16,6 +16,7 @@ assistant={Ir. Josep Balasch \and Ir. Alfredo Rial}
 \usepackage[caption=false]{subfig}
 \usepackage{tabularx}
 \usepackage{color}
+\usepackage{units}
 \usepackage{amsmath}
 \usepackage{listings}
 \usepackage{amsfonts}
@@ -111,7 +112,7 @@ sep=3pt, align=center]
   protocols.
 \end{abstract}
 
-\listoffigures
+\listoffiguresandtables
 
 %\listoftables
 
@@ -125,13 +126,15 @@ sep=3pt, align=center]
 
 \input{custom}
 
-\input{daa}
+\input{usecase}
 
 \input{conclusion}
 
-%\appendixpage*
+\appendixpage*
 
-%\appendix
+\appendix
+
+\input{coproc_report}
 
 %\lstinputlisting{pil.g}
 
@@ -140,7 +143,6 @@ sep=3pt, align=center]
 \backmatter
 
 \printbibliography
-
 
 \end{document}
 

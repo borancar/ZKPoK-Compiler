@@ -1,0 +1,88 @@
+\chapter{Use Case: Schnorr's Identification Protocol on a Custom System}
+
+This chapter aims to present a use case of our framework and the
+possibilities for extension. We take Schnorr's Identification Protocol
+and implement it on a system not unlike today's smart cards. This
+requires us to write a custom back-end for our framework and here we
+detail the steps.
+
+\section{Motivation}
+
+So far, two extremes of the HW-SW co-design spectrum have been
+explored using our framework and we think there is little need to
+justify an exploration of the spectrum somewhere in the ``middle''.
+Instead of generating our own system we take an existing system and
+demonstrate the flexibility and adaptability of our framework.
+
+The target system is not unlike today's smart cards in the manner that
+it uses a small and cheap micro-controller coupled with a custom
+co-processor to offload the more demanding calculations. We have
+already discussed the advantages of Zero Knowledge Proofs of Knowledge
+over traditional policy and authentication verification (see Section
+\ref{sec:thesis_motivation}) and we deem the Schnorr's Protocol simple,
+yet concise enough to demonstrate the applicability of such protocols
+and our framework.
+
+\section{Target System}
+
+The system targeted by the framework is an existing system developed
+within a course here at KU Leuven. The system includes a general
+purpose micro-controller, 8051 in this case, coupled with a custom
+designed cryptographic co-processor (see Appendix
+\ref{cha:codesign_project}).
+
+The co-processor implements the Montgomery multiplication as the
+project deemed this the most critical operation that needed a hardware
+implementation. The operations of modular multiplication and modular
+exponentiation are handled in software using the Montgomery
+multiplication as a building block.
+
+Command queuing (see Appendix \ref{cha:codesign_project}) was used as
+a technique to compensate for the slower execution speed of the main
+processor. It also allows the main processor to perform other tasks
+while the co-processor is executing the uploaded instructions.
+
+\section{Implementation Flow Example}
+\label{sec:usecase_flow}
+
+First we start with the PSL implementation of Schnorr's Identification
+Protocol (already given in Sub-section \ref{subsec:psl}). This PSL
+file is given to the CACE ZKC (see Section \ref{sec:cace}) to produce
+the resulting PIL and C files. The C files are compiled to produce an
+actual implementation of a prover and a verifier which are then
+configured and tested on a general purpose computer. This part is
+equivalent to the CACE ZKC flow.
+
+Next, our extension takes the resulting Schnorr PIL file and compiles
+it into an intermediate form capturing the operations within it. As
+the target does not support modular multiplication and modular
+exponentiation, intrinsic lowering is performed, adding the necessary
+transfer to and from the Montgomery domain. Since this step would
+generate a lot of redundant intermediate results, a special
+optimization step is run to eliminate these intermediate results.
+
+\section{Results and Possible Improvements}
+\label{sec:usecase_results}
+
+\subsection{Results}
+
+The entire protocol run requires around $\unit[2]{mil.}$ cycles, which
+is roughly $\unit[0.5]{s}$ running at the proposed frequency of
+$\unit[4]{MHz}$.
+
+\subsection{Further Improvements}
+
+The approach taken was to reuse the software library provided. We note
+that the ideal goal step would be to emit the required instructions
+directly and such a step is not difficult as we are dealing with LLVM,
+a compiler infrastructure framework. Emitting the instructions
+directly instead of using library calls can yield a further
+optimization as the results are transferred less from the co-processor
+to the main processor. Here we omitted this step as the gains were too
+little and we deemed the final compilation not to be a key point of
+this thesis.
+
+%%% Local Variables: 
+%%% TeX-PDF-mode: t
+%%% TeX-master: "thesis"
+%%% End: 

@@ -1,0 +1,88 @@
+\documentclass[journal]{IEEEtran}
+
+\usepackage{amscd,amssymb}
+\usepackage{amsfonts}
+\usepackage{url}
+\usepackage{xspace}
+%\usepackage[pdfusetitle,colorlinks,plainpages=false]{hyperref}
+%\usepackage{biblatex}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usepackage{tikz-uml}
+\usepackage[caption=false]{subfig}
+\usepackage{tabularx}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{units}
+%\usepackage{amsthm}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+% \usepackage[T1]{fontenc} \usepackage{lmodern}
+
+\input{macros}
+
+\begin{document}
+
+\title{Implementation and Evaluation of Zero-Knowledge Proofs of Knowledge}
+
+\author{
+Boran Car, Josep Balasch, Alfredo Rial, Ingrid Verbauwhede and Bart Preneel}
+
+\maketitle
+
+\input{abstract}
+
+\section{Introduction}
+\label{introduction}
+\input{introduction}
+
+\section{Related Work}
+\label{relatedwork}
+\input{relatedwork}
+
+\section{Background}
+In this section we review necessary background information. In the
+first part, we describe the targeted ZKPK $\Sigma$-protocols and in
+the second part, we provide definitions of data flow graph and
+control flow graph.
+\label{preliminaries}
+\input{preliminaries}
+
+\section{Tools}
+\label{sec:tools}
+In this Section we introduce the different tools that conform the core
+of our ZKPK framework. These include the LLVM compiler suite and the
+GEZEL hardware description language.
+\input{tools}
+
+\section{Custom Framework}
+In this section we describe the main functionalities of our
+framework. We first give an overview of our proposed solution, and
+then we detail the concrete extensions we have performed on the PIL
+language. The description of the PIL Front-End and the target
+Back-Ends are also covered in this section.
+\label{customframework}
+\input{customframework}
+
+\section{Discussion}
+\label{discussion}
+\input{discussion}
+
+\section{Use Case: Schnorr's Protocol}
+\label{schnorr}
+\input{schnorr}
+
+\section{Conclusion and Future Work}
+\label{conclusion}
+\input{conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{main}
+
+\end{document}
+
+%%% Local Variables: 
+%%% TeX-PDF-mode: t
+%%% TeX-master: t
+%%% End: 

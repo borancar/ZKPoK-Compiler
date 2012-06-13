@@ -1,0 +1,46 @@
+%1.1-	Motivation
+%- Crypto involves complex building blocks.
+%- Among them, ZKPK.
+%- Its implementation is complex
+%- most programmers are not cryptographers, and thus prone to errors
+%- Automated tools for implementing crypto protocols are needed (name some existing tools).
+%
+%- crypto implementations for embedded devices are demanded
+%- new crypto protocols
+%- generic tools (GMP, high java level)
+%- Existing tools should be adapted to embedded devices.
+
+%In the last years myriad of advanced cryptographic techniques have been proposed and formalized in the open literature. Such protocols go beyond the traditional security goals of data integrity, authentication, and confidentiality, and instead focus on providing other strong security and privacy properties.
+%
+%Zero-knowledge proofs of knowledge~\cite{Goldwasser:1985:KCI:22145.22178,Goldreich:1987:PNZ:36664.36675,springerlink:10.1007/BF02351717} are amongst the most prominent examples of this trend. These cryptographic tools allow an entity (the \emph{Prover}) to prove knowledge of a statement to another entity (the \emph{Verifier}) without actually revealing any information about such statement. Within a system, ZKPoK can be used to enforce honest behaviour between entities while maintaining their privacy, making such protocols ideal for privacy preserving applications. Just to name a few, zero-knowledge proofs of knowledge are found at the core of systems such as anonymous e-cash~\cite{1982-1101,Camenisch05compacte-cash}, anonymous authentication~\cite{Brickell:2004:DAA:1030083.1030103,Nguyen05dynamick-times}, or electronic voting~\cite{Groth:2005:NZA:2134532.2134564,Damgard03thetheory}.
+
+Zero-knowledge proofs of knowledge (ZKPK)~\cite{Goldwasser:1985:KCI:22145.22178,Goldreich:1987:PNZ:36664.36675,springerlink:10.1007/BF02351717} allow an entity (the \emph{Prover}) to prove knowledge of a secret that fulfills a statement to another entity (the \emph{Verifier}) without revealing any information about the secret. ZKPK can be used as building blocks of cryptographic protocols to enforce the honest behaviour of entities while maintaining their privacy, making such protocols ideal for privacy preserving applications. Just to name a few, ZKPK are found at the core of systems such as anonymous e-cash~\cite{DBLP:conf/crypto/Chaum82,Camenisch05compacte-cash}, anonymous authentication~\cite{Brickell:2004:DAA:1030083.1030103,Nguyen05dynamick-times}, electronic voting~\cite{Groth:2005:NZA:2134532.2134564,Damgard03thetheory} or general secure two-party and multi-party computation~\cite{DBLP:conf/stoc/CanettiLOS02}.
+
+%Such strong security properties come however at a high cost in terms of complexity and efficiency. 
+
+The implementation of ZKPK is error-prone, particularly for programmers not familiar with the underlying cryptographic techniques, which hinders the deployment of protocols that employ ZKPK. To address this problem, there exist nowadays several tools to facilitate ZKPK implementation, either by providing high-level libraries~\cite{Camenisch:2002:DII:586110.586114}, custom made language interpreters and compilers~\cite{Almeida:2010:CCZ:1888881.1888894}, or a mixture of both~\cite{Meiklejohn:2010:ZLS:1929820.1929838}.
+
+Existing tools~\cite{Camenisch:2002:DII:586110.586114,Almeida:2010:CCZ:1888881.1888894,Meiklejohn:2010:ZLS:1929820.1929838} target software (SW) high-level languages such as C, C++ or Java. However, some protocols are naturally expected to be implemented on small embedded platforms, e.g.\ smart cards for storing e-cash wallets, and electronic IDs or TPMs for anonymous authentication~\cite{Brickell:2004:DAA:1030083.1030103}. In such cases, the use of ZKPK compilers that target hardware (HW) description languages and that allow for HW-SW co-design is more convenient.
+
+%While incredibly useful, these tools focus on ZKPoKs as standalone blocks rather than as part of a full application. In other words, there are some limitations such as e.g.\ when implementing systems with multiple participating entities. Similarly, the resulting code is given in high-level languages such as C, C++, or Java, each one using their own cryptographic library, making it difficult to port the code to small embedded devices. This is of importance since, as can be noted from the above mentioned examples, some entities are naturally expected to be implemented on small embedded platforms, e.g.\ smart cards for storing e-cash wallets, electronic IDs or TPMs for anonymous authentication, etc...
+
+%1.2- Our contribution
+%- We do not start from scratch
+%- We use an existing framework, which we extend and modify
+%- Explanation on the main extensions and modifications (why the extension/modification was needed, which functionalities are now possible that were not possible before).
+%- Explanation of the new features provided. Focus on all the implementation possibilities (HW languages, embedded devices, HW-SW codesign).
+\paragraph{Our contribution.} We provide a ZKPK compiler framework specifically tailored to target hardware description languages and HW-SW co-design. Rather than starting from scratch, we extend the functionalities offered by the CACE ZKPK compiler suite~\cite{Almeida:2010:CCZ:1888881.1888894} to generate platform-independent code and explore hardware/software boundaries. The CACE ZKPK compiler allows the implementation of (the composition of) the most relevant $\Sigma$-protocols, which are the practically relevant ZKPK. 
+
+Concretely, our ZKPK compiler framework follows two steps. First, it takes as input a ZKPK implementation in platform-independent code generated by the CACE ZKPK compiler and transforms it into an implementation in LLVM IR, which is the intermediate representation language of the LLVM compiler framework. The implementation in LLVM IR can be optimized via the LLVM optimizer.
+
+From LLVM IR, it is possible to target different languages. We provide a back-end for GEZEL, a HW description language that can subsequently target VHDL or Verilog, that provides validation tools and that offers a co-simulation tool used for HW-SW co-design purposes. Additionally, we provide a back-end for C, which uses GMP for big integer arithmetic. Therefore, we cover both ends of the HW/SW co-design spectrum.
+
+We consider that our custom ZKPK compiler framework provides a good starting point for a fine-grained automated approach to HW-SW co-design. It  allows the implementation of all the ZKPK supported by the original CACE ZKPK compiler. Additionally, thanks to the characteristics of LLVM IR, we can validate the security of the implementation at a lower level than the one allowed by the CACE ZKPK compiler.
+
+%1.3- Structure of the paper (Explain briefly the contents of each section of the paper)
+\paragraph{Structure of the paper.} In Section~\ref{relatedwork} we summarize related work in the area of cryptography aware compilers. In Section~\ref{preliminaries} we provide some background information. The tools used through the paper are briefly introduced in Section~\ref{sec:tools}. Our custom compiler is described in Section~\ref{customframework}, and some discussion topics are addressed in Section~\ref{discussion}. Finally we conclude in Section~\ref{conclusion}.
+
+%%% Local Variables:
+%%% TeX-PDF-mode: t
+%%% TeX-master: "paper"
+%%% End:

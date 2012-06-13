@@ -1,0 +1,37 @@
+
+The Schnorr's Identification Protocol is a simple
+$\Sigma$-protocol. Here we demonstrate how our extensions do not
+disrupt the CACE Project ZKC flow but merely complement it. An input
+PSL file is given to the CACE Project ZKC and a corresponding PIL file
+is received. This PIL file is processed using our framework to
+generate both a GEZEL and a GMP target. These are then cross-validated
+with the C code that the CACE Project ZKC generates. This was made
+possible thanks to the implemented terminal port communication
+library.
+
+\subsection{A custom co-processor system}
+
+We took a step further into demonstrating hardware-software co-design
+using our framework and have wrote a back-end for an existing
+co-processor system. The main processor of this system is an 8051 as
+is commonly found on most
+smart-cards~\cite{smartcard_crypto_coprocs2}. The 8051 is a very
+limited processor and a custom co-processor is needed if cryptography
+applications are to be targeted. This leads to a trade-off in terms of
+execution time and size as the more operations are implemented in the
+co-processor the execution time is lower but the size required is
+larger. The project deemed the Montgomery multiplication the most
+critical and has implemented it as the only operation on the
+co-processor.
+
+The back-end's job was merely to reuse the existing libraries provided
+by the co-processor designers but we still believe it was sufficient
+to show the feasibility of the approach of this framework. The
+execution time was around $2,000,000$ cycles which on a
+$\unit[4]{MHz}$ system (common frequency as mentioned in
+\cite{smartcard_crypto_coprocs2}) is roughly $\unit[0.5]{s}$.
+
+%%% Local Variables: 
+%%% TeX-PDF-mode: t
+%%% TeX-master: "paper"
+%%% End:
