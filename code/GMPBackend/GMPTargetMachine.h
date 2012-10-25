@@ -5,21 +5,21 @@
 #include "llvm/Target/TargetData.h"
 
 namespace llvm {
-
   class GMPTargetMachine : public TargetMachine {
   public:
-    GMPTargetMachine(const Target &T, StringRef TT,
-		       StringRef CPU, StringRef FS,
-		       Reloc::Model RM, CodeModel::Model CM) 
-      : TargetMachine(T, TT, CPU, FS) {}
+  GMPTargetMachine(const Target &T, StringRef TT,
+		     StringRef CPU, StringRef FS,
+		     const TargetOptions &Options,
+		     Reloc::Model RM, CodeModel::Model CM,
+		     CodeGenOpt::Level OL)
+    : TargetMachine(T, TT, CPU, FS, Options) {}
 
-    virtual bool addPassesToEmitFile(PassManagerBase &PM,
-				     formatted_raw_ostream &Out,
-				     CodeGenFileType FileType,
-				     CodeGenOpt::Level OptLevel,
-				     bool DisableVerify);
+    bool addPassesToEmitFile(PassManagerBase &PM,
+			     formatted_raw_ostream &Out,
+			     CodeGenFileType FileType,
+			     bool DisableVerify = true);
 
-    virtual const TargetData *getTargetData() const { return 0; }
+    const TargetData *getTargetData() const { return 0; }
   };
 }
 

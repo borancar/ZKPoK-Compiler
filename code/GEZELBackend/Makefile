@@ -6,13 +6,14 @@ CFLAGS = -g -fPIC -Wall
 .cpp.o:
 	$(CC) $(CFLAGS) -c `llvm-config --cppflags` $<
 
-all: LLVMGEZELBackend.so LLVMOptStoreLoad.so
+all: LLVMGEZELBackend.so
 
-LLVMGEZELBackend.so : GEZELBackend.o
-	$(CC) $(CFLAGS) -shared $< `llvm-config --ldflags` -o $@
+GEZELWriter.o: GEZELWriter.h
 
-LLVMOptStoreLoad.so : OptStoreLoad.o
-	$(CC) $(CFLAGS) -shared $< `llvm-config --ldflags` -o $@
+GEZELTargetMachine.o: GEZELTargetMachine.h
+
+LLVMGEZELBackend.so : GEZELWriter.o GEZELTargetMachine.o
+	$(CC) $(CFLAGS) -shared $+ `llvm-config --ldflags` -o $@
 
 clean:
 	rm -f *.o

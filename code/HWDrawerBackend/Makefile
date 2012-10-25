@@ -6,13 +6,13 @@ CFLAGS = -g -fPIC -Wall
 .cpp.o:
 	$(CC) $(CFLAGS) -c `llvm-config --cppflags` $<
 
-all: LLVMGMPBackend.so
+all: LLVMHWDrawerBackend.so
 
-GMPWriter.o: GMPWriter.h
+HWDrawerWriter.o: HWDrawerWriter.h
 
-GMPTargetMachine.o: GMPTargetMachine.h
+HWDrawerTargetMachine.o: HWDrawerTargetMachine.h
 
-LLVMGMPBackend.so : GMPWriter.o GMPTargetMachine.o
+LLVMHWDrawerBackend.so : HWDrawerWriter.o HWDrawerTargetMachine.o
 	$(CC) $(CFLAGS) -shared $+ `llvm-config --ldflags` -o $@
 
 clean:

@@ -1,17 +1,17 @@
-#ifndef GEZELTARGETMACHINE_H
-#define GEZELTARGETMACHINE_H
+#ifndef HWDRAWERTARGETMACHINE_H
+#define HWDRAWERTARGETMACHINE_H
 
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetData.h"
 
 namespace llvm {
-  class GEZELTargetMachine : public TargetMachine {
+  class HWDrawerTargetMachine : public TargetMachine {
   public:
-  GEZELTargetMachine(const Target &T, StringRef TT,
-		     StringRef CPU, StringRef FS,
-		     const TargetOptions &Options,
-		     Reloc::Model RM, CodeModel::Model CM,
-		     CodeGenOpt::Level OL)
+  HWDrawerTargetMachine(const Target &T, StringRef TT,
+			StringRef CPU, StringRef FS,
+			const TargetOptions &Options,
+			Reloc::Model RM, CodeModel::Model CM,
+			CodeGenOpt::Level OL)
     : TargetMachine(T, TT, CPU, FS, Options) {}
 
     bool addPassesToEmitFile(PassManagerBase &PM,

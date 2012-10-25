@@ -1,35 +1,29 @@
-#include "HWSWTargetMachine.h"
-#include "llvm/Pass.h"
-#include "llvm/Module.h"
-#include "llvm/Instructions.h"
-#include "llvm/PassManager.h"
-#include "llvm/Intrinsics.h"
-#include "llvm/DerivedTypes.h"
-#include "llvm/ADT/APInt.h"
-#include "llvm/Constants.h"
-#include "llvm/Target/TargetData.h"
-#include "llvm/Support/TargetRegistry.h"
-#include "llvm/Support/InstVisitor.h"
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/FormattedStream.h"
+#include "MontgomeryDomain.h"
+
+#include <llvm/Instructions.h>
+#include <llvm/Intrinsics.h>
+#include <llvm/Constants.h>
+#include <llvm/Support/InstVisitor.h>
+
 #include <string>
 #include <set>
 #include <map>
 #include <vector>
-#include <sstream>
+
 #include <boost/lexical_cast.hpp>
 #include <gmpxx.h>
+
 using namespace llvm;
 using namespace std;
 
-class MontgomeryDomain : public ModulePass, public InstVisitor<MontgomeryDomain> {
-  Module *Mod;
-  
-public:
-  static char ID;
+char MontgomeryDomain::ID = 1;
 
-  explicit MontgomeryDomain() : ModulePass(ID) {}
-  
+class MontgomeryDomain::Visitor : public InstVisitor<Visitor> {
+  friend class MontgomeryDomain;
+  friend class InstVisitor;
+
+  Module *Mod;
+
   CallInst *enterMontgomery(Value *val, Value *mod, Instruction *insertBefore) {
     vector<Type*> types;
     types.push_back(mod->getType());
@@ -134,18 +128,27 @@ public:
 
       I.eraseFromParent();
     }
-
-  }
-
-  bool runOnModule(Module &M) {
-    Mod = &M;
-
-    visit(M);
-
-    return true;
   }
 };
 
-char MontgomeryDomain::ID = 1;
+bool MontgomeryDomain::doInitialization(Module &M) {
+  v = new Visitor();
+
+  return false;
+}
+
+bool MontgomeryDomain::doFinalization(Module &M) {
+  delete v;
+
+  return false;
+}
+
+bool MontgomeryDomain::runOnModule(Module &M) {
+  v->Mod = &M;
+
+  v->visit(M);
+
+  return true;
+}
 
 static RegisterPass<MontgomeryDomain> X("montgomery", "Implements modular arithmetic using Montgomery multiplication", false, false);
