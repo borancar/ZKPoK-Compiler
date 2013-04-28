@@ -131,22 +131,14 @@ class MontgomeryDomain::Visitor : public InstVisitor<Visitor> {
   }
 };
 
-bool MontgomeryDomain::doInitialization(Module &M) {
+bool MontgomeryDomain::runOnModule(Module &M) {
   v = new Visitor();
 
-  return false;
-}
-
-bool MontgomeryDomain::doFinalization(Module &M) {
-  delete v;
-
-  return false;
-}
-
-bool MontgomeryDomain::runOnModule(Module &M) {
   v->Mod = &M;
 
   v->visit(M);
+
+  delete v;
 
   return true;
 }

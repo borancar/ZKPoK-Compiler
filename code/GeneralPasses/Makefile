@@ -11,7 +11,7 @@ all: LLVMOptStoreLoad.so LLVMMontgomery.so
 MontgomeryDomain.o: MontgomeryDomain.h
 
 LLVMMontgomery.so: MontgomeryDomain.o
-	$(CC) $(CFLAGS) -shared $< `llvm-config --ldflags` -o $@
+	$(CC) $(CFLAGS) -lgmpxx -shared $< `llvm-config --ldflags` -o $@
 
 LLVMOptStoreLoad.so: OptStoreLoad.o
 	$(CC) $(CFLAGS) -shared $< `llvm-config --ldflags` -o $@
