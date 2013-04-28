@@ -192,7 +192,6 @@ char HWSWWriter::ID = 0;
 bool HWSWTargetMachine::addPassesToEmitFile(PassManagerBase &PM,
 					   formatted_raw_ostream &Out,
 					   CodeGenFileType FileType,
-					   CodeGenOpt::Level OptLevel,
 					   bool DisableVerify) {
   if(FileType != TargetMachine::CGFT_AssemblyFile) return true;
 
