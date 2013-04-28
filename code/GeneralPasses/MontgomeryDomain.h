@@ -13,11 +13,7 @@ namespace llvm {
 
     explicit MontgomeryDomain() : ModulePass(ID) {}
 
-    bool doInitialization(Module &M);
-
     bool runOnModule(Module &M);
-
-    bool doFinalization(Module &M);
   };
 }
 
