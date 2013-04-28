@@ -60,16 +60,16 @@ options {
 	static stack< map<const char*, Variable, cmp_str>* > Vars;
 	static map<const char*, NumberT*, cmp_str> Types;
 				
-	Value* operator_call(const char *name, Intrinsic::ID id, Value *a, Value *b, Value *mod)
+	Value* operator_call(const char *name, const char *op, Value *a, Value *b, Value *mod)
 	{
 		vector<Type*> types;
-		
-		types.push_back(mod->getType());
+
 		types.push_back(a->getType());
 		types.push_back(b->getType());
 		types.push_back(mod->getType());
-	
-		Function *function = Intrinsic::getDeclaration(TheModule, id, types);
+
+		FunctionType *ftype = FunctionType::get(mod->getType(), types, false);
+		Function *function = Function::Create(ftype, Function::ExternalLinkage, op, TheModule);
 		
 		vector<Value*> args;
 		
@@ -124,23 +124,23 @@ options {
 	}
 	
 	Value * GroupT::createNeg(const char *id, Value *a) const {
-		return operator_call(id, Intrinsic::modsub, ConstantInt::get(getGlobalContext(), APInt(1024, 0)), a, this->getModulusConstant());
+		return operator_call(id, "modsub", ConstantInt::get(getGlobalContext(), APInt(1024, 0)), a, this->getModulusConstant());
 	}
 	
 	Value * GroupT::createAdd(const char *id, Value *a, Value *b) const {
-		return operator_call(id, Intrinsic::modadd, a, b, this->getModulusConstant()); 	
+		return operator_call(id, "modadd", a, b, this->getModulusConstant()); 	
 	}
 	
 	Value * GroupT::createSub(const char *id, Value *a, Value *b) const {
-		return operator_call(id, Intrinsic::modsub, a, b, this->getModulusConstant()); 		
+		return operator_call(id, "modsub", a, b, this->getModulusConstant()); 		
 	}
 	
 	Value * GroupT::createMul(const char *id, Value *a, Value *b) const {
-		return operator_call(id, Intrinsic::modmul, a, b, this->getModulusConstant()); 	
+		return operator_call(id, "modmul", a, b, this->getModulusConstant()); 	
 	}
 	
 	Value * GroupT::createExp(const char *id, Value *a, Value *b) const {
-		return operator_call(id, Intrinsic::modexp, a, b, this->getModulusConstant()); 	
+		return operator_call(id, "modexp", a, b, this->getModulusConstant()); 	
 	}
 }
 
@@ -367,11 +367,11 @@ function_call [const char *id] returns [Value *value, NumberT *type]
 		
 			vector<Value*> args;
 			vector<Type*> types;
-			
-			types.push_back($type->getType());
+
 			types.push_back($type->getType());
 
-			Function *function = Intrinsic::getDeclaration(TheModule, Intrinsic::random, types);
+			FunctionType *ftype = FunctionType::get($type->getType(), types, false);
+                                                                  Function *function = Function::Create(ftype, Function::ExternalLinkage, "random", TheModule);
 			
 			if(GroupT *group_t = dynamic_cast<GroupT*>($type))
 				args.push_back(ConstantInt::get(getGlobalContext(), group_t->getModulus()));
