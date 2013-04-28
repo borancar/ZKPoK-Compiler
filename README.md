@@ -39,6 +39,10 @@ build procedure:
  9. make REQUIRES_RTTI=1
 10. sudo make install
 
+GEZEL (obtainable from http://rijndael.ece.vt.edu/gezel2/)
+
+GMP is needed as well (especially GMP++).
+
 Compilation:
 ------------
 
