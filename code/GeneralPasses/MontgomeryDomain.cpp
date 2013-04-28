@@ -26,12 +26,12 @@ class MontgomeryDomain::Visitor : public InstVisitor<Visitor> {
 
   CallInst *enterMontgomery(Value *val, Value *mod, Instruction *insertBefore) {
     vector<Type*> types;
-    types.push_back(mod->getType());
     types.push_back(val->getType());
     types.push_back(Type::getIntNTy(Mod->getContext(), 1024));
     types.push_back(mod->getType());
 
-    Function *mpro = Intrinsic::getDeclaration(Mod, Intrinsic::montpro, types);  
+    FunctionType *ftype = FunctionType::get(mod->getType(), types, false);
+    Function *mpro = Function::Create(ftype, Function::ExternalLinkage, "montpro", Mod);  
 
     mpz_class R("2", 10);
     mpz_pow_ui(R.get_mpz_t(), R.get_mpz_t(), 1024);
@@ -49,12 +49,12 @@ class MontgomeryDomain::Visitor : public InstVisitor<Visitor> {
 
   CallInst *mulMontgomery(string name, Value *a, Value *b, Value *mod, Instruction *insertBefore) {
     vector<Type*> types;
-    types.push_back(mod->getType());
     types.push_back(a->getType());
     types.push_back(b->getType());
     types.push_back(mod->getType());
 
-    Function *mpro = Intrinsic::getDeclaration(Mod, Intrinsic::montpro, types);  
+    FunctionType *ftype = FunctionType::get(mod->getType(), types, false);
+    Function *mpro = Function::Create(ftype, Function::ExternalLinkage, "montpro", Mod);  
 
     vector<Value*> args;
     args.push_back(a);
@@ -66,7 +66,6 @@ class MontgomeryDomain::Visitor : public InstVisitor<Visitor> {
 
   CallInst *expMontgomery(string name, Value *a, Value *b, Value *mod, Instruction *insertBefore) {
     vector<Type*> types;
-    types.push_back(mod->getType());
     types.push_back(a->getType());
     types.push_back(b->getType());
     types.push_back(mod->getType());
@@ -77,7 +76,8 @@ class MontgomeryDomain::Visitor : public InstVisitor<Visitor> {
     mpz_class modul(dyn_cast<ConstantInt>(mod)->getValue().toString(10, true), 10);
     mpz_powm_ui(R.get_mpz_t(), R.get_mpz_t(), 2, modul.get_mpz_t());
 
-    Function *mpro = Intrinsic::getDeclaration(Mod, Intrinsic::montexp, types);  
+    FunctionType *ftype = FunctionType::get(mod->getType(), types, false);
+    Function *mpro = Function::Create(ftype, Function::ExternalLinkage, "montpro", Mod);  
 
     vector<Value*> args;
     args.push_back(a);
@@ -89,12 +89,12 @@ class MontgomeryDomain::Visitor : public InstVisitor<Visitor> {
   
   CallInst *leaveMontgomery(Value *val, Value *mod, Instruction *insertBefore) {
     vector<Type*> types;
-    types.push_back(mod->getType());
     types.push_back(val->getType());
     types.push_back(Type::getIntNTy(Mod->getContext(), 1024));
     types.push_back(mod->getType());
 
-    Function *mpro = Intrinsic::getDeclaration(Mod, Intrinsic::montpro, types);  
+    FunctionType *ftype = FunctionType::get(mod->getType(), types, false);
+    Function *mpro = Function::Create(ftype, Function::ExternalLinkage, "montpro", Mod);  
 
     vector<Value*> args;
     
